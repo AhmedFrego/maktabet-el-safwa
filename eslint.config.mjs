@@ -1,30 +1,30 @@
-import js from "@eslint/js";
-import { defineConfig, globalIgnores } from "eslint/config";
-import tseslint from "typescript-eslint";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import react from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
-import globals from "globals";
+import js from '@eslint/js';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
 
 export default defineConfig([
-  globalIgnores(["**/node_modules", "**/dist"]),
+  globalIgnores(['**/node_modules', '**/dist']),
   {
-    name: "eslint-js-recommended-rules",
+    name: 'eslint-js-recommended-rules',
     plugins: {
       js,
     },
-    extends: ["js/recommended"],
+    extends: ['js/recommended'],
   },
   tseslint.configs.recommended.map((conf) => ({
     ...conf,
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ['**/*.ts', '**/*.tsx'],
   })),
   eslintPluginPrettierRecommended,
   {
-    name: "react",
+    name: 'react',
     ...react.configs.flat.recommended,
   },
-  reactHooks.configs["recommended-latest"],
+  reactHooks.configs['recommended-latest'],
   {
     languageOptions: {
       globals: {
@@ -33,14 +33,22 @@ export default defineConfig([
       },
     },
     rules: {
-      "react/react-in-jsx-scope": "off",
-      "no-unused-vars": "warn",
-      
+      'react/react-in-jsx-scope': 'off',
+      'no-unused-vars': 'warn',
     },
     settings: {
       react: {
-        version: "detect",
+        version: 'detect',
       },
+    },
+  },
+  {
+    plugins: ['prettier'],
+    rules: {
+      'prettier/prettier': [
+        'error',
+        { singleQuote: false, trailingComma: 'none' },
+      ],
     },
   },
 ]);

@@ -3,81 +3,97 @@ import {
   List,
   ReferenceInput,
   TextInput,
+  useGetList,
   useListContext,
-  EditButton,
-} from "react-admin";
+} from 'react-admin';
+import { Grid } from '@mui/material';
+
+import { RecordCard, recordCardStructure } from 'components/UI';
+import { Tables,type paperPricesType } from 'types';
+import { toArabicNumerals,calcAndRound } from 'utils';
 
 const filters = [
   <TextInput source="year" />,
   <ReferenceInput source="subject_id" reference="subjects">
     <AutocompleteInput
-      filterToQuery={(searchText) => ({ "name@ilike": `%${searchText}%` })}
+      filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
     />
   </ReferenceInput>,
-  <ReferenceInput source="academic_year" reference="academic_years">
+  <ReferenceInput source="academic_year" reference="academic_years" alwaysOn>
     <AutocompleteInput
-      filterToQuery={(searchText) => ({ "name@ilike": `%${searchText}%` })}
+      label="السنة الدراسية"
+      filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
     />
   </ReferenceInput>,
   <ReferenceInput source="term" reference="terms">
     <AutocompleteInput
-      filterToQuery={(searchText) => ({ "name@ilike": `%${searchText}%` })}
+      filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
     />
   </ReferenceInput>,
 ];
 
 export const NoteList = () => {
+
+  const { data } = useGetList<Tables<'settings'>>(
+    'settings',
+    {
+        meta: { columns: ['*'] }
+    }
+);
+
   return (
-    <List filters={filters}>
-      <CardGrid />
-
-      {/* <DataTable>
-        <DataTable.Col source="subject_id">
-          <ReferenceField source="subject_id" reference="subjects" />
-        </DataTable.Col>
-        <DataTable.Col source="teacher_id">
-          <ReferenceField source="teacher_id" reference="teachers" />
-        </DataTable.Col>
-        <DataTable.NumberCol source="pages" />
-        <DataTable.Col source="cover_url" />
-        <DataTable.Col source="year" />
-
-        <DataTable.Col source="academic_year">
-          <ReferenceField source="academic_year" reference="academic_years" />
-        </DataTable.Col>
-        <DataTable.Col source="default_paper_size">
-          <ReferenceField source="default_paper_size" reference="paper_sizes" />
-        </DataTable.Col>
-        <DataTable.Col source="term">
-          <ReferenceField source="term" reference="terms" />
-        </DataTable.Col>
-        <DataTable.Col source="additional_data" />
-        <DataTable.Col source="related_notes" />
-        <DataTable.Col source="nickname" />
-        <DataTable.Col source="do_round">
-          <BooleanField source="do_round" />
-        </DataTable.Col>
-      </DataTable> */}
+    <List
+      filters={filters}
+      queryOptions={{
+        meta: { columns: ['*', 'academicYear:academic_years(name, short_name)', 'term:terms(name)', 'paper_size:paper_sizes(name)', 'teacher:teachers(name)', 'subject:subjects(name)'] },
+      }}
+    >
+      <CardGrid paperPrices={data?.[0].paper_prices || null}/>
     </List>
   );
 };
 
-import {
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  Grid,
-} from "@mui/material";
 
-const CardGrid = () => {
-  const { data, isLoading } = useListContext();
+
+const CardGrid = ({paperPrices}:CardGridProps) => {
+  const { data, isLoading } = useListContext<Note>();
   if (isLoading) return <>Loading...</>;
-  console.log(data);
-
+ 
   return (
     <Grid container spacing={2}>
-      {data && data.map((record: any) => RecordCard)}
+      {
+      data &&
+        data.map(
+          (record: Note) => {
+          const paperPrice = paperPrices?.find(price => price.id === record.default_paper_size)?.twoFacesPrice;
+          return <Grid size={4} fontSize={'2rem'} key={record.id}>
+            <RecordCard
+              key={record.id}
+              record={recordToCard(record,paperPrice||0)}
+            />
+          </Grid>
+        
+      }
+      )
+        }
     </Grid>
   );
 };
+
+interface CardGridProps {
+  paperPrices :paperPricesType[] |null
+}
+
+
+interface Note extends Tables<'notes'> {
+  teacher: { name: string }
+  subject: { name: string }
+  terms: { name: string }
+  academicYear : { name: string, short_name: string }
+
+}
+
+const recordToCard = (record: Note, paperPrice:number): recordCardStructure => {
+  console.log(paperPrice, record.pages)
+    return { bottomText: { start: record.subject.name, end: record.teacher.name }, coverUrl: record.cover_url ,chipText:toArabicNumerals(record.academicYear.short_name),tagText:toArabicNumerals(calcAndRound(paperPrice,record.pages,5))};
+  };

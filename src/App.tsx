@@ -1,11 +1,10 @@
-import { Admin, Resource, CustomRoutes } from "react-admin";
-import { BrowserRouter, Route } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { Admin, Resource, CustomRoutes } from 'react-admin';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { createClient } from '@supabase/supabase-js';
 
-import { CacheProvider } from "@emotion/react";
-import { ThemeProvider } from "@mui/material/styles";
-import { theme, rtlCache } from "./theme";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import { CacheProvider } from '@emotion/react';
+import { darkTheme, lightTheme, rtlCache } from './theme';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 
 import {
   CreateGuesser,
@@ -17,12 +16,14 @@ import {
   defaultI18nProvider,
   supabaseDataProvider,
   supabaseAuthProvider,
-} from "ra-supabase";
-import { NoteList } from "./pages/notes/notes-list";
+} from 'ra-supabase';
+
+import { NoteList } from 'pages/notes';
+import { MergedDatabase } from 'types';
 
 const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
 const apiKey = import.meta.env.VITE_SUPABASE_API_KEY;
-const supabaseClient = createClient(instanceUrl, apiKey);
+const supabaseClient = createClient<MergedDatabase>(instanceUrl, apiKey);
 const dataProvider = supabaseDataProvider({
   instanceUrl,
   apiKey,
@@ -30,38 +31,38 @@ const dataProvider = supabaseDataProvider({
 });
 const authProvider = supabaseAuthProvider(supabaseClient, {});
 
-document.documentElement.dir = "rtl";
-document.documentElement.lang = "ar"; // optional, for Arabic
+document.documentElement.dir = 'rtl';
+document.documentElement.lang = 'ar';
 
 export const App = () => (
   <BrowserRouter>
     <CacheProvider value={rtlCache}>
-      <ThemeProvider theme={theme}>
-        <Admin
-          dataProvider={dataProvider}
-          authProvider={authProvider}
-          i18nProvider={defaultI18nProvider}
-          loginPage={LoginPage}
-        >
-          <Resource
-            icon={DocumentScannerIcon}
-            options={{ label: "مذكرات" }}
-            name="notes"
-            list={NoteList}
-            edit={EditGuesser}
-            create={CreateGuesser}
-            show={ShowGuesser}
-          />
+      <Admin
+        dataProvider={dataProvider}
+        authProvider={authProvider}
+        i18nProvider={defaultI18nProvider}
+        loginPage={LoginPage}
+        theme={lightTheme}
+        darkTheme={darkTheme}
+      >
+        <Resource
+          icon={DocumentScannerIcon}
+          options={{ label: 'مذكرات' }}
+          name="notes"
+          list={NoteList}
+          edit={EditGuesser}
+          create={CreateGuesser}
+          show={ShowGuesser}
+        />
 
-          <CustomRoutes noLayout>
-            <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
-            <Route
-              path={ForgotPasswordPage.path}
-              element={<ForgotPasswordPage />}
-            />
-          </CustomRoutes>
-        </Admin>
-      </ThemeProvider>
+        <CustomRoutes noLayout>
+          <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
+          <Route
+            path={ForgotPasswordPage.path}
+            element={<ForgotPasswordPage />}
+          />
+        </CustomRoutes>
+      </Admin>
     </CacheProvider>
   </BrowserRouter>
 );

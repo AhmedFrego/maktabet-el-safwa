@@ -1,3 +1,5 @@
+import { MergedDatabase } from ".";
+
 export type Json =
   | string
   | number
@@ -558,10 +560,10 @@ export type Database = {
   };
 };
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+type DatabaseWithoutInternals = Omit<MergedDatabase, "__InternalSupabase">;
 
 type DefaultSchema = DatabaseWithoutInternals[Extract<
-  keyof Database,
+  keyof MergedDatabase,
   "public"
 >];
 

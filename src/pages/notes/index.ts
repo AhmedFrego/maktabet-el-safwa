@@ -1,2 +1,2 @@
-export * from "./notes-list";
-export * from "./note-resource";
+export * from './notes-list';
+export * from './note-resource';

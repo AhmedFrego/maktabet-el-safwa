@@ -1,11 +1,6 @@
 export default {
-  endOfLine: "lf",
-
-  "prettier/prettier": [
-    "error",
-    {
-      singleQuote: true,
-      parser: "flow",
-    },
-  ],
+  endOfLine: 'lf',
+  parser: 'flow',
+  // singleQuote: true,
+  // trailingComma: 'none',
 };
