@@ -1,18 +1,12 @@
-import { MergedDatabase } from ".";
+import { MergedDatabase } from '.';
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4";
+    PostgrestVersion: '13.0.4';
   };
   public: {
     Tables: {
@@ -91,39 +85,39 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "books_academic_year_fkey";
-            columns: ["academic_year"];
+            foreignKeyName: 'books_academic_year_fkey';
+            columns: ['academic_year'];
             isOneToOne: false;
-            referencedRelation: "academic_years";
-            referencedColumns: ["id"];
+            referencedRelation: 'academic_years';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "books_default_paper_size_fkey";
-            columns: ["default_paper_size"];
+            foreignKeyName: 'books_default_paper_size_fkey';
+            columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: "paper_sizes";
-            referencedColumns: ["id"];
+            referencedRelation: 'paper_sizes';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "books_publisher_fkey";
-            columns: ["publisher"];
+            foreignKeyName: 'books_publisher_fkey';
+            columns: ['publisher'];
             isOneToOne: false;
-            referencedRelation: "books_publishers";
-            referencedColumns: ["id"];
+            referencedRelation: 'books_publishers';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "books_subject_id_fkey";
-            columns: ["subject_id"];
+            foreignKeyName: 'books_subject_id_fkey';
+            columns: ['subject_id'];
             isOneToOne: false;
-            referencedRelation: "subjects";
-            referencedColumns: ["id"];
+            referencedRelation: 'subjects';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "books_term_fkey";
-            columns: ["term"];
+            foreignKeyName: 'books_term_fkey';
+            columns: ['term'];
             isOneToOne: false;
-            referencedRelation: "terms";
-            referencedColumns: ["id"];
+            referencedRelation: 'terms';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -196,18 +190,18 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "cover_types_name_fkey";
-            columns: ["name"];
+            foreignKeyName: 'cover_types_name_fkey';
+            columns: ['name'];
             isOneToOne: false;
-            referencedRelation: "cover_paper_sizes";
-            referencedColumns: ["id"];
+            referencedRelation: 'cover_paper_sizes';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "cover_types_type_fkey";
-            columns: ["type"];
+            foreignKeyName: 'cover_types_type_fkey';
+            columns: ['type'];
             isOneToOne: false;
-            referencedRelation: "cover_paper_types";
-            referencedColumns: ["id"];
+            referencedRelation: 'cover_paper_types';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -232,11 +226,11 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "delivered_reservations_reservation_id_fkey";
-            columns: ["reservation_id"];
+            foreignKeyName: 'delivered_reservations_reservation_id_fkey';
+            columns: ['reservation_id'];
             isOneToOne: true;
-            referencedRelation: "reservations";
-            referencedColumns: ["id"];
+            referencedRelation: 'reservations';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -300,39 +294,39 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "notes_academic_year_fkey";
-            columns: ["academic_year"];
+            foreignKeyName: 'notes_academic_year_fkey';
+            columns: ['academic_year'];
             isOneToOne: false;
-            referencedRelation: "academic_years";
-            referencedColumns: ["id"];
+            referencedRelation: 'academic_years';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "notes_defaul_paper_size_fkey";
-            columns: ["default_paper_size"];
+            foreignKeyName: 'notes_defaul_paper_size_fkey';
+            columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: "paper_sizes";
-            referencedColumns: ["id"];
+            referencedRelation: 'paper_sizes';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "notes_subject_id_fkey";
-            columns: ["subject_id"];
+            foreignKeyName: 'notes_subject_id_fkey';
+            columns: ['subject_id'];
             isOneToOne: false;
-            referencedRelation: "subjects";
-            referencedColumns: ["id"];
+            referencedRelation: 'subjects';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "notes_teacher_fkey";
-            columns: ["teacher_id"];
+            foreignKeyName: 'notes_teacher_fkey';
+            columns: ['teacher_id'];
             isOneToOne: false;
-            referencedRelation: "teachers";
-            referencedColumns: ["id"];
+            referencedRelation: 'teachers';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "notes_term_fkey";
-            columns: ["term"];
+            foreignKeyName: 'notes_term_fkey';
+            columns: ['term'];
             isOneToOne: false;
-            referencedRelation: "terms";
-            referencedColumns: ["id"];
+            referencedRelation: 'terms';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -369,11 +363,11 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "paper_types_name_fkey";
-            columns: ["name"];
+            foreignKeyName: 'paper_types_name_fkey';
+            columns: ['name'];
             isOneToOne: false;
-            referencedRelation: "paper_sizes";
-            referencedColumns: ["id"];
+            referencedRelation: 'paper_sizes';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -443,18 +437,18 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "setting_current_term_fkey";
-            columns: ["current_term"];
+            foreignKeyName: 'setting_current_term_fkey';
+            columns: ['current_term'];
             isOneToOne: false;
-            referencedRelation: "terms";
-            referencedColumns: ["id"];
+            referencedRelation: 'terms';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "setting_default_paper_size_fkey";
-            columns: ["default_paper_size"];
+            foreignKeyName: 'setting_default_paper_size_fkey';
+            columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: "paper_sizes";
-            referencedColumns: ["id"];
+            referencedRelation: 'paper_sizes';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -494,11 +488,11 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "teachers_subject_id_fkey";
-            columns: ["subject_id"];
+            foreignKeyName: 'teachers_subject_id_fkey';
+            columns: ['subject_id'];
             isOneToOne: false;
-            referencedRelation: "subjects";
-            referencedColumns: ["id"];
+            referencedRelation: 'subjects';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -560,36 +554,31 @@ export type Database = {
   };
 };
 
-type DatabaseWithoutInternals = Omit<MergedDatabase, "__InternalSupabase">;
+type DatabaseWithoutInternals = Omit<MergedDatabase, '__InternalSupabase'>;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<
-  keyof MergedDatabase,
-  "public"
->];
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof MergedDatabase, 'public'>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R;
       }
       ? R
@@ -598,23 +587,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I;
       }
       ? I
@@ -623,23 +612,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U;
       }
       ? U
@@ -648,36 +637,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never;
 
 export const Constants = {

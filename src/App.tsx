@@ -57,10 +57,7 @@ export const App = () => (
 
         <CustomRoutes noLayout>
           <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
-          <Route
-            path={ForgotPasswordPage.path}
-            element={<ForgotPasswordPage />}
-          />
+          <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
         </CustomRoutes>
       </Admin>
     </CacheProvider>

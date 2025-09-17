@@ -42,13 +42,4 @@ export default defineConfig([
       },
     },
   },
-  {
-    plugins: ['prettier'],
-    rules: {
-      'prettier/prettier': [
-        'error',
-        { singleQuote: false, trailingComma: 'none' },
-      ],
-    },
-  },
 ]);

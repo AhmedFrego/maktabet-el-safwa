@@ -48,7 +48,7 @@ const commonTokens: ThemeOptions = {
     '0 0.5rem 1.5rem rgba(0,0,0,0.06)',
     '0 1rem 2rem rgba(0,0,0,0.1)',
     '0 1.5rem 3rem rgba(0,0,0,0.3)',
-  ],
+  ], 
 };
 
 // =========================
@@ -116,7 +116,6 @@ const lightPalette: ThemeOptions['palette'] = {
   divider: '#e0e0e0',
 };
 
-
 // =========================
 // 🌚 Dark Palette
 // =========================
@@ -181,7 +180,6 @@ const darkPalette: ThemeOptions['palette'] = {
   },
   divider: '#424242',
 };
-
 
 // =========================
 // 🎭 Final Themes

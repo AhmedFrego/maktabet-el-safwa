@@ -15,10 +15,10 @@ export type MergedDatabase = MergeDeep<
       Tables: {
         settings: {
           Row: {
-            paper_prices: paperPricesType[] | null,
-          },
-        },
-      },
-    },
+            paper_prices: paperPricesType[] | null;
+          };
+        };
+      };
+    };
   }
 >;
