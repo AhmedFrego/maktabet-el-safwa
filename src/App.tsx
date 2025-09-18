@@ -1,25 +1,24 @@
-import { Admin, Resource, CustomRoutes } from 'react-admin';
+import { Admin, CustomRoutes, Resource } from 'react-admin';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
 
 import { CacheProvider } from '@emotion/react';
 import { darkTheme, lightTheme, rtlCache } from './theme';
-import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 
 import {
-  CreateGuesser,
-  EditGuesser,
   ForgotPasswordPage,
   LoginPage,
   SetPasswordPage,
-  ShowGuesser,
   defaultI18nProvider,
   supabaseDataProvider,
   supabaseAuthProvider,
 } from 'ra-supabase';
 
-import { NoteList } from 'pages/notes';
 import { MergedDatabase } from 'types';
+import { Dashboard, NotFound } from 'pages';
+
+import { NoteResource } from 'resources/notes';
+import { Layout } from 'components/layout';
 
 const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
 const apiKey = import.meta.env.VITE_SUPABASE_API_KEY;
@@ -44,16 +43,11 @@ export const App = () => (
         loginPage={LoginPage}
         theme={lightTheme}
         darkTheme={darkTheme}
+        layout={Layout}
+        dashboard={Dashboard}
+        catchAll={NotFound}
       >
-        <Resource
-          icon={DocumentScannerIcon}
-          options={{ label: 'مذكرات' }}
-          name="notes"
-          list={NoteList}
-          edit={EditGuesser}
-          create={CreateGuesser}
-          show={ShowGuesser}
-        />
+        <Resource {...NoteResource} />
 
         <CustomRoutes noLayout>
           <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />

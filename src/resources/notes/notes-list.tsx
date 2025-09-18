@@ -87,7 +87,6 @@ interface Note extends Tables<'notes'> {
 }
 
 const recordToCard = (record: Note, paperPrice: number): recordCardStructure => {
-  console.log(paperPrice, record.pages);
   return {
     bottomText: { start: record.subject.name, end: record.teacher.name },
     coverUrl: record.cover_url,

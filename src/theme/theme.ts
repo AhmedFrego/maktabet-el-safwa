@@ -42,13 +42,14 @@ const commonTokens: ThemeOptions = {
       xl: 1200,
     },
   },
+  // @ts-expect-error nnnsdf
   shadows: [
     'none',
     '0 1px 2px rgba(0,0,0,0.04)',
     '0 0.5rem 1.5rem rgba(0,0,0,0.06)',
     '0 1rem 2rem rgba(0,0,0,0.1)',
     '0 1.5rem 3rem rgba(0,0,0,0.3)',
-  ], 
+  ],
 };
 
 // =========================
