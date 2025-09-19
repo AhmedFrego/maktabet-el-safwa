@@ -24,7 +24,7 @@ const Logo2 = styled(Typography)(({ theme }) => ({
   color: theme.palette.warning.main,
   fontSize: '1rem',
   position: 'absolute',
-  left: '6ch',
+  left: '4.5ch',
 }));
 
 const Logo1 = styled(Typography)(({ theme }) => ({

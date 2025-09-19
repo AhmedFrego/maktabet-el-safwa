@@ -21,13 +21,13 @@ const commonTokens: ThemeOptions = {
   typography: {
     ...baseTheme.typography,
     fontFamily: '"Cairo", sans-serif',
-    fontSize: 16,
+    fontSize: 10,
     h1: { fontSize: '4rem', fontWeight: 700 },
     h2: { fontSize: '3rem', fontWeight: 600 },
     h3: { fontSize: '2.3rem', fontWeight: 600 },
-    h4: { fontSize: '1.8rem', fontWeight: 500 },
-    body1: { fontSize: '1.3rem' },
-    body2: { fontSize: '1.2rem' },
+    h4: { fontSize: '1.5rem', fontWeight: 500 },
+    body1: { fontSize: '1.1rem' },
+    body2: { fontSize: '1rem' },
     caption: { fontSize: '1rem' },
   },
   shape: {

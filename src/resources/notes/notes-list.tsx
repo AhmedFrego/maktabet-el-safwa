@@ -1,32 +1,10 @@
-import {
-  AutocompleteInput,
-  List,
-  ReferenceInput,
-  TextInput,
-  useGetList,
-  useListContext,
-} from 'react-admin';
+import { List, useGetList, useListContext } from 'react-admin';
 import { Grid } from '@mui/material';
 
 import { RecordCard, recordCardStructure } from 'components/UI';
 import { Tables, type paperPricesType } from 'types';
 import { toArabicNumerals, calcAndRound } from 'utils';
-
-const filters = [
-  <TextInput source="year" key="year" />,
-  <ReferenceInput source="subject_id" reference="subjects" key="subject">
-    <AutocompleteInput filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })} />
-  </ReferenceInput>,
-  <ReferenceInput source="academic_year" reference="academic_years" alwaysOn key="academic_year">
-    <AutocompleteInput
-      label="السنة الدراسية"
-      filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-    />
-  </ReferenceInput>,
-  <ReferenceInput source="term" reference="terms" key="term">
-    <AutocompleteInput filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })} />
-  </ReferenceInput>,
-];
+import { CustomFilterSidebar, Note } from '.';
 
 export const NoteList = () => {
   const { data } = useGetList<Tables<'settings'>>('settings', {
@@ -35,7 +13,7 @@ export const NoteList = () => {
 
   return (
     <List
-      filters={filters}
+      aside={<CustomFilterSidebar />}
       queryOptions={{
         meta: {
           columns: [
@@ -49,12 +27,12 @@ export const NoteList = () => {
         },
       }}
     >
-      <CardGrid paperPrices={data?.[0].paper_prices || null} />
+      <NoteContainer paperPrices={data?.[0].paper_prices || null} />
     </List>
   );
 };
 
-const CardGrid = ({ paperPrices }: CardGridProps) => {
+const NoteContainer = ({ paperPrices }: CardGridProps) => {
   const { data, isLoading } = useListContext<Note>();
   if (isLoading) return <>Loading...</>;
 
@@ -67,7 +45,7 @@ const CardGrid = ({ paperPrices }: CardGridProps) => {
           )?.twoFacesPrice;
           return (
             <Grid size={4} fontSize={'2rem'} key={record.id}>
-              <RecordCard key={record.id} record={recordToCard(record, paperPrice || 0)} />
+              <RecordCard key={record.id} record={noteToCard(record, paperPrice || 0)} />
             </Grid>
           );
         })}
@@ -79,14 +57,7 @@ interface CardGridProps {
   paperPrices: paperPricesType[] | null;
 }
 
-interface Note extends Tables<'notes'> {
-  teacher: { name: string };
-  subject: { name: string };
-  terms: { name: string };
-  academicYear: { name: string; short_name: string };
-}
-
-const recordToCard = (record: Note, paperPrice: number): recordCardStructure => {
+const noteToCard = (record: Note, paperPrice: number): recordCardStructure => {
   return {
     bottomText: { start: record.subject.name, end: record.teacher.name },
     coverUrl: record.cover_url,

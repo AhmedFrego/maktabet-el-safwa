@@ -7,7 +7,7 @@ import { Layout as RALayout, CheckForApplicationUpdate } from 'react-admin';
 import { Menu, Header } from '.';
 
 export const Layout = ({ children }: { children: ReactNode }) => (
-  <StyledRALayout menu={Menu} appBar={Header}>
+  <StyledRALayout sidebar={Menu} appBar={Header}>
     <StyledContent>{children}</StyledContent>
     <CheckForApplicationUpdate />
   </StyledRALayout>

@@ -28,7 +28,7 @@ interface RecordCardProps {
 }
 
 export interface recordCardStructure {
-  coverUrl: string;
+  coverUrl: string | null;
   chipText?: string;
   tagText?: string | number;
   bottomText: {

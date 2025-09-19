@@ -1,5 +1,4 @@
 import { MergedDatabase } from '.';
-
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -238,7 +237,7 @@ export type Database = {
         Row: {
           academic_year: string;
           additional_data: string | null;
-          cover_url: string;
+          cover_url: string | null;
           created_at: string;
           created_by: string | null;
           default_paper_size: string;
@@ -246,10 +245,11 @@ export type Database = {
           id: string;
           nickname: string | null;
           pages: number;
+          price: number | null;
           related_notes: Json[] | null;
           subject_id: string;
           teacher_id: string;
-          term: string;
+          term_id: string;
           updated_at: string | null;
           updated_by: string | null;
           year: string;
@@ -257,7 +257,7 @@ export type Database = {
         Insert: {
           academic_year: string;
           additional_data?: string | null;
-          cover_url: string;
+          cover_url?: string | null;
           created_at?: string;
           created_by?: string | null;
           default_paper_size: string;
@@ -265,10 +265,11 @@ export type Database = {
           id?: string;
           nickname?: string | null;
           pages: number;
+          price?: number | null;
           related_notes?: Json[] | null;
           subject_id: string;
           teacher_id: string;
-          term: string;
+          term_id: string;
           updated_at?: string | null;
           updated_by?: string | null;
           year: string;
@@ -276,7 +277,7 @@ export type Database = {
         Update: {
           academic_year?: string;
           additional_data?: string | null;
-          cover_url?: string;
+          cover_url?: string | null;
           created_at?: string;
           created_by?: string | null;
           default_paper_size?: string;
@@ -284,10 +285,11 @@ export type Database = {
           id?: string;
           nickname?: string | null;
           pages?: number;
+          price?: number | null;
           related_notes?: Json[] | null;
           subject_id?: string;
           teacher_id?: string;
-          term?: string;
+          term_id?: string;
           updated_at?: string | null;
           updated_by?: string | null;
           year?: string;
@@ -323,7 +325,7 @@ export type Database = {
           },
           {
             foreignKeyName: 'notes_term_fkey';
-            columns: ['term'];
+            columns: ['term_id'];
             isOneToOne: false;
             referencedRelation: 'terms';
             referencedColumns: ['id'];
