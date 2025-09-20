@@ -27,6 +27,7 @@ export const arabicMessages = {
       close: 'إغلاق',
       open_menu: 'فتح القائمة',
       close_menu: 'إغلاق القائمة',
+      saved_queries: '',
     },
     boolean: {
       true: 'نعم',
@@ -129,6 +130,7 @@ export const arabicMessages = {
       oneOf: 'يجب أن يكون واحدًا من: %{options}',
       regex: 'يجب أن يطابق النمط المحدد (regexp): %{pattern}',
     },
+    configurable: { customize: 'jjj' },
   },
   resources: {
     notes: {
@@ -152,6 +154,14 @@ export const arabicMessages = {
         do_round: 'تدوير السعر',
         price: 'السعر',
       },
+    },
+  },
+  custom: {
+    filters: {
+      academic_year: 'السنة الدراسية',
+      subject: 'المادة',
+      year: 'السنة',
+      term_id: 'الترم',
     },
   },
 };

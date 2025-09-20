@@ -9,8 +9,10 @@ import {
   StyledTypography,
   StyledAccordion,
 } from './styles';
+import { useTranslate } from 'react-admin';
 
 export const SubjectFilterAccordion = ({ notes }: { notes: Note[] }) => {
+  const translate = useTranslate();
   const subjectsMap = new Map();
 
   notes.forEach((n) => {
@@ -25,7 +27,7 @@ export const SubjectFilterAccordion = ({ notes }: { notes: Note[] }) => {
     <StyledAccordion disableGutters>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <Book fontSize="small" /> المادة
+          <Book fontSize="small" /> {translate('custom.filters.subject')}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

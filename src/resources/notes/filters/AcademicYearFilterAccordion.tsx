@@ -1,6 +1,7 @@
 import { AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { School } from '@mui/icons-material';
+import { useTranslate } from 'react-admin';
 import { Note } from '../types';
 import {
   StyledAccordionSummary,
@@ -10,6 +11,8 @@ import {
 } from './styles';
 
 export const AcademicYearFilterAccordion = ({ notes }: { notes: Note[] }) => {
+  const translate = useTranslate();
+
   const academicYearsMap = new Map();
 
   notes.forEach((n) => {
@@ -27,7 +30,7 @@ export const AcademicYearFilterAccordion = ({ notes }: { notes: Note[] }) => {
     <StyledAccordion disableGutters defaultExpanded>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <School fontSize="small" /> السنة الدراسية
+          <School fontSize="small" /> {translate('custom.filters.academic_year')}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

@@ -1,3 +1,4 @@
+import { useTranslate } from 'react-admin';
 import { AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DateRange } from '@mui/icons-material';
@@ -9,6 +10,7 @@ import {
   StyledAccordion,
 } from './styles';
 export const TermFilterAccordion = ({ notes }: { notes: Note[] }) => {
+  const translate = useTranslate();
   const termsMap = new Map();
 
   notes.forEach((n) => {
@@ -23,7 +25,7 @@ export const TermFilterAccordion = ({ notes }: { notes: Note[] }) => {
     <StyledAccordion disableGutters>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <DateRange /> الترم
+          <DateRange /> {translate('custom.filters.term_id')}{' '}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

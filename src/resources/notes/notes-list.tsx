@@ -65,7 +65,7 @@ interface CardGridProps {
 
 const ListActions = () => (
   <StyledTopToolbar>
-    <StyledCreateButton label="إضافة مذكرة" />
+    <StyledCreateButton />
   </StyledTopToolbar>
 );
 

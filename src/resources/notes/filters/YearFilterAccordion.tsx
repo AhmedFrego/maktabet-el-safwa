@@ -1,3 +1,4 @@
+import { useTranslate } from 'react-admin';
 import { AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CalendarToday } from '@mui/icons-material';
@@ -9,13 +10,14 @@ import {
   StyledAccordion,
 } from './styles';
 export const YearFilterAccordion = ({ notes }: { notes: Note[] }) => {
+  const translate = useTranslate();
   const years = Array.from(new Set(notes.map((n) => n.year))).sort((a, b) => +a - +b);
 
   return (
     <StyledAccordion disableGutters>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <CalendarToday fontSize="small" /> السنة
+          <CalendarToday fontSize="small" /> {translate('custom.filters.year')}{' '}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

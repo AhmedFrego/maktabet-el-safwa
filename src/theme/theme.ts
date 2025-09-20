@@ -24,11 +24,11 @@ const commonTokens: ThemeOptions = {
     fontSize: 10,
     h1: { fontSize: '4rem', fontWeight: 700 },
     h2: { fontSize: '3rem', fontWeight: 600 },
-    h3: { fontSize: '2.3rem', fontWeight: 600 },
-    h4: { fontSize: '1.5rem', fontWeight: 500 },
-    body1: { fontSize: '1.1rem' },
-    body2: { fontSize: '1rem' },
-    caption: { fontSize: '1rem' },
+    h3: { fontSize: '2rem', fontWeight: 600 },
+    h4: { fontSize: '1.25rem', fontWeight: 500 },
+    body1: { fontSize: '1rem' },
+    body2: { fontSize: '.9rem' },
+    caption: { fontSize: '.8rem' },
   },
   shape: {
     borderRadius: 4,
@@ -49,6 +49,7 @@ const commonTokens: ThemeOptions = {
     '0 0.5rem 1.5rem rgba(0,0,0,0.06)',
     '0 1rem 2rem rgba(0,0,0,0.1)',
     '0 1.5rem 3rem rgba(0,0,0,0.3)',
+    ...Array(20).fill('none'),
   ],
 };
 
