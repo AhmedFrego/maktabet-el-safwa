@@ -20,7 +20,7 @@ const commonTokens: ThemeOptions = {
   direction: 'rtl',
   typography: {
     ...baseTheme.typography,
-    fontFamily: '"Cairo", sans-serif',
+    fontFamily: 'Cairo, sans-serif',
     fontSize: 10,
     h1: { fontSize: '4rem', fontWeight: 700 },
     h2: { fontSize: '3rem', fontWeight: 600 },

@@ -1,25 +1,26 @@
 import { Admin, CustomRoutes, Resource } from 'react-admin';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
-
-import { CacheProvider } from '@emotion/react';
-import { darkTheme, lightTheme, rtlCache } from './theme';
-
 import {
   ForgotPasswordPage,
   LoginPage,
   SetPasswordPage,
-  defaultI18nProvider,
   supabaseDataProvider,
   supabaseAuthProvider,
 } from 'ra-supabase';
+import polyglotI18nProvider from 'ra-i18n-polyglot';
+
+import { CacheProvider } from '@emotion/react';
+import { darkTheme, lightTheme, rtlCache } from 'theme';
 
 import { MergedDatabase } from 'types';
 import { Dashboard, NotFound } from 'pages';
+import { arabicMessages } from 'utils';
 
 import { NoteResource } from 'resources/notes';
 import { Layout } from 'components/layout';
 
+const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
 const apiKey = import.meta.env.VITE_SUPABASE_API_KEY;
 const supabaseClient = createClient<MergedDatabase>(instanceUrl, apiKey);
@@ -39,7 +40,7 @@ export const App = () => (
       <Admin
         dataProvider={dataProvider}
         authProvider={authProvider}
-        i18nProvider={defaultI18nProvider}
+        i18nProvider={i18nProvider}
         loginPage={LoginPage}
         theme={lightTheme}
         darkTheme={darkTheme}

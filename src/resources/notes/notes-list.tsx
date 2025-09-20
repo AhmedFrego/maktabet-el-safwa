@@ -1,17 +1,19 @@
-import { List, useGetList, useListContext } from 'react-admin';
+import { CreateButton, List, TopToolbar, useGetList, useListContext } from 'react-admin';
 
-import { RecordCard, recordCardStructure, StyledContainer } from 'components/UI';
+import { RecordCard, StyledContainer } from 'components/UI';
 import { Tables, type paperPricesType } from 'types';
-import { toArabicNumerals, calcAndRound } from 'utils';
-import { CustomFilterSidebar, Note } from '.';
+import { calcAndRound } from 'utils';
+import { CustomFilterSidebar, Note, noteToCard } from '.';
+import { styled } from '@mui/material';
 
 export const NoteList = () => {
-  const { data } = useGetList<Tables<'settings'>>('settings', {
+  const { data: settings } = useGetList<Tables<'settings'>>('settings', {
     meta: { columns: ['*'] },
   });
 
   return (
     <List
+      actions={<ListActions />}
       aside={<CustomFilterSidebar />}
       queryOptions={{
         meta: {
@@ -26,23 +28,32 @@ export const NoteList = () => {
         },
       }}
     >
-      <NoteContainer paperPrices={data?.[0].paper_prices || null} />
+      <NoteContainer paperPrices={settings?.[0].paper_prices || null} />
     </List>
   );
 };
 
 const NoteContainer = ({ paperPrices }: CardGridProps) => {
-  const { data, isLoading } = useListContext<Note>();
+  const { data: notes, isLoading } = useListContext<Note>();
   if (isLoading) return <>Loading...</>;
 
   return (
     <StyledContainer>
-      {data &&
-        data.map((record: Note) => {
+      {notes &&
+        notes.map((record: Note) => {
           const paperPrice = paperPrices?.find(
             (price) => price.id === record.default_paper_size
           )?.twoFacesPrice;
-          return <RecordCard key={record.id} record={noteToCard(record, paperPrice || 0)} />;
+
+          return (
+            <RecordCard
+              key={record.id}
+              record={noteToCard({
+                ...record,
+                price: record.price || calcAndRound(paperPrice || 0, record.pages, 5),
+              })}
+            />
+          );
         })}
     </StyledContainer>
   );
@@ -52,11 +63,21 @@ interface CardGridProps {
   paperPrices: paperPricesType[] | null;
 }
 
-const noteToCard = (record: Note, paperPrice: number): recordCardStructure => {
-  return {
-    bottomText: { start: record.subject.name, end: record.teacher.name },
-    coverUrl: record.cover_url,
-    chipText: toArabicNumerals(record.academicYear.short_name),
-    tagText: toArabicNumerals(calcAndRound(paperPrice, record.pages, 5)),
-  };
-};
+const ListActions = () => (
+  <StyledTopToolbar>
+    <StyledCreateButton label="إضافة مذكرة" />
+  </StyledTopToolbar>
+);
+
+const StyledCreateButton = styled(CreateButton)(({ theme }) => ({
+  fontFamily: theme.typography.fontFamily,
+  fontWeight: 900,
+  color: theme.palette.success.light,
+}));
+
+const StyledTopToolbar = styled(TopToolbar)(({ theme }) => ({
+  fontFamily: theme.typography.fontFamily,
+  backgroundColor: theme.palette.grey[100],
+  width: '100%',
+  justifyContent: 'center',
+}));

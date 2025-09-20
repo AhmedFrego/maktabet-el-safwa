@@ -10,7 +10,13 @@ export const RecordCard = ({ record }: RecordCardProps) => {
     <StyledCard>
       <StyledCardContent>
         {chipText && <StyledChip label={chipText} />}
-        {tagText && <StyledTag>{tagText}</StyledTag>}
+        {tagText && (
+          <StyledTag>
+            {tagText.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </StyledTag>
+        )}
         <CoverImage src={coverUrl || DEFAULT_COVER_URL} alt={bottomText.start || 'cover image'} />
         <Typography variant="body2" noWrap>
           {bottomText.start}
@@ -30,7 +36,7 @@ interface RecordCardProps {
 export interface recordCardStructure {
   coverUrl: string | null;
   chipText?: string;
-  tagText?: string | number;
+  tagText?: (string | number)[];
   bottomText: {
     start: string;
     end: string;
@@ -85,10 +91,13 @@ const StyledTag = styled('div')(({ theme }) => ({
   right: '.4em',
   fontSize: '.65em',
   backgroundColor: theme.palette.warning.main,
-  padding: '.3em .2em 1.8em',
-  clipPath: 'polygon(0 0,100% 0, 100% 100%, 50% 55%, 0 100%)',
+  padding: '.3em .2em 2.3em',
+  clipPath: 'polygon(0 0,100% 0, 100% 100%, 50% calc(100% - 1.5em), 0 100%)',
   color: theme.palette.grey[50],
   minWidth: '2em',
   fontWeight: '700',
   textAlign: 'center',
+  display: 'flex',
+  flexDirection: 'column',
+  lineHeight: '1',
 }));
