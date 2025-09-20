@@ -39,20 +39,24 @@ export interface recordCardStructure {
 
 const StyledCard = styled(Card)(({ theme }) => ({
   padding: '.3em',
-  borderTopLeftRadius: theme.spacing(4),
+  borderTopLeftRadius: theme.spacing(3),
   backgroundColor: theme.palette.grey[100],
+  flexBasis: '10em',
 }));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
   position: 'relative',
-  borderTopLeftRadius: theme.spacing(4),
+  borderTopLeftRadius: theme.spacing(3),
   overflow: 'hidden',
   transition: 'transform 160ms ease, box-shadow 160ms ease',
-  padding: '0',
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(1),
+  padding: '0',
   alignItems: 'center',
+  '&.MuiCardContent-root': {
+    paddingBottom: theme.spacing(1),
+  },
   '&:hover': {
     transform: 'translateY(-4px)',
     boxShadow: theme.shadows[4],
@@ -61,7 +65,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 
 const CoverImage = styled('img')(() => ({
   width: '100%',
-  height: '11em',
+  height: '13em',
   objectFit: 'cover',
 }));
 
@@ -72,14 +76,14 @@ const StyledChip = styled(Chip)(({ theme }) => ({
   left: '.5em',
   position: 'absolute',
   fontWeight: '900',
-  fontSize: '.5em',
+  fontSize: '.6em',
 }));
 
 const StyledTag = styled('div')(({ theme }) => ({
   position: 'absolute',
   top: '0',
   right: '.4em',
-  fontSize: '.55em',
+  fontSize: '.65em',
   backgroundColor: theme.palette.warning.main,
   padding: '.3em .2em 1.8em',
   clipPath: 'polygon(0 0,100% 0, 100% 100%, 50% 55%, 0 100%)',

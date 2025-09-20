@@ -1,7 +1,6 @@
 import { List, useGetList, useListContext } from 'react-admin';
-import { Grid } from '@mui/material';
 
-import { RecordCard, recordCardStructure } from 'components/UI';
+import { RecordCard, recordCardStructure, StyledContainer } from 'components/UI';
 import { Tables, type paperPricesType } from 'types';
 import { toArabicNumerals, calcAndRound } from 'utils';
 import { CustomFilterSidebar, Note } from '.';
@@ -37,19 +36,15 @@ const NoteContainer = ({ paperPrices }: CardGridProps) => {
   if (isLoading) return <>Loading...</>;
 
   return (
-    <Grid container spacing={2}>
+    <StyledContainer>
       {data &&
         data.map((record: Note) => {
           const paperPrice = paperPrices?.find(
             (price) => price.id === record.default_paper_size
           )?.twoFacesPrice;
-          return (
-            <Grid size={4} fontSize={'2rem'} key={record.id}>
-              <RecordCard key={record.id} record={noteToCard(record, paperPrice || 0)} />
-            </Grid>
-          );
+          return <RecordCard key={record.id} record={noteToCard(record, paperPrice || 0)} />;
         })}
-    </Grid>
+    </StyledContainer>
   );
 };
 
