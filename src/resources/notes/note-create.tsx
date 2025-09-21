@@ -8,6 +8,7 @@ import {
   useGetList,
   ImageInput,
   FileField,
+  useDataProvider,
 } from 'react-admin';
 import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
 import { KeyboardDoubleArrowDown } from '@mui/icons-material';
@@ -20,6 +21,7 @@ import { STOREGE_URL, Tables } from 'types';
 import { Note } from '.';
 
 export const NoteCreate = () => {
+  const dataProvider = useDataProvider();
   const { data: settings } = useGetList<Tables<'settings'>>('settings', {
     meta: { columns: ['*'] },
   });
@@ -60,6 +62,12 @@ export const NoteCreate = () => {
           <AutocompleteInput
             sx={{ width: '100%' }}
             filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+            onCreate={async (value) => {
+              const { data } = await dataProvider.create('subjects', {
+                data: { name: value },
+              });
+              return data;
+            }}
           />
           <TextInput sx={{ width: '100%' }} source="nickname" />
         </ReferenceInput>
@@ -67,6 +75,12 @@ export const NoteCreate = () => {
           <AutocompleteInput
             sx={{ width: '100%', fontSize: '1rem' }}
             filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+            onCreate={async (value) => {
+              const { data } = await dataProvider.create('teachers', {
+                data: { name: value },
+              });
+              return data;
+            }}
           />
         </ReferenceInput>
         <ReferenceInput source="academic_year" reference="academic_years">
@@ -91,6 +105,12 @@ export const NoteCreate = () => {
               <AutocompleteInput
                 sx={{ width: '100%' }}
                 filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+                onCreate={async (value) => {
+                  const { data } = await dataProvider.create('paper_sizes', {
+                    data: { name: value },
+                  });
+                  return data;
+                }}
               />
             </ReferenceInput>
             <ReferenceInput source="term_id" reference="terms">

@@ -11,6 +11,7 @@ export const arabicMessages = {
       clone: 'نسخ',
       confirm: 'تأكيد',
       create: 'إنشاء',
+      create_item: 'إنشاء %{item}',
       delete: 'حذف',
       edit: 'تعديل',
       export: 'تصدير',
