@@ -1,13 +1,13 @@
 import { styled } from '@mui/material/styles';
-import { CardContent, Chip, Typography, Card } from '@mui/material';
+import { CardContent, Chip, Typography, Card, CardProps } from '@mui/material';
 
 import { DEFAULT_COVER_URL } from 'types';
 
-export const RecordCard = ({ record }: RecordCardProps) => {
+export const RecordCard = ({ record, ...props }: RecordCardProps) => {
   const { bottomText, coverUrl, chipText, tagText } = record;
 
   return (
-    <StyledCard>
+    <StyledCard {...props}>
       <StyledCardContent>
         {chipText && <StyledChip label={chipText} />}
         {tagText && (
@@ -29,7 +29,7 @@ export const RecordCard = ({ record }: RecordCardProps) => {
   );
 };
 
-interface RecordCardProps {
+interface RecordCardProps extends CardProps {
   record: recordCardStructure;
 }
 
@@ -48,6 +48,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderTopLeftRadius: theme.spacing(3),
   backgroundColor: theme.palette.grey[100],
   flexBasis: '10em',
+  cursor: 'pointer',
 }));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({

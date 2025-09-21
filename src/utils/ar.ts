@@ -136,9 +136,10 @@ export const arabicMessages = {
     notes: {
       name: ' مذكرات |||| مذكرة',
       fields: {
+        id: 'الرمز التعريفي',
         created_at: 'تاريخ الإنشاء',
         created_by: 'أنشأه',
-        updated_at: 'تاريخ التعديل',
+        updated_at: 'تاريخ آخر تعديل',
         updated_by: 'عدله',
         teacher_id: 'المدرس',
         pages: 'عدد الصفحات',
@@ -157,6 +158,7 @@ export const arabicMessages = {
     },
   },
   custom: {
+    currency: { short: 'ج.م', long: 'جنيه مصري' },
     filters: {
       academic_year: 'السنة الدراسية',
       subject: 'المادة',

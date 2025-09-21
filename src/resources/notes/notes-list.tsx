@@ -5,6 +5,7 @@ import { Tables, type paperPricesType } from 'types';
 import { calcAndRound } from 'utils';
 import { CustomFilterSidebar, Note, noteToCard } from '.';
 import { styled } from '@mui/material';
+import { useNavigate } from 'react-router';
 
 export const NoteList = () => {
   const { data: settings } = useGetList<Tables<'settings'>>('settings', {
@@ -35,6 +36,7 @@ export const NoteList = () => {
 
 const NoteContainer = ({ paperPrices }: CardGridProps) => {
   const { data: notes, isLoading } = useListContext<Note>();
+  const navigate = useNavigate();
   if (isLoading) return <>Loading...</>;
 
   return (
@@ -48,6 +50,7 @@ const NoteContainer = ({ paperPrices }: CardGridProps) => {
           return (
             <RecordCard
               key={record.id}
+              onClick={() => navigate(`${record.id}/show`)}
               record={noteToCard({
                 ...record,
                 price: record.price || calcAndRound(paperPrice || 0, record.pages, 5),

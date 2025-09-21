@@ -1,3 +1,5 @@
+import { paperPricesType } from 'types/supabase-overrides.types';
+
 export const mapArrayToOption = <T>(
   array: T[] = [],
   idKey: keyof T,
@@ -74,6 +76,11 @@ export const toArabicNumerals = (input: string | number): string => {
   return String(input).replace(/[0-9]/g, (digit) => englishToArabicMap[digit]);
 };
 
+export const formatToYYYYMMDD = (dateStr: string): string => {
+  const [day, month, year] = dateStr.split('/');
+  return `${year}/${month}/${day}`;
+};
+
 export const toSupabaseTimestamp = (date: Date = new Date()) => {
   const iso = date.toISOString();
 
@@ -84,4 +91,33 @@ export const toSupabaseTimestamp = (date: Date = new Date()) => {
   const micro = ms.padEnd(6, '0');
 
   return `${datePart} ${time}.${micro}+00`;
+};
+
+interface CalcRecordPriceProps {
+  record: {
+    default_paper_size: string;
+    pages: string | number;
+    do_round?: boolean;
+  };
+  paperPrices?: paperPricesType[] | null;
+  roundTo?: number | null;
+}
+
+export const calcRecordPrice = ({
+  record,
+  paperPrices,
+  roundTo,
+}: CalcRecordPriceProps): number | undefined => {
+  const paperPrice = paperPrices?.find(
+    (price) => price.id === record.default_paper_size
+  )?.twoFacesPrice;
+
+  if (!paperPrice) return undefined;
+
+  let result = (+record.pages * paperPrice) / 100;
+
+  if (record.do_round && roundTo && result % roundTo !== 0)
+    result = Math.ceil(result / roundTo) * roundTo;
+
+  return result;
 };

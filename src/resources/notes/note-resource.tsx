@@ -1,8 +1,6 @@
-import { ShowGuesser } from 'ra-supabase';
-
 import { DocumentScanner } from '@mui/icons-material';
 
-import { NoteList, NoteCreate, NoteEdit } from '.';
+import { NoteList, NoteCreate, NoteEdit, NoteShow } from '.';
 
 export const NoteResource = {
   icon: DocumentScanner,
@@ -11,5 +9,5 @@ export const NoteResource = {
   list: NoteList,
   edit: NoteEdit,
   create: NoteCreate,
-  show: ShowGuesser,
+  show: NoteShow,
 };
