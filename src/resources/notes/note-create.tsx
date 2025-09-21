@@ -33,6 +33,7 @@ export const NoteCreate = () => {
   };
 
   const transform = async (data: NoteWithFileCover | Note): Promise<Note> => {
+    const { data: session } = await supabase.auth.getSession();
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
     if (file) {
       const { data: cover, error } = await supabase.storage
@@ -45,6 +46,7 @@ export const NoteCreate = () => {
         data.cover_url = fullPath;
       }
     } else data.cover_url = null;
+    data.created_by = session.session?.user.id || null;
 
     return data as unknown as Note;
   };
