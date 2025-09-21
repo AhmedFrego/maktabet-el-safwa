@@ -1,4 +1,3 @@
-import { StyledForm } from 'components/form';
 import {
   Create,
   TextInput,
@@ -10,11 +9,13 @@ import {
   ImageInput,
   FileField,
 } from 'react-admin';
+import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
+import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 
-import { Tables } from 'types/supabase-generated.types';
+import { StyledForm } from 'components/form';
 
 import { supabase } from 'lib';
-import { STOREGE_URL } from 'types';
+import { STOREGE_URL, Tables } from 'types';
 
 import { Note } from '.';
 
@@ -80,23 +81,30 @@ export const NoteCreate = () => {
           <FileField source="src" title="title" />
         </ImageInput>
 
-        <TextInput sx={{ width: '100%' }} source="year" />
-        <ReferenceInput source="default_paper_size" reference="paper_sizes">
-          <AutocompleteInput
-            sx={{ width: '100%' }}
-            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-          />
-        </ReferenceInput>
-        <ReferenceInput source="term_id" reference="terms">
-          <AutocompleteInput
-            sx={{ width: '100%' }}
-            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-          />
-        </ReferenceInput>
-        <TextInput sx={{ width: '100%' }} source="additional_data" />
-        <TextInput sx={{ width: '100%' }} source="related_notes" />
-        <BooleanInput source="do_round" />
-        <NumberInput sx={{ width: '100%' }} source="price" />
+        <Accordion>
+          <AccordionSummary expandIcon={<KeyboardDoubleArrowDown />} sx={{ width: '100%' }}>
+            المزيد من التفاصيل
+          </AccordionSummary>
+          <AccordionDetails>
+            <TextInput sx={{ width: '100%' }} source="year" />
+            <ReferenceInput source="default_paper_size" reference="paper_sizes">
+              <AutocompleteInput
+                sx={{ width: '100%' }}
+                filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+              />
+            </ReferenceInput>
+            <ReferenceInput source="term_id" reference="terms">
+              <AutocompleteInput
+                sx={{ width: '100%' }}
+                filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+              />
+            </ReferenceInput>
+            <TextInput sx={{ width: '100%' }} source="additional_data" />
+            <TextInput sx={{ width: '100%' }} source="related_notes" />
+            <BooleanInput source="do_round" defaultValue={true} />
+            <NumberInput sx={{ width: '100%' }} source="price" />
+          </AccordionDetails>
+        </Accordion>
       </StyledForm>
     </Create>
   );
