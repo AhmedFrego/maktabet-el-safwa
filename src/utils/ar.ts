@@ -28,7 +28,7 @@ export const arabicMessages = {
       close: 'إغلاق',
       open_menu: 'فتح القائمة',
       close_menu: 'إغلاق القائمة',
-      saved_queries: '',
+      saved_queries: 'saved_queries',
     },
     boolean: {
       true: 'نعم',
@@ -155,6 +155,19 @@ export const arabicMessages = {
         nickname: 'الاسم المستعار',
         do_round: 'تدوير السعر',
         price: 'السعر',
+      },
+      actions: {
+        create: 'إنشاء م',
+        reserve: 'بدء الحجز',
+        cancel_reserve: 'بدء الحجز',
+        confirm_reserve: 'بدء الحجز',
+      },
+      errors: {
+        teacher_id_required: 'يجب اختيار المدرس',
+      },
+      backendErrors: {
+        'null value in column "teacher_id" of relation "notes" violates not-null constraint':
+          'يجب اختيار المدرس',
       },
     },
   },

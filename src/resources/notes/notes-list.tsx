@@ -1,11 +1,20 @@
-import { CreateButton, List, TopToolbar, useGetList, useListContext } from 'react-admin';
+import {
+  CreateButton,
+  List,
+  TopToolbar,
+  useGetList,
+  useListContext,
+  useTranslate,
+} from 'react-admin';
+import { useNavigate } from 'react-router';
+import { Button, ButtonGroup, styled } from '@mui/material';
+import { EditNote } from '@mui/icons-material';
 
 import { RecordCard, StyledContainer } from 'components/UI';
+import { useAppDispatch, useAppSelector, setIsReserving, addOrIncreaseItem } from 'store';
 import { Tables, type paperPricesType } from 'types';
-import { calcAndRound } from 'utils';
-import { CustomFilterSidebar, Note, noteToCard } from '.';
-import { styled } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { calcRecordPrice } from 'utils';
+import { type Note, CustomFilterSidebar, noteToCard } from '.';
 
 export const NoteList = () => {
   const { data: settings } = useGetList<Tables<'settings'>>('settings', {
@@ -37,24 +46,31 @@ export const NoteList = () => {
 const NoteContainer = ({ paperPrices }: CardGridProps) => {
   const { data: notes, isLoading } = useListContext<Note>();
   const navigate = useNavigate();
+  const state = useAppSelector((state) => state.reservation);
+  const dispatch = useAppDispatch();
+
   if (isLoading) return <>Loading...</>;
 
   return (
     <StyledContainer>
       {notes &&
         notes.map((record: Note) => {
-          const paperPrice = paperPrices?.find(
-            (price) => price.id === record.default_paper_size
-          )?.twoFacesPrice;
-
+          record.price =
+            record.price || calcRecordPrice({ record, paperPrices, roundTo: 5 }) || null;
           return (
             <RecordCard
               key={record.id}
-              onClick={() => navigate(`${record.id}/show`)}
+              onClick={() => {
+                if (state.isReserving) {
+                  dispatch(addOrIncreaseItem(record));
+                  console.log(state.reservedItems);
+                } else navigate(`${record.id}/show`);
+              }}
               record={noteToCard({
                 ...record,
-                price: record.price || calcAndRound(paperPrice || 0, record.pages, 5),
+                price: record.price || calcRecordPrice({ record, paperPrices, roundTo: 5 }) || null,
               })}
+              isReserving={state.isReserving}
             />
           );
         })}
@@ -66,16 +82,31 @@ interface CardGridProps {
   paperPrices: paperPricesType[] | null;
 }
 
-const ListActions = () => (
-  <StyledTopToolbar>
-    <StyledCreateButton />
-  </StyledTopToolbar>
-);
+const ListActions = () => {
+  const translate = useTranslate();
+  const state = useAppSelector((state) => state.reservation);
+  const dispatch = useAppDispatch();
+  return (
+    <StyledTopToolbar>
+      <ButtonGroup variant="contained" aria-label="Basic button group">
+        <StyledCreateButton />
+        <Button onClick={() => dispatch(setIsReserving(true))}>
+          <EditNote />
+          {translate('resources.notes.actions.reserve')}
+        </Button>
+
+        <Button onClick={() => dispatch(setIsReserving(false))}>
+          {state.isReserving ? 'is' : 'isnot'}
+        </Button>
+      </ButtonGroup>
+    </StyledTopToolbar>
+  );
+};
 
 const StyledCreateButton = styled(CreateButton)(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
   fontWeight: 900,
-  color: theme.palette.success.light,
+  // color: theme.palette.success.light,
 }));
 
 const StyledTopToolbar = styled(TopToolbar)(({ theme }) => ({
@@ -83,4 +114,6 @@ const StyledTopToolbar = styled(TopToolbar)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   width: '100%',
   justifyContent: 'center',
+  alignItems: 'center',
+  padding: '0',
 }));

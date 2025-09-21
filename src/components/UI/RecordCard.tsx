@@ -1,13 +1,19 @@
-import { styled } from '@mui/material/styles';
-import { CardContent, Chip, Typography, Card, CardProps } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import { CardContent, Chip, Typography, Card, CardProps, Box } from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 import { DEFAULT_COVER_URL } from 'types';
 
-export const RecordCard = ({ record, ...props }: RecordCardProps) => {
+export const RecordCard = ({ record, isReserving, ...props }: RecordCardProps) => {
   const { bottomText, coverUrl, chipText, tagText } = record;
 
   return (
     <StyledCard {...props}>
+      {isReserving && (
+        <StyledSelector>
+          <AddCircleOutlineIcon fontSize="inherit" />
+        </StyledSelector>
+      )}
       <StyledCardContent>
         {chipText && <StyledChip label={chipText} />}
         {tagText && (
@@ -31,6 +37,7 @@ export const RecordCard = ({ record, ...props }: RecordCardProps) => {
 
 interface RecordCardProps extends CardProps {
   record: recordCardStructure;
+  isReserving?: boolean;
 }
 
 export interface recordCardStructure {
@@ -49,6 +56,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   flexBasis: '10em',
   cursor: 'pointer',
+  position: 'relative',
 }));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
@@ -101,4 +109,20 @@ const StyledTag = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   lineHeight: '1',
+}));
+
+const StyledSelector = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '0',
+  right: '0',
+  width: '100%',
+  height: '100%',
+  backgroundColor: alpha(theme.palette.success.light, 0.2),
+  color: theme.palette.success.dark,
+  fontSize: '10rem',
+
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
 }));

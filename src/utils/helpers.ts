@@ -97,7 +97,7 @@ interface CalcRecordPriceProps {
   record: {
     default_paper_size: string;
     pages: string | number;
-    do_round?: boolean;
+    do_round?: boolean | null;
   };
   paperPrices?: paperPricesType[] | null;
   roundTo?: number | null;

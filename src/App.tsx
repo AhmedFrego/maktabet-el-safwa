@@ -10,6 +10,9 @@ import { Dashboard, NotFound } from 'pages';
 import { dataProvider, authProvider } from 'lib';
 import { arabicMessages } from 'utils';
 
+import { store } from 'store';
+import { Provider } from 'react-redux';
+
 import { NoteResource } from 'resources/notes';
 import { Layout } from 'components/layout';
 
@@ -21,24 +24,26 @@ document.documentElement.lang = 'ar';
 export const App = () => (
   <BrowserRouter>
     <CacheProvider value={rtlCache}>
-      <Admin
-        dataProvider={dataProvider}
-        authProvider={authProvider}
-        i18nProvider={i18nProvider}
-        loginPage={LoginPage}
-        theme={lightTheme}
-        darkTheme={darkTheme}
-        layout={Layout}
-        dashboard={Dashboard}
-        catchAll={NotFound}
-      >
-        <Resource {...NoteResource} />
+      <Provider store={store}>
+        <Admin
+          dataProvider={dataProvider}
+          authProvider={authProvider}
+          i18nProvider={i18nProvider}
+          loginPage={LoginPage}
+          theme={lightTheme}
+          darkTheme={darkTheme}
+          layout={Layout}
+          dashboard={Dashboard}
+          catchAll={NotFound}
+        >
+          <Resource {...NoteResource} />
 
-        <CustomRoutes noLayout>
-          <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
-          <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
-        </CustomRoutes>
-      </Admin>
+          <CustomRoutes noLayout>
+            <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
+            <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
+          </CustomRoutes>
+        </Admin>{' '}
+      </Provider>
     </CacheProvider>
   </BrowserRouter>
 );
