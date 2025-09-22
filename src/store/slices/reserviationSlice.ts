@@ -5,16 +5,19 @@ import { Tables } from 'types';
 export type ReservationStatus = 'in-progress' | 'ready' | 'canceled' | 'collected';
 
 export interface ReservationBase {
-  paperSize: Tables<'paper_sizes'>['name'];
-  itemPrice: number | null;
+  paperSizeId: Tables<'paper_sizes'>['name'];
   quantity: number;
   totalPrice: number;
   status: ReservationStatus;
 }
-interface ReservationRecord extends ReservationBase {
-  [key: string]: unknown;
+
+export interface ReservationMustKeys {
+  id: string;
+  price: number | null;
+  default_paper_size: Tables<'paper_sizes'>['name'];
 }
 
+export type ReservationRecord<T = unknown> = ReservationBase & ReservationMustKeys & T;
 export interface ReservationState {
   reservedItems: ReservationRecord[];
   isReserving: boolean;
@@ -29,31 +32,24 @@ export const reservationSlice = createSlice({
   name: 'reservation',
   initialState,
   reducers: {
-    addOrIncreaseItem(
-      state,
-      action: PayloadAction<{
-        id: string;
-        [key: string]: unknown;
-        price: number;
-        default_paper_size: Tables<'paper_sizes'>['name'];
-      }>
+    addOrIncreaseItem<T extends ReservationMustKeys>(
+      state: ReservationState,
+      action: PayloadAction<T>
     ) {
-      // Check if the item already exists
       const existingItem = state.reservedItems.find((i) => i.id === action.payload.id);
 
       if (existingItem) {
-        // If it exists → increase quantity & update totalPrice
         existingItem.quantity += 1;
-        existingItem.totalPrice = existingItem.quantity * (existingItem.itemPrice || 0);
+        existingItem.totalPrice = existingItem.quantity * (existingItem.price || 10000);
       } else {
         // If not → add as new item
         state.reservedItems.push({
           ...action.payload,
           quantity: 1,
           status: 'in-progress',
-          itemPrice: action.payload.price,
-          totalPrice: action.payload.price,
-          paperSize: action.payload.default_paper_size,
+          price: action.payload.price,
+          totalPrice: action.payload.price || 10000,
+          paperSizeId: action.payload.default_paper_size,
         });
       }
     },
@@ -69,7 +65,7 @@ export const reservationSlice = createSlice({
           state.reservedItems = state.reservedItems.filter((i) => i.id !== item.id);
         } else {
           item.quantity -= 1;
-          item.totalPrice = item.quantity * (item.itemPrice || 0);
+          item.totalPrice = item.quantity * (item.price || 0);
         }
       }
     },

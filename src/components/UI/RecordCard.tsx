@@ -1,17 +1,55 @@
 import { styled, alpha } from '@mui/material/styles';
 import { CardContent, Chip, Typography, Card, CardProps, Box } from '@mui/material';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Remove, Add, DeleteForever } from '@mui/icons-material';
 
 import { DEFAULT_COVER_URL } from 'types';
+import {
+  useAppSelector,
+  useAppDispatch,
+  addOrIncreaseItem,
+  ReservationMustKeys,
+  decreaseItemQuantity,
+} from 'store';
+import { toArabicNumerals } from 'utils';
 
-export const RecordCard = ({ record, isReserving, ...props }: RecordCardProps) => {
-  const { bottomText, coverUrl, chipText, tagText } = record;
+export const RecordCard = <T extends ReservationMustKeys>({
+  record,
+  recordToCard,
+  ...props
+}: RecordCardProps<T>) => {
+  const dispatch = useAppDispatch();
+  const { bottomText, coverUrl, chipText, tagText } = recordToCard(record);
+  const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
+  const isReserved = reservedItems.find((item) => item.id === record.id);
 
   return (
     <StyledCard {...props}>
       {isReserving && (
         <StyledSelector>
-          <AddCircleOutlineIcon fontSize="inherit" />
+          <StyledReserveQuantity>
+            <Add
+              fontSize="inherit"
+              color="success"
+              onClick={() => dispatch(addOrIncreaseItem(record))}
+            />
+            {isReserved && (
+              <>
+                {toArabicNumerals(isReserved?.quantity)}
+                {isReserved.quantity === 1 ? (
+                  <DeleteForever
+                    fontSize="inherit"
+                    color="error"
+                    onClick={() => dispatch(decreaseItemQuantity(record.id))}
+                  />
+                ) : (
+                  <Remove
+                    fontSize="inherit"
+                    onClick={() => dispatch(decreaseItemQuantity(record.id))}
+                  />
+                )}
+              </>
+            )}
+          </StyledReserveQuantity>
         </StyledSelector>
       )}
       <StyledCardContent>
@@ -35,9 +73,9 @@ export const RecordCard = ({ record, isReserving, ...props }: RecordCardProps) =
   );
 };
 
-interface RecordCardProps extends CardProps {
-  record: recordCardStructure;
-  isReserving?: boolean;
+interface RecordCardProps<T extends ReservationMustKeys> extends CardProps {
+  record: T;
+  recordToCard: (record: T) => recordCardStructure;
 }
 
 export interface recordCardStructure {
@@ -118,11 +156,22 @@ const StyledSelector = styled(Box)(({ theme }) => ({
   width: '100%',
   height: '100%',
   backgroundColor: alpha(theme.palette.success.light, 0.2),
-  color: theme.palette.success.dark,
-  fontSize: '10rem',
 
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   zIndex: 10,
+}));
+
+const StyledReserveQuantity = styled(Box)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.grey[50], 0.8),
+  fontSize: '2rem',
+
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 15,
+  width: '100%',
+  gap: '1rem',
+  minHeight: '4rem',
 }));

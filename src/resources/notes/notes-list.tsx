@@ -11,7 +11,7 @@ import { Button, ButtonGroup, styled } from '@mui/material';
 import { EditNote } from '@mui/icons-material';
 
 import { RecordCard, StyledContainer } from 'components/UI';
-import { useAppDispatch, useAppSelector, setIsReserving, addOrIncreaseItem } from 'store';
+import { useAppDispatch, useAppSelector, setIsReserving } from 'store';
 import { Tables, type paperPricesType } from 'types';
 import { calcRecordPrice } from 'utils';
 import { type Note, CustomFilterSidebar, noteToCard } from '.';
@@ -45,9 +45,8 @@ export const NoteList = () => {
 
 const NoteContainer = ({ paperPrices }: CardGridProps) => {
   const { data: notes, isLoading } = useListContext<Note>();
-  const navigate = useNavigate();
   const state = useAppSelector((state) => state.reservation);
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   if (isLoading) return <>Loading...</>;
 
@@ -61,16 +60,13 @@ const NoteContainer = ({ paperPrices }: CardGridProps) => {
             <RecordCard
               key={record.id}
               onClick={() => {
-                if (state.isReserving) {
-                  dispatch(addOrIncreaseItem(record));
-                  console.log(state.reservedItems);
-                } else navigate(`${record.id}/show`);
+                if (!state.isReserving) navigate(`${record.id}/show`);
               }}
-              record={noteToCard({
+              record={{
                 ...record,
                 price: record.price || calcRecordPrice({ record, paperPrices, roundTo: 5 }) || null,
-              })}
-              isReserving={state.isReserving}
+              }}
+              recordToCard={noteToCard}
             />
           );
         })}
