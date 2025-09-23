@@ -1,10 +1,10 @@
-// reservationSlice.ts
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { Tables } from 'types';
+import { Enums, Tables } from 'types';
 
-export type ReservationStatus = 'in-progress' | 'ready' | 'canceled' | 'collected';
-
+export type ReservationStatus = Enums<'reservation_state'>;
+//Put this SQL in a migration file for reproducibility.
 export interface ReservationBase {
+  title: string;
   paperSizeId: Tables<'paper_sizes'>['name'];
   quantity: number;
   totalPrice: number;
@@ -14,13 +14,15 @@ export interface ReservationBase {
 export interface ReservationMustKeys {
   id: string;
   price: number | null;
-  default_paper_size: Tables<'paper_sizes'>['name'];
+  default_paper_size: Tables<'paper_sizes'>['id'];
+  paper_size: { name: Tables<'paper_sizes'>['name'] };
+  title: string;
 }
 
 export type ReservationRecord<T = unknown> = ReservationBase & ReservationMustKeys & T;
 export interface ReservationState {
   reservedItems: ReservationRecord[];
-  isReserving: boolean;
+  isReserving: boolean | 'confirming';
 }
 
 const initialState: ReservationState = {
@@ -69,7 +71,7 @@ export const reservationSlice = createSlice({
         }
       }
     },
-    setIsReserving(state, action: PayloadAction<boolean>) {
+    setIsReserving(state, action: PayloadAction<boolean | 'confirming'>) {
       state.isReserving = action.payload;
     },
   },

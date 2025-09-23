@@ -1,4 +1,5 @@
-import { MergedDatabase } from '.';
+import { MergedDatabase } from './supabase-overrides.types';
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -375,36 +376,39 @@ export type Database = {
       };
       reservations: {
         Row: {
+          client_id: string | null;
           created_at: string;
           created_by: string | null;
           dead_line: string | null;
           id: string;
-          paid_amout: number | null;
+          paid_amount: number | null;
           remain_amount: number | null;
+          reservation_status: Database['public']['Enums']['reservation_state'];
           reserved_items: Json[] | null;
-          state: string | null;
           total_price: number | null;
         };
         Insert: {
+          client_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           dead_line?: string | null;
           id?: string;
-          paid_amout?: number | null;
+          paid_amount?: number | null;
           remain_amount?: number | null;
+          reservation_status?: Database['public']['Enums']['reservation_state'];
           reserved_items?: Json[] | null;
-          state?: string | null;
           total_price?: number | null;
         };
         Update: {
+          client_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           dead_line?: string | null;
           id?: string;
-          paid_amout?: number | null;
+          paid_amount?: number | null;
           remain_amount?: number | null;
+          reservation_status?: Database['public']['Enums']['reservation_state'];
           reserved_items?: Json[] | null;
-          state?: string | null;
           total_price?: number | null;
         };
         Relationships: [];
@@ -474,19 +478,19 @@ export type Database = {
           id: string;
           name: string;
           nickname: string | null;
-          subject_id: string;
+          subject_id: string | null;
         };
         Insert: {
           id?: string;
           name: string;
           nickname?: string | null;
-          subject_id: string;
+          subject_id?: string | null;
         };
         Update: {
           id?: string;
           name?: string;
           nickname?: string | null;
-          subject_id?: string;
+          subject_id?: string | null;
         };
         Relationships: [
           {
@@ -521,6 +525,7 @@ export type Database = {
           full_name: string | null;
           id: string;
           phone_number: string | null;
+          role: Database['public']['Enums']['user_role'];
         };
         Insert: {
           avatar_url?: string | null;
@@ -529,6 +534,7 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           phone_number?: string | null;
+          role?: Database['public']['Enums']['user_role'];
         };
         Update: {
           avatar_url?: string | null;
@@ -537,6 +543,7 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           phone_number?: string | null;
+          role?: Database['public']['Enums']['user_role'];
         };
         Relationships: [];
       };
@@ -548,7 +555,8 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      reservation_state: 'in-progress' | 'ready' | 'canceled' | 'delivered';
+      user_role: 'owner' | 'admin' | 'client' | 'vip-client';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -673,6 +681,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      reservation_state: ['in-progress', 'ready', 'canceled', 'delivered'],
+      user_role: ['owner', 'admin', 'client', 'vip-client'],
+    },
   },
 } as const;

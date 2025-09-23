@@ -7,7 +7,7 @@ import { CacheProvider } from '@emotion/react';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
 
 import { Dashboard, NotFound } from 'pages';
-import { dataProvider, authProvider } from 'lib';
+import { myProvider as dataProvider, authProvider } from 'lib';
 import { arabicMessages } from 'utils';
 
 import { store } from 'store';

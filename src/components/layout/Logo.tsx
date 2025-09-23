@@ -7,7 +7,7 @@ export const Logo = () => {
   return (
     <Link to={'/'}>
       <LogoContainer>
-        <Logo1>{'الصفـ' + '\u00A0'.repeat(18) + 'ـوة'}</Logo1>
+        <Logo1>{'الصفـ' + '\u00A0'.repeat(22) + 'ـوة'}</Logo1>
         <Logo2>كوبي سنتر </Logo2>
       </LogoContainer>
     </Link>

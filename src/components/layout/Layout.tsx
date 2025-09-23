@@ -5,9 +5,11 @@ import Paper from '@mui/material/Paper';
 import { Layout as RALayout, CheckForApplicationUpdate } from 'react-admin';
 
 import { Menu, Header } from '.';
+import { ConfirmReservationModal } from 'resources/reservations/ConfirmReservationModal';
 
 export const Layout = ({ children }: { children: ReactNode }) => (
   <StyledRALayout sidebar={Menu} appBar={Header}>
+    <ConfirmReservationModal />
     <StyledContent>{children}</StyledContent>
     <CheckForApplicationUpdate />
   </StyledRALayout>
