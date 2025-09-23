@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector, setIsReserving } from 'store';
 import { Box, Badge, Button } from '@mui/material';
 
 import { Logo } from '.';
+import { toArabicNumerals } from 'utils';
 
 export const Header = () => {
   return (
@@ -47,7 +48,7 @@ const ReservationButton = () => {
       }}
     >
       <Badge
-        badgeContent={totalQuantity}
+        badgeContent={toArabicNumerals(totalQuantity)}
         color="secondary"
         anchorOrigin={{
           vertical: 'top',

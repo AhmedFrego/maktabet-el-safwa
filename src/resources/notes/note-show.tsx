@@ -25,7 +25,7 @@ export const NoteShow = () => {
       <SimpleShowLayout>
         <Grid container spacing={2} sx={{ height: '100%' }}>
           <Grid size={6}>
-            {translate('resources.notes.fields.id')} :{' '}
+            {translate('resources.notes.fields.id')} :
             <TextField source="id" label={translate('resources.notes.fields.id')} />
             <ImageField
               source="cover_url"
@@ -41,45 +41,45 @@ export const NoteShow = () => {
           </Grid>
           <Grid container size={6} sx={{ flexDirection: 'column' }}>
             <Container>
-              {translate('resources.notes.fields.subject_id')} :{' '}
-              <ReferenceField source="subject_id" reference="subjects" />{' '}
+              {translate('resources.notes.fields.subject_id')} :
+              <ReferenceField source="subject_id" reference="subjects" />
               <TextField source="nickname" />
               <Divider />
             </Container>
             <Container>
-              {translate('resources.notes.fields.teacher_id')} :{' '}
+              {translate('resources.notes.fields.teacher_id')} :
               <ReferenceField source="teacher_id" reference="teachers" />
               <Divider />
             </Container>
             <Container>
-              {translate('resources.notes.fields.academic_year')} :{' '}
+              {translate('resources.notes.fields.academic_year')} :
               <ReferenceField source="academic_year" reference="academic_years" /> <Divider />
             </Container>
             <Container>
-              {translate('resources.notes.fields.term_id')} :{' '}
+              {translate('resources.notes.fields.term_id')} :
               <ReferenceField source="term_id" reference="terms" />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.year')} :{' '}
+              {translate('resources.notes.fields.year')} :
               <FunctionField source="year" render={(record) => toArabicNumerals(record.year)} />
               <Divider />
             </Container>
             <Container>
-              {translate('resources.notes.fields.pages')} :{' '}
+              {translate('resources.notes.fields.pages')} :
               <FunctionField source="pages" render={(record) => toArabicNumerals(record.pages)} />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.default_paper_size')} :{' '}
+              {translate('resources.notes.fields.default_paper_size')} :
               <ReferenceField source="default_paper_size" reference="paper_sizes" />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.price')} :{' '}
+              {translate('resources.notes.fields.price')} :
               <FunctionField
                 source="created_at"
                 render={(record) => {
@@ -94,12 +94,12 @@ export const NoteShow = () => {
                         }) || 0
                     );
                 }}
-              />{' '}
+              />
               {translate('custom.currency.long')} <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.created_at')} :{' '}
+              {translate('resources.notes.fields.created_at')} :
               <FunctionField
                 source="created_at"
                 render={(record) => {
@@ -111,7 +111,7 @@ export const NoteShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.created_by')} :{' '}
+              {translate('resources.notes.fields.created_by')} :
               <ReferenceField
                 source="created_by"
                 reference="users"
@@ -123,7 +123,7 @@ export const NoteShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.updated_at')} :{' '}
+              {translate('resources.notes.fields.updated_at')} :
               <FunctionField
                 source="updated_at"
                 render={(record) => {
@@ -137,7 +137,7 @@ export const NoteShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.updated_by')} :{' '}
+              {translate('resources.notes.fields.updated_by')} :
               <ReferenceField
                 source="updated_by"
                 reference="users"

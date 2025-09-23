@@ -17,7 +17,7 @@ export const YearFilterAccordion = ({ notes }: { notes: Note[] }) => {
     <StyledAccordion disableGutters>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <CalendarToday fontSize="small" /> {translate('custom.filters.year')}{' '}
+          <CalendarToday fontSize="small" /> {translate('custom.filters.year')}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

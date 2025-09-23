@@ -42,7 +42,7 @@ export const App = () => (
             <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
             <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
           </CustomRoutes>
-        </Admin>{' '}
+        </Admin>
       </Provider>
     </CacheProvider>
   </BrowserRouter>

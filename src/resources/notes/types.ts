@@ -5,4 +5,5 @@ export interface Note extends Tables<'notes'> {
   subject: { name: string };
   term: { name: string };
   academicYear: { name: string; short_name: string };
+  paper_size: { name: string };
 }

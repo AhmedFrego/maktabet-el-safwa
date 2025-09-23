@@ -25,7 +25,7 @@ export const TermFilterAccordion = ({ notes }: { notes: Note[] }) => {
     <StyledAccordion disableGutters>
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <StyledTypography>
-          <DateRange /> {translate('custom.filters.term_id')}{' '}
+          <DateRange /> {translate('custom.filters.term_id')}
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>

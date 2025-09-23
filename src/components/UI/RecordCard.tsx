@@ -91,6 +91,7 @@ export interface recordCardStructure {
 const StyledCard = styled(Card)(({ theme }) => ({
   padding: '.3em',
   borderTopLeftRadius: theme.spacing(3),
+  borderBottomRightRadius: theme.spacing(3),
   backgroundColor: theme.palette.grey[100],
   flexBasis: '10em',
   cursor: 'pointer',

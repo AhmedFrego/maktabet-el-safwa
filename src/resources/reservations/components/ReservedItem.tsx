@@ -25,7 +25,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord<unknown> }) => 
           `}
         </Typography>
         <Typography>
-          {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}{' '}
+          {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
           <IconButton aria-label="delete">
             {editing ? (
               <SaveAs color="success" onClick={() => setEditing(false)} />
@@ -60,7 +60,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord<unknown> }) => 
                 )}
               </>
             }
-          </Box>{' '}
+          </Box>
           <ReferenceInput source="paper_size" reference="paper_sizes">
             <AutocompleteInput
               sx={{ width: 'fit-content' }}
