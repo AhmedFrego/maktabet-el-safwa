@@ -48,6 +48,7 @@ const ReservationButton = () => {
       }}
     >
       <Badge
+        invisible={!totalQuantity}
         badgeContent={toArabicNumerals(totalQuantity)}
         color="secondary"
         anchorOrigin={{

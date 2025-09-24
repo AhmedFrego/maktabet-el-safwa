@@ -1,4 +1,3 @@
-// ar.ts
 import { TranslationMessages } from 'ra-core';
 
 export const arabicMessages: TranslationMessages = {
@@ -239,12 +238,23 @@ export const arabicMessages: TranslationMessages = {
         cancel_reserve: 'إلغاء الحجز',
         confirm_reserve: 'تأكيد الحجز',
       },
-      errors: {
-        teacher_id_required: 'يجب اختيار المدرس',
+    },
+    users: {
+      name: 'المستخدمون |||| مستخدم',
+      fields: {
+        id: 'الرمز التعريفي',
+        created_at: 'تاريخ الإنشاء',
+        avatar_url: 'رابط الصورة الرمزية',
+        email: 'البريد الإلكتروني',
+        full_name: 'الاسم الكامل',
+        phone_number: 'رقم الهاتف',
+        role: 'الدور',
       },
-      backendErrors: {
-        'null value in column "teacher_id" of relation "notes" violates not-null constraint':
-          'يجب اختيار المدرس',
+      actions: {
+        create: 'إنشاء مستخدم',
+        update: 'تحديث بيانات المستخدم',
+        delete: 'حذف المستخدم',
+        view: 'عرض تفاصيل المستخدم',
       },
     },
   },
