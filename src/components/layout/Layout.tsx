@@ -16,11 +16,10 @@ export const Layout = ({ children }: { children: ReactNode }) => (
 );
 
 const StyledRALayout = styled(RALayout)(({ theme }) => ({
-  marginTop: theme.spacing(1),
   backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledContent = styled(Paper)(({ theme }) => ({
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(2),
   padding: theme.spacing(1),
 }));

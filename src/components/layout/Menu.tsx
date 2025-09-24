@@ -8,6 +8,7 @@ export const Menu = () => (
     <RAMenu.Item to="/" primaryText="البيانات" leftIcon={<DonutLarge />} />
 
     <RAMenu.ResourceItem name="notes" />
+    <RAMenu.ResourceItem name="reservations" />
   </StyledRAMenu>
 );
 

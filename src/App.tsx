@@ -6,15 +6,16 @@ import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { CacheProvider } from '@emotion/react';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
 
+import { store } from 'store';
+import { Provider } from 'react-redux';
+
+import { Layout } from 'components/layout';
 import { Dashboard, NotFound } from 'pages';
 import { myProvider as dataProvider, authProvider } from 'lib';
 import { arabicMessages } from 'utils';
 
-import { store } from 'store';
-import { Provider } from 'react-redux';
-
 import { NoteResource } from 'resources/notes';
-import { Layout } from 'components/layout';
+import { reservationsResource } from 'resources/reservations';
 
 const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 
@@ -37,6 +38,7 @@ export const App = () => (
           catchAll={NotFound}
         >
           <Resource {...NoteResource} />
+          <Resource {...reservationsResource} />
 
           <CustomRoutes noLayout>
             <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />

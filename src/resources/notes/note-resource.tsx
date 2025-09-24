@@ -4,7 +4,6 @@ import { NoteList, NoteCreate, NoteEdit, NoteShow } from '.';
 
 export const NoteResource = {
   icon: DocumentScanner,
-  options: { label: 'مذكرات' },
   name: 'notes',
   list: NoteList,
   edit: NoteEdit,

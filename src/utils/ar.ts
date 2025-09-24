@@ -257,6 +257,28 @@ export const arabicMessages: TranslationMessages = {
         view: 'عرض تفاصيل المستخدم',
       },
     },
+    reservations: {
+      name: 'الحجوزات |||| حجز',
+      fields: {
+        id: 'الرمز التعريفي',
+        client_id: 'العميل',
+        created_at: 'تاريخ الإنشاء',
+        created_by: 'أنشأه',
+        dead_line: 'موعد التسليم',
+        paid_amount: 'المبلغ المدفوع',
+        remain_amount: 'المبلغ المتبقي',
+        reservation_status: 'حالة الحجز',
+        reserved_items: 'العناصر المحجوزة',
+        total_price: 'السعر الإجمالي',
+      },
+      actions: {
+        create: 'إنشاء حجز',
+        update: 'تعديل الحجز',
+        cancel: 'إلغاء الحجز',
+        confirm: 'تأكيد الحجز',
+        pay: 'دفع المبلغ',
+      },
+    },
   },
   custom: {
     currency: { short: 'ج.م', long: 'جنيه مصري' },
