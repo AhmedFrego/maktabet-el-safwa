@@ -65,7 +65,7 @@ const ReservedItems = ({ reservedItems }: { reservedItems: ReservationRecord[] }
         >
           <TableRow>
             <StyledTableCell>المحجوز</StyledTableCell>
-            <StyledTableCell align="right">ح.و</StyledTableCell>
+            <StyledTableCell align="center">ح.و</StyledTableCell>
             <StyledTableCell align="center">ع</StyledTableCell>
             <StyledTableCell align="center">س.و</StyledTableCell>
             <StyledTableCell align="center">إ.س</StyledTableCell>
@@ -104,6 +104,6 @@ const StyledReservationItem = styled(Box)(({ theme }) => ({
 }));
 
 const StyledTableCell = styled(TableCell)({
-  border: '1px solid rgba(224, 224, 224, 1)',
+  borderInline: '1px solid rgba(224, 224, 224, 1)',
   padding: 8,
 });
