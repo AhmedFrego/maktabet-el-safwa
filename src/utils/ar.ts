@@ -279,7 +279,7 @@ export const arabicMessages: TranslationMessages = {
         pay: 'دفع المبلغ',
       },
       status: {
-        in_progress: 'قيد العمل',
+        'in-progress': 'قيد العمل',
         ready: 'جاهز للتسليم',
         delivered: 'تم تسليمه',
         canceled: 'تم إلغاؤه',

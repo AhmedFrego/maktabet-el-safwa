@@ -17,10 +17,11 @@ import { Reservation } from '..';
 import { useTranslate } from 'react-admin';
 import { ReservationRecord } from 'store';
 import { ExpandMore } from '@mui/icons-material';
-import { toArabicNumerals } from 'utils/helpers';
+import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils/helpers';
 
 export const ReservationItem = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
+  const { day, dayOfWeek, month, time } = formatDateTime(reservation.dead_line);
   return (
     <StyledReservationItem>
       <Accordion sx={{ '&.MuiAccordion-root': { m: 0 } }}>
@@ -48,8 +49,10 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
           <Typography>{`${translate('resources.reservations.fields.total_price')}: ${reservation.total_price}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${reservation.paid_amount}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${reservation.remain_amount}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${reservation.reservation_status}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${reservation.dead_line}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${translate(
+            `resources.reservations.status.${reservation.reservation_status}`
+          )}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${translateDayToArabic(dayOfWeek)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time)}`}</Typography>
         </AccordionDetails>
       </Accordion>
       <Box>

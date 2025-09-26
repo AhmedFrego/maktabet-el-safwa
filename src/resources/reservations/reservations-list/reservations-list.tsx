@@ -2,14 +2,15 @@ import {
   List,
   ReferenceInput,
   AutocompleteInput,
-  useListContext,
   SelectArrayInput,
+  ListControllerResult,
 } from 'react-admin';
 import { useTranslate } from 'react-admin'; // make sure you have this
 import { Loading, StyledContainer } from 'components/UI';
 import { Reservation } from '..';
 import { ReservationItem } from '../components';
 import { Enums } from 'types/supabase-generated.types';
+import { Box } from '@mui/material';
 
 export const ReservationList = () => {
   const translate = useTranslate();
@@ -42,7 +43,7 @@ export const ReservationList = () => {
       alwaysOn
       choices={
         [
-          { id: 'in-progress', name: translate('resources.reservations.status.in_progress') },
+          { id: 'in-progress', name: translate('resources.reservations.status.in-progress') },
           { id: 'ready', name: translate('resources.reservations.status.ready') },
           { id: 'canceled', name: translate('resources.reservations.status.canceled') },
           { id: 'delivered', name: translate('resources.reservations.status.delivered') },
@@ -64,21 +65,23 @@ export const ReservationList = () => {
           columns: ['*', 'client:users(full_name, phone_number)'],
         },
       }}
-    >
-      <ReservationsContainer />
-    </List>
-  );
-};
+      render={({
+        isPending,
+        error,
+        data: reservations,
+      }: ListControllerResult<Reservation, Error>) => {
+        if (isPending) return <Loading />;
+        if (error) return <Box>Error: {error.message}</Box>;
+        if (!reservations.length) return <div>No Items ...</div>;
 
-const ReservationsContainer = () => {
-  const { data: reservations, isLoading } = useListContext<Reservation>();
-  if (isLoading) return <Loading />;
-
-  return (
-    <StyledContainer sx={{ gap: 2, flexDirection: 'column' }}>
-      {reservations?.map((reservation) => (
-        <ReservationItem key={reservation.id} reservation={reservation} />
-      ))}
-    </StyledContainer>
+        return (
+          <StyledContainer sx={{ gap: 2, flexDirection: 'column' }}>
+            {reservations?.map((reservation) => (
+              <ReservationItem key={reservation.id} reservation={reservation} />
+            ))}
+          </StyledContainer>
+        );
+      }}
+    ></List>
   );
 };

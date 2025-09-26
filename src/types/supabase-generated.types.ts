@@ -1,4 +1,4 @@
-import { MergedDatabase } from './supabase-overrides.types';
+import { MergedDatabase } from "./supabase-overrides.types";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -376,42 +376,50 @@ export type Database = {
       };
       reservations: {
         Row: {
-          client_id: string | null;
+          client_id: string;
           created_at: string;
-          created_by: string | null;
-          dead_line: string | null;
+          created_by: string;
+          dead_line: string;
           id: string;
-          paid_amount: number | null;
-          remain_amount: number | null;
+          paid_amount: number;
+          remain_amount: number;
           reservation_status: Database['public']['Enums']['reservation_state'];
-          reserved_items: Json[] | null;
-          total_price: number | null;
+          reserved_items: Json[];
+          total_price: number;
         };
         Insert: {
-          client_id?: string | null;
+          client_id: string;
           created_at?: string;
-          created_by?: string | null;
-          dead_line?: string | null;
+          created_by: string;
+          dead_line: string;
           id?: string;
-          paid_amount?: number | null;
-          remain_amount?: number | null;
+          paid_amount: number;
+          remain_amount: number;
           reservation_status?: Database['public']['Enums']['reservation_state'];
-          reserved_items?: Json[] | null;
-          total_price?: number | null;
+          reserved_items: Json[];
+          total_price: number;
         };
         Update: {
-          client_id?: string | null;
+          client_id?: string;
           created_at?: string;
-          created_by?: string | null;
-          dead_line?: string | null;
+          created_by?: string;
+          dead_line?: string;
           id?: string;
-          paid_amount?: number | null;
-          remain_amount?: number | null;
+          paid_amount?: number;
+          remain_amount?: number;
           reservation_status?: Database['public']['Enums']['reservation_state'];
-          reserved_items?: Json[] | null;
-          total_price?: number | null;
+          reserved_items?: Json[];
+          total_price?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'reservations_client_id_fkey1';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       settings: {
         Row: {

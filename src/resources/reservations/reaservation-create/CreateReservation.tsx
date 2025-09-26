@@ -35,9 +35,10 @@ export const CreateReservation = () => {
     client_id: string;
   }) => {
     const { data: session } = await supabase.auth.getSession();
+    if (!session.session) return;
 
     const data: TablesInsert<'reservations'> = {
-      created_by: session.session?.user.id || null,
+      created_by: session.session.user.id,
       reserved_items,
       total_price,
       paid_amount,
@@ -48,6 +49,8 @@ export const CreateReservation = () => {
 
     return data;
   };
+
+  console.log(toSupabaseTimestamp(getDateAfterTwoDays()));
 
   return (
     <Modal
