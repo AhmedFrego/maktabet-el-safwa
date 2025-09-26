@@ -278,6 +278,12 @@ export const arabicMessages: TranslationMessages = {
         confirm: 'تأكيد الحجز',
         pay: 'دفع المبلغ',
       },
+      status: {
+        in_progress: 'قيد العمل',
+        ready: 'جاهز للتسليم',
+        delivered: 'تم تسليمه',
+        canceled: 'تم إلغاؤه',
+      },
     },
   },
   custom: {

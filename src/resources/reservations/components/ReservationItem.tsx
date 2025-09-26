@@ -49,6 +49,7 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
           <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${reservation.paid_amount}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${reservation.remain_amount}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${reservation.reservation_status}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${reservation.dead_line}`}</Typography>
         </AccordionDetails>
       </Accordion>
       <Box>

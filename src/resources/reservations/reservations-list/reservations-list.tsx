@@ -42,10 +42,10 @@ export const ReservationList = () => {
       alwaysOn
       choices={
         [
-          { id: 'in-progress', name: 'In Progress' },
-          { id: 'ready', name: 'Ready' },
-          { id: 'canceled', name: 'Canceled' },
-          { id: 'delivered', name: 'Delivered' },
+          { id: 'in-progress', name: translate('resources.reservations.status.in_progress') },
+          { id: 'ready', name: translate('resources.reservations.status.ready') },
+          { id: 'canceled', name: translate('resources.reservations.status.canceled') },
+          { id: 'delivered', name: translate('resources.reservations.status.delivered') },
         ] as { id: Enums<'reservation_state'>; name: string }[]
       }
     />,
