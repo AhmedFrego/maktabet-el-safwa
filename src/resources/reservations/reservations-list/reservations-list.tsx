@@ -1,8 +1,9 @@
-import { List, ReferenceInput, AutocompleteInput, useListContext } from 'react-admin';
+import { List, ReferenceInput, AutocompleteInput, useListContext, SelectInput } from 'react-admin';
 import { useTranslate } from 'react-admin'; // make sure you have this
 import { Loading, StyledContainer } from 'components/UI';
 import { Reservation } from '..';
 import { ReservationItem } from '../components';
+import { Enums } from 'types/supabase-generated.types';
 
 export const ReservationList = () => {
   const translate = useTranslate();
@@ -28,6 +29,18 @@ export const ReservationList = () => {
         }}
       />
     </ReferenceInput>,
+    <SelectInput
+      variant="standard"
+      key="statusFilter"
+      source="reservation_status"
+      alwaysOn
+      choices={[
+        { id: 'in-progress' as Enums<'reservation_state'>, name: 'In Progress' },
+        { id: 'ready' as Enums<'reservation_state'>, name: 'Ready' },
+        { id: 'canceled' as Enums<'reservation_state'>, name: 'Canceled' },
+        { id: 'delivered' as Enums<'reservation_state'>, name: 'Delivered' },
+      ]}
+    />,
   ];
 
   return (
@@ -35,6 +48,12 @@ export const ReservationList = () => {
       sort={{ field: 'dead_line', order: 'ASC' }}
       actions={false}
       filters={filters}
+      filterDefaultValues={{
+        reservation_status: [
+          'in-progress' as Enums<'reservation_state'>,
+          'ready' as Enums<'reservation_state'>,
+        ],
+      }}
       queryOptions={{
         meta: {
           columns: ['*', 'client:users(full_name, phone_number)'],

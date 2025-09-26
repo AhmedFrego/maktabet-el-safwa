@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { supabaseDataProvider, supabaseAuthProvider } from 'ra-supabase';
 import type { DataProvider, GetListParams, GetListResult, RaRecord } from 'react-admin';
-
 import { MergedDatabase } from 'types';
 
 export const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -14,6 +13,53 @@ const baseProvider = supabaseDataProvider({
   apiKey,
   supabaseClient: supabase,
 });
+
+constfunction applyFilters(query: ReturnType<typeof supabase.from>, filter: Record<string, any>) {
+  Object.entries(filter).forEach(([key, value]) => {
+    if (key === 'or' && typeof value === 'string') {
+      const sanitizedOr = value.replace(/^\(+|\)+$/g, '');
+      query.or(sanitizedOr);
+    } else if (Array.isArray(value)) {
+      query.in(key, value);
+    } else if (value !== undefined) {
+      query.eq(key, value);
+    }
+  });
+}
+
+function applyPagination(
+  query: ReturnType<typeof supabase.from>,
+  pagination?: GetListParams['pagination']
+) {
+  if (pagination) {
+    const { page, perPage } = pagination;
+    query.range((page - 1) * perPage, page * perPage - 1);
+  }
+}
+
+function applySorting(query: ReturnType<typeof supabase.from>, sort?: GetListParams['sort']) {
+  if (sort) {
+    query.order(sort.field, { ascending: sort.order === 'ASC' });
+  }
+}
+
+function resolveRelations(selectStr: string, filter: Record<string, any>): string {
+  if (typeof filter.or !== 'string') return selectStr;
+
+  const re = /([a-zA-Z0-9_]+)\./g;
+  const relationNames = Array.from(filter.or.matchAll(re)).map((m) => m[1]);
+
+  relationNames.forEach((rel) => {
+    const regex = new RegExp(`${rel}:([^\\(]+)\\(`, 'g');
+    if (regex.test(selectStr)) {
+      selectStr = selectStr.replace(regex, `${rel}:$1!inner(`);
+    } else {
+      selectStr += `,${rel}!inner(*)`;
+    }
+  });
+
+  return selectStr;
+}
 
 export const myProvider: DataProvider = {
   ...baseProvider,
@@ -31,19 +77,9 @@ export const myProvider: DataProvider = {
         .neq('role', 'admin')
         .neq('role', 'owner');
 
-      if (filter.or) {
-        const sanitizedOr = filter.or.replace(/^\(+|\)+$/g, '');
-        query = query.or(sanitizedOr);
-      }
-
-      if (sort) {
-        query = query.order(sort.field, { ascending: sort.order === 'ASC' });
-      }
-
-      if (pagination) {
-        const { page, perPage } = pagination;
-        query = query.range((page - 1) * perPage, page * perPage - 1);
-      }
+      applyFilters(query, filter);
+      applySorting(query, sort);
+      applyPagination(query, pagination);
 
       const { data, error, count } = await query;
       if (error) throw error;
@@ -55,51 +91,19 @@ export const myProvider: DataProvider = {
     }
 
     let selectStr = '*';
-    if (meta?.columns && Array.isArray(meta.columns) && meta.columns.length > 0) {
+    if (Array.isArray(meta?.columns) && meta.columns.length > 0) {
       selectStr = meta.columns.join(',');
     }
 
-    if (typeof filter.or === 'string') {
-      const re = /([a-zA-Z0-9_]+)\./g;
-      let match;
-      const relationNames: string[] = [];
-
-      while ((match = re.exec(filter.or))) {
-        if (match[1] && !relationNames.includes(match[1])) {
-          relationNames.push(match[1]);
-        }
-      }
-
-      relationNames.forEach((rel) => {
-        const regex = new RegExp(`${rel}:([^\\(]+)\\(`, 'g');
-        if (regex.test(selectStr)) {
-          selectStr = selectStr.replace(regex, `${rel}:$1!inner(`);
-        } else {
-          selectStr += `,${rel}!inner(*)`;
-        }
-      });
-    }
+    selectStr = resolveRelations(selectStr, filter);
 
     let query = supabase
       .from(resource as keyof MergedDatabase['public']['Tables'])
       .select(selectStr, { count: 'exact' });
 
-    if (filter.client_id) {
-      query = query.eq('client_id', filter.client_id);
-    }
-
-    if (sort) {
-      query = query.order(sort.field, { ascending: sort.order === 'ASC' });
-    }
-
-    if (pagination) {
-      const { page, perPage } = pagination;
-      query = query.range((page - 1) * perPage, page * perPage - 1);
-    }
-
-    if (filter.or) {
-      query = query.or(filter.or);
-    }
+    applyFilters(query, filter);
+    applySorting(query, sort);
+    applyPagination(query, pagination);
 
     const { data, error, count } = await query;
     if (error) throw error;
