@@ -18,25 +18,22 @@ import { useTranslate } from 'react-admin';
 import { ReservationRecord } from 'store';
 import { ExpandMore } from '@mui/icons-material';
 import { toArabicNumerals } from 'utils/helpers';
-import { Enums } from 'types/supabase-generated.types';
 
 export const ReservationItem = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
   return (
     <StyledReservationItem>
-      <Box>
-        <ReservedItems
-          reservedItems={reservation.reserved_items}
-          status={reservation.reservation_status}
-        />
-      </Box>
-
-      <Accordion>
+      <Accordion sx={{ '&.MuiAccordion-root': { m: 0 } }}>
         <AccordionSummary
           expandIcon={<ExpandMore />}
           sx={(theme) => ({
-            backgroundColor: theme.palette.info.light,
+            backgroundColor:
+              reservation.reservation_status === 'ready'
+                ? theme.palette.success.dark
+                : theme.palette.warning.main,
             '& .MuiAccordionSummary-content': {
+              fontWeight: 900,
+              fontSize: 3,
               justifyContent: 'space-between',
               maxWidth: '95%',
               gap: 1,
@@ -45,7 +42,7 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
           })}
         >
           <Typography noWrap>{reservation.client.full_name}</Typography>
-          <Typography noWrap>{reservation.client.phone_number}</Typography>
+          <Typography noWrap>{toArabicNumerals(reservation.client.phone_number)}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>{`${translate('resources.reservations.fields.total_price')}: ${reservation.total_price}`}</Typography>
@@ -54,32 +51,31 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
           <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${reservation.reservation_status}`}</Typography>
         </AccordionDetails>
       </Accordion>
+      <Box>
+        <ReservedItems reservedItems={reservation.reserved_items} />
+      </Box>
     </StyledReservationItem>
   );
 };
 
-const ReservedItems = ({ reservedItems, status }: ReservedItemsProps) => {
+const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 195 }}>
+    <TableContainer component={Paper} sx={{ maxHeight: 195, borderRadius: 0 }}>
       <Table
         aria-label="simple table"
         stickyHeader
         sx={{
           width: '100%',
-          tableLayout: 'auto', // let columns take min-content naturally
+          // tableLayout: 'auto',
         }}
       >
         <TableHead
           sx={(theme) => ({
-            backgroundColor:
-              status === 'ready' ? theme.palette.success.light : theme.palette.warning.light,
+            backgroundColor: theme.palette.grey[100],
           })}
         >
           <TableRow>
-            {/* expanding column */}
             <StyledTableCell sx={{ width: '100%' }}>المحجوز</StyledTableCell>
-
-            {/* others: no width, they just shrink to min-content */}
             <StyledTableCell align="center">ح.و</StyledTableCell>
             <StyledTableCell align="center">ع</StyledTableCell>
             <StyledTableCell align="center">س.و</StyledTableCell>
@@ -93,7 +89,7 @@ const ReservedItems = ({ reservedItems, status }: ReservedItemsProps) => {
               <StyledTableCell
                 scope="row"
                 sx={{
-                  width: '100%', // grows into remaining space
+                  width: '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -102,7 +98,6 @@ const ReservedItems = ({ reservedItems, status }: ReservedItemsProps) => {
                 {item.title}
               </StyledTableCell>
 
-              {/* others shrink naturally */}
               <StyledTableCell align="center">{item.paper_size.name}</StyledTableCell>
               <StyledTableCell align="center">{toArabicNumerals(item.quantity)}</StyledTableCell>
               <StyledTableCell align="center">
@@ -122,23 +117,12 @@ interface ReservationItemProps {
 }
 interface ReservedItemsProps {
   reservedItems: ReservationRecord[];
-  status?: Enums<'reservation_state'>;
 }
 
-const StyledReservationItem = styled(Box)(({ theme }) => ({
-  minWidth: theme.spacing(40),
-  flex: '1',
-  // maxHeight: theme.spacing(60),
-  // backgroundColor: theme.palette.grey[100],
-  // padding: theme.spacing(0.2),
-  // display: 'flex',
-  // flexDirection: 'column',
-  // justifyContent: 'space-between',
-  // borderRadius: theme.shape.borderRadius,
-}));
+const StyledReservationItem = styled(Box)({});
 
-const StyledTableCell = styled(TableCell)({
-  borderInline: '1px solid rgba(224, 224, 224, 1)',
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  border: `1px solid ${theme.palette.grey[200]}`,
   padding: 8,
   backgroundColor: 'transparent',
-});
+}));

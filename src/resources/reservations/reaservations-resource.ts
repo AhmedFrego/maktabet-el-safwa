@@ -1,10 +1,9 @@
-import { DocumentScanner } from '@mui/icons-material';
-
+import { Assignment } from '@mui/icons-material';
 import { EditGuesser, ShowGuesser } from 'react-admin';
 import { ReservationList } from '.';
 
 export const reservationsResource = {
-  icon: DocumentScanner,
+  icon: Assignment,
   name: 'reservations',
   list: ReservationList,
   edit: EditGuesser,

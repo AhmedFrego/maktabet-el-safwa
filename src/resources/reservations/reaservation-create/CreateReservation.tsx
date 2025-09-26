@@ -3,6 +3,7 @@ import {
   Button,
   Create,
   FormDataConsumer,
+  maxValue,
   NumberInput,
   required,
   SimpleForm,
@@ -60,7 +61,14 @@ export const CreateReservation = () => {
           resource="reservations"
           mutationOptions={{ onSuccess: () => dispatch(clearItems()) }}
         >
-          <SimpleForm toolbar={false}>
+          <SimpleForm
+            toolbar={false}
+            sx={(theme) => ({
+              backgroundColor: theme.palette.grey[50],
+              border: `2px solid ${theme.palette.info.dark}`,
+              borderRadius: 1,
+            })}
+          >
             <ModalContent>
               <ClientInput />
               {reserved_items.map((x) => (
@@ -78,7 +86,7 @@ export const CreateReservation = () => {
               <NumberInput
                 source="paid_amount"
                 label={translate('custom.labels.paid_amount')}
-                validate={required()}
+                validate={[required(), maxValue(total_price)]}
               />
               <CTA />
             </ModalContent>

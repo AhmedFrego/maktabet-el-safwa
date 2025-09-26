@@ -153,9 +153,10 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
                 fullWidth
               />
               <TextInput
+                isRequired={false}
                 source="phone_number"
                 helperText={false}
-                validate={[required(), regex(/^01[0125]\d{8}$/, 'لا يبدو كرقم هاتف صحيح')]}
+                validate={[regex(/^01[0125]\d{8}$/, 'لا يبدو كرقم هاتف صحيح')]}
                 variant="standard"
                 fullWidth
               />

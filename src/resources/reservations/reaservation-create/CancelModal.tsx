@@ -14,7 +14,7 @@ export const CancelModal = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <div>
+    <Box>
       <Button variant="outlined" sx={{ fontFamily: 'inherit' }} onClick={handleOpen} color="error">
         {translate('ra.action.cancel')}
       </Button>
@@ -25,9 +25,15 @@ export const CancelModal = () => {
         aria-describedby="parent-modal-description"
       >
         <ModalWrapper>
-          <ModalContent sx={{ backgroundColor: 'red' }}>
-            <Typography>انت على وشك</Typography>
-            <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <ModalContent
+            sx={(theme) => ({
+              p: 2,
+              backgroundColor: theme.palette.grey[100],
+              border: `2px solid ${theme.palette.error.main}`,
+            })}
+          >
+            <Typography>{translate('resources.reservations.actions.cancel')}</Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button
                 variant="contained"
                 sx={{ fontFamily: 'inherit' }}
@@ -42,12 +48,12 @@ export const CancelModal = () => {
                 sx={{ fontFamily: 'inherit' }}
                 onClick={() => dispatch(clearItems())}
               >
-                {translate('ra.action.confirm')}
+                {translate('ra.action.cancel')}
               </Button>
             </Box>
           </ModalContent>
         </ModalWrapper>
       </Modal>
-    </div>
+    </Box>
   );
 };

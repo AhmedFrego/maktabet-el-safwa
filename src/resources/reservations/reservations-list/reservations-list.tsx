@@ -57,10 +57,7 @@ export const ReservationList = () => {
       actions={false}
       filters={filters}
       filterDefaultValues={{
-        reservation_status: [
-          'in-progress' as Enums<'reservation_state'>,
-          'ready' as Enums<'reservation_state'>,
-        ],
+        reservation_status: ['in-progress', 'ready'] as Enums<'reservation_state'>[],
       }}
       queryOptions={{
         meta: {
@@ -78,7 +75,7 @@ const ReservationsContainer = () => {
   if (isLoading) return <Loading />;
 
   return (
-    <StyledContainer>
+    <StyledContainer sx={{ gap: 2, flexDirection: 'column' }}>
       {reservations?.map((reservation) => (
         <ReservationItem key={reservation.id} reservation={reservation} />
       ))}
