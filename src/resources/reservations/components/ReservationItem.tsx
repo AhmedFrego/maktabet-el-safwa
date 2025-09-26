@@ -18,13 +18,17 @@ import { useTranslate } from 'react-admin';
 import { ReservationRecord } from 'store';
 import { ExpandMore } from '@mui/icons-material';
 import { toArabicNumerals } from 'utils/helpers';
+import { Enums } from 'types/supabase-generated.types';
 
 export const ReservationItem = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
   return (
     <StyledReservationItem>
       <Box>
-        <ReservedItems reservedItems={reservation.reserved_items} />
+        <ReservedItems
+          reservedItems={reservation.reserved_items}
+          status={reservation.reservation_status}
+        />
       </Box>
 
       <Accordion>
@@ -54,27 +58,51 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
   );
 };
 
-const ReservedItems = ({ reservedItems }: { reservedItems: ReservationRecord[] }) => {
+const ReservedItems = ({ reservedItems, status }: ReservedItemsProps) => {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 195 }}>
-      <Table aria-label="simple table" stickyHeader>
+      <Table
+        aria-label="simple table"
+        stickyHeader
+        sx={{
+          width: '100%',
+          tableLayout: 'auto', // let columns take min-content naturally
+        }}
+      >
         <TableHead
           sx={(theme) => ({
-            backgroundColor: theme.palette.grey[200],
+            backgroundColor:
+              status === 'ready' ? theme.palette.success.light : theme.palette.warning.light,
           })}
         >
           <TableRow>
-            <StyledTableCell>المحجوز</StyledTableCell>
+            {/* expanding column */}
+            <StyledTableCell sx={{ width: '100%' }}>المحجوز</StyledTableCell>
+
+            {/* others: no width, they just shrink to min-content */}
             <StyledTableCell align="center">ح.و</StyledTableCell>
             <StyledTableCell align="center">ع</StyledTableCell>
             <StyledTableCell align="center">س.و</StyledTableCell>
             <StyledTableCell align="center">إ.س</StyledTableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
           {reservedItems.map((item) => (
             <TableRow key={item.id}>
-              <StyledTableCell scope="row">{item.title}</StyledTableCell>
+              <StyledTableCell
+                scope="row"
+                sx={{
+                  width: '100%', // grows into remaining space
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {item.title}
+              </StyledTableCell>
+
+              {/* others shrink naturally */}
               <StyledTableCell align="center">{item.paper_size.name}</StyledTableCell>
               <StyledTableCell align="center">{toArabicNumerals(item.quantity)}</StyledTableCell>
               <StyledTableCell align="center">
@@ -92,18 +120,25 @@ const ReservedItems = ({ reservedItems }: { reservedItems: ReservationRecord[] }
 interface ReservationItemProps {
   reservation: Reservation;
 }
+interface ReservedItemsProps {
+  reservedItems: ReservationRecord[];
+  status?: Enums<'reservation_state'>;
+}
 
 const StyledReservationItem = styled(Box)(({ theme }) => ({
-  width: theme.spacing(40),
-  maxHeight: theme.spacing(60),
-  backgroundColor: theme.palette.grey[100],
-  padding: theme.spacing(0.2),
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
+  minWidth: theme.spacing(40),
+  flex: '1',
+  // maxHeight: theme.spacing(60),
+  // backgroundColor: theme.palette.grey[100],
+  // padding: theme.spacing(0.2),
+  // display: 'flex',
+  // flexDirection: 'column',
+  // justifyContent: 'space-between',
+  // borderRadius: theme.shape.borderRadius,
 }));
 
 const StyledTableCell = styled(TableCell)({
   borderInline: '1px solid rgba(224, 224, 224, 1)',
   padding: 8,
+  backgroundColor: 'transparent',
 });

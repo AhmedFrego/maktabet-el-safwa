@@ -1,4 +1,10 @@
-import { List, ReferenceInput, AutocompleteInput, useListContext, SelectInput } from 'react-admin';
+import {
+  List,
+  ReferenceInput,
+  AutocompleteInput,
+  useListContext,
+  SelectArrayInput,
+} from 'react-admin';
 import { useTranslate } from 'react-admin'; // make sure you have this
 import { Loading, StyledContainer } from 'components/UI';
 import { Reservation } from '..';
@@ -29,17 +35,19 @@ export const ReservationList = () => {
         }}
       />
     </ReferenceInput>,
-    <SelectInput
+    <SelectArrayInput
       variant="standard"
       key="statusFilter"
       source="reservation_status"
       alwaysOn
-      choices={[
-        { id: 'in-progress' as Enums<'reservation_state'>, name: 'In Progress' },
-        { id: 'ready' as Enums<'reservation_state'>, name: 'Ready' },
-        { id: 'canceled' as Enums<'reservation_state'>, name: 'Canceled' },
-        { id: 'delivered' as Enums<'reservation_state'>, name: 'Delivered' },
-      ]}
+      choices={
+        [
+          { id: 'in-progress', name: 'In Progress' },
+          { id: 'ready', name: 'Ready' },
+          { id: 'canceled', name: 'Canceled' },
+          { id: 'delivered', name: 'Delivered' },
+        ] as { id: Enums<'reservation_state'>; name: string }[]
+      }
     />,
   ];
 

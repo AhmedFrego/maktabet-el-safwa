@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { RecordCard, StyledContainer, ListActions } from 'components/UI';
 import { useAppSelector } from 'store';
 import { Tables, type paperPricesType } from 'types';
-import { calcRecordPrice } from 'utils';
+import { calcRecordPrice, toArabicNumerals } from 'utils';
 import { type Note, CustomFilterSidebar, noteToCard } from '.';
 
 export const NoteList = () => {
@@ -56,7 +56,7 @@ const NoteContainer = ({ paperPrices }: CardGridProps) => {
               record={{
                 ...record,
                 price: record.price || calcRecordPrice({ record, paperPrices, roundTo: 5 }) || null,
-                title: `${record.subject.name}`,
+                title: `${record.subject.name} ${record.additional_data || ''} ${record.teacher.name} ${toArabicNumerals(record.academicYear.short_name)}`,
               }}
               recordToCard={noteToCard}
             />

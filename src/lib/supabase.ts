@@ -14,36 +14,31 @@ const baseProvider = supabaseDataProvider({
   supabaseClient: supabase,
 });
 
-constfunction applyFilters(query: ReturnType<typeof supabase.from>, filter: Record<string, any>) {
+const applyFilters = (query: ReturnType<typeof supabase.from>, filter: Record<string, unknown>) => {
   Object.entries(filter).forEach(([key, value]) => {
     if (key === 'or' && typeof value === 'string') {
       const sanitizedOr = value.replace(/^\(+|\)+$/g, '');
       query.or(sanitizedOr);
-    } else if (Array.isArray(value)) {
-      query.in(key, value);
-    } else if (value !== undefined) {
-      query.eq(key, value);
-    }
+    } else if (Array.isArray(value)) query.in(key, value);
+    else if (value !== undefined) query.eq(key, value);
   });
-}
+};
 
-function applyPagination(
+const applyPagination = (
   query: ReturnType<typeof supabase.from>,
   pagination?: GetListParams['pagination']
-) {
+) => {
   if (pagination) {
     const { page, perPage } = pagination;
     query.range((page - 1) * perPage, page * perPage - 1);
   }
-}
+};
 
-function applySorting(query: ReturnType<typeof supabase.from>, sort?: GetListParams['sort']) {
-  if (sort) {
-    query.order(sort.field, { ascending: sort.order === 'ASC' });
-  }
-}
+const applySorting = (query: ReturnType<typeof supabase.from>, sort?: GetListParams['sort']) => {
+  if (sort) query.order(sort.field, { ascending: sort.order === 'ASC' });
+};
 
-function resolveRelations(selectStr: string, filter: Record<string, any>): string {
+const resolveRelations = (selectStr: string, filter: Record<string, unknown>): string => {
   if (typeof filter.or !== 'string') return selectStr;
 
   const re = /([a-zA-Z0-9_]+)\./g;
@@ -51,15 +46,12 @@ function resolveRelations(selectStr: string, filter: Record<string, any>): strin
 
   relationNames.forEach((rel) => {
     const regex = new RegExp(`${rel}:([^\\(]+)\\(`, 'g');
-    if (regex.test(selectStr)) {
-      selectStr = selectStr.replace(regex, `${rel}:$1!inner(`);
-    } else {
-      selectStr += `,${rel}!inner(*)`;
-    }
+    if (regex.test(selectStr)) selectStr = selectStr.replace(regex, `${rel}:$1!inner(`);
+    else selectStr += `,${rel}!inner(*)`;
   });
 
   return selectStr;
-}
+};
 
 export const myProvider: DataProvider = {
   ...baseProvider,
@@ -71,7 +63,7 @@ export const myProvider: DataProvider = {
     const { filter = {}, pagination, sort, meta } = params;
 
     if (resource === 'users') {
-      let query = supabase
+      const query = supabase
         .from('users')
         .select('*', { count: 'exact' })
         .neq('role', 'admin')
@@ -97,7 +89,7 @@ export const myProvider: DataProvider = {
 
     selectStr = resolveRelations(selectStr, filter);
 
-    let query = supabase
+    const query = supabase
       .from(resource as keyof MergedDatabase['public']['Tables'])
       .select(selectStr, { count: 'exact' });
 

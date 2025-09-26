@@ -70,11 +70,10 @@ export const CreateReservation = () => {
                 {`${translate('custom.labels.total_price')} : ${toArabicNumerals(total_price)} ${translate('custom.currency.long')}`}
               </Typography>
               <FormDataConsumer>
-                {({ formData }) =>
-                  `${translate('custom.labels.remain_amount')} : ${toArabicNumerals(
-                    total_price - (Number(formData.paid_amount) || 0)
-                  )} ${translate('custom.currency.long')}`
-                }
+                {({ formData }) => {
+                  const remain_amount = total_price - (Number(formData.paid_amount) || 0);
+                  return `${translate('custom.labels.remain_amount')} : ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`;
+                }}
               </FormDataConsumer>
               <NumberInput
                 source="paid_amount"

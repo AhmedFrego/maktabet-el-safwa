@@ -18,22 +18,19 @@ export const ReservedItem = ({ item }: { item: ReservationRecord<unknown> }) => 
           {`${toArabicNumerals(item.quantity)} * 
           ${item.title}`}
         </Typography>
-        <Typography
-          sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', margin: 0 }}
-        >
-          {`${item.paper_size.name} 
-          `}
-        </Typography>
-        <Typography>
-          {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
-          <IconButton aria-label="delete">
-            {editing ? (
-              <SaveAs color="success" onClick={() => setEditing(false)} />
-            ) : (
-              <Edit color="info" onClick={() => setEditing(true)} />
-            )}
-          </IconButton>
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Typography>{item.paper_size.name}</Typography>
+          <Typography>
+            {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
+            <IconButton aria-label="delete">
+              {editing ? (
+                <SaveAs color="success" onClick={() => setEditing(false)} />
+              ) : (
+                <Edit color="info" onClick={() => setEditing(true)} />
+              )}
+            </IconButton>
+          </Typography>
+        </Box>
       </Box>
       {editing && (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

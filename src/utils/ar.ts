@@ -294,6 +294,7 @@ export const arabicMessages: TranslationMessages = {
       total_price: 'المبلغ الإجمالي',
       paid_amount: 'المبلغ المدفوع',
       remain_amount: 'المبلغ المتبقي',
+      no_remain_amount: 'خالص الثمن',
     },
   },
 };
