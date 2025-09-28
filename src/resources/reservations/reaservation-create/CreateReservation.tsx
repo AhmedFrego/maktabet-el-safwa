@@ -50,8 +50,6 @@ export const CreateReservation = () => {
     return data;
   };
 
-  console.log(toSupabaseTimestamp(getDateAfterTwoDays()));
-
   return (
     <Modal
       open={isReserving === 'confirming'}

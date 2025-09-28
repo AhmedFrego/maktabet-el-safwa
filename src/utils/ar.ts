@@ -273,6 +273,7 @@ export const arabicMessages: TranslationMessages = {
       },
       actions: {
         create: 'إنشاء حجز',
+        deliver: 'تسليم الحجز',
         update: 'تعديل الحجز',
         cancel: 'إلغاء الحجز',
         confirm: 'تأكيد الحجز',

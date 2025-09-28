@@ -8,7 +8,7 @@ import {
 import { useTranslate } from 'react-admin'; // make sure you have this
 import { Loading, StyledContainer } from 'components/UI';
 import { Reservation } from '..';
-import { ReservationItem } from '../components';
+import { ReservationRecordCard } from '../components';
 import { Enums } from 'types/supabase-generated.types';
 import { Box } from '@mui/material';
 
@@ -77,7 +77,7 @@ export const ReservationList = () => {
         return (
           <StyledContainer sx={{ gap: 2, flexDirection: 'column' }}>
             {reservations?.map((reservation) => (
-              <ReservationItem key={reservation.id} reservation={reservation} />
+              <ReservationRecordCard key={reservation.id} reservation={reservation} />
             ))}
           </StyledContainer>
         );

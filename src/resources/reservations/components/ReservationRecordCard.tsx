@@ -13,15 +13,29 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { Reservation } from '..';
 import { useTranslate } from 'react-admin';
-import { ReservationRecord } from 'store';
 import { ExpandMore } from '@mui/icons-material';
-import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils/helpers';
 
-export const ReservationItem = ({ reservation }: ReservationItemProps) => {
+import { ReservationRecord } from 'store';
+import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
+
+import { Reservation } from '..';
+import { ReservationItemCta } from '.';
+
+export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
-  const { day, dayOfWeek, month, time } = formatDateTime(reservation.dead_line);
+
+  const {
+    client: { full_name, phone_number },
+    dead_line,
+    reservation_status,
+    reserved_items,
+    total_price,
+    paid_amount,
+    remain_amount,
+  } = reservation;
+  const { day, dayOfWeek, month, time } = formatDateTime(dead_line);
+
   return (
     <StyledReservationItem>
       <Accordion sx={{ '&.MuiAccordion-root': { m: 0 } }}>
@@ -29,34 +43,39 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
           expandIcon={<ExpandMore />}
           sx={(theme) => ({
             backgroundColor:
-              reservation.reservation_status === 'ready'
-                ? theme.palette.success.dark
-                : theme.palette.warning.main,
+              reservation_status === 'ready'
+                ? theme.palette.info.dark
+                : reservation_status === 'delivered'
+                  ? theme.palette.success.light
+                  : theme.palette.warning.main,
             '& .MuiAccordionSummary-content': {
-              fontWeight: 900,
-              fontSize: 3,
               justifyContent: 'space-between',
               maxWidth: '95%',
               gap: 1,
               px: 1,
+              '& > *': {
+                fontSize: 22,
+                fontWeight: 900,
+              },
             },
           })}
         >
-          <Typography noWrap>{reservation.client.full_name}</Typography>
-          <Typography noWrap>{toArabicNumerals(reservation.client.phone_number)}</Typography>
+          <Typography noWrap>{full_name}</Typography>
+          <Typography noWrap>{toArabicNumerals(phone_number)}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>{`${translate('resources.reservations.fields.total_price')}: ${reservation.total_price}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${reservation.paid_amount}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${reservation.remain_amount}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.total_price')}: ${total_price}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${paid_amount}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${translate(
-            `resources.reservations.status.${reservation.reservation_status}`
+            `resources.reservations.status.${reservation_status}`
           )}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${translateDayToArabic(dayOfWeek)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time)}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}</Typography>
+          <ReservationItemCta reservation={reservation} />
         </AccordionDetails>
       </Accordion>
       <Box>
-        <ReservedItems reservedItems={reservation.reserved_items} />
+        <ReservedItems reservedItems={reserved_items} />
       </Box>
     </StyledReservationItem>
   );
@@ -65,14 +84,7 @@ export const ReservationItem = ({ reservation }: ReservationItemProps) => {
 const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 195, borderRadius: 0 }}>
-      <Table
-        aria-label="simple table"
-        stickyHeader
-        sx={{
-          width: '100%',
-          // tableLayout: 'auto',
-        }}
-      >
+      <Table aria-label="simple table" stickyHeader sx={{ width: '100%' }}>
         <TableHead
           sx={(theme) => ({
             backgroundColor: theme.palette.grey[100],
@@ -89,7 +101,19 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
 
         <TableBody>
           {reservedItems.map((item) => (
-            <TableRow key={item.id}>
+            <TableRow
+              key={item.id}
+              sx={(theme) => ({
+                '& > *': {
+                  color:
+                    item.status === 'ready'
+                      ? theme.palette.warning.light
+                      : item.status === 'delivered'
+                        ? theme.palette.success.light
+                        : '',
+                },
+              })}
+            >
               <StyledTableCell
                 scope="row"
                 sx={{

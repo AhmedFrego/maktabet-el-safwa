@@ -1,4 +1,4 @@
-import { MergedDatabase } from "./supabase-overrides.types";
+import { MergedDatabase } from './supabase-overrides.types';
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -380,6 +380,8 @@ export type Database = {
           created_at: string;
           created_by: string;
           dead_line: string;
+          delivered_at: string | null;
+          delivered_by: string | null;
           id: string;
           paid_amount: number;
           remain_amount: number;
@@ -392,6 +394,8 @@ export type Database = {
           created_at?: string;
           created_by: string;
           dead_line: string;
+          delivered_at?: string | null;
+          delivered_by?: string | null;
           id?: string;
           paid_amount: number;
           remain_amount: number;
@@ -404,6 +408,8 @@ export type Database = {
           created_at?: string;
           created_by?: string;
           dead_line?: string;
+          delivered_at?: string | null;
+          delivered_by?: string | null;
           id?: string;
           paid_amount?: number;
           remain_amount?: number;
