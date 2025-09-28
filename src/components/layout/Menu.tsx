@@ -9,6 +9,7 @@ export const Menu = () => (
 
     <RAMenu.ResourceItem name="notes" />
     <RAMenu.ResourceItem name="reservations" />
+    <RAMenu.ResourceItem name="settings" />
   </StyledRAMenu>
 );
 

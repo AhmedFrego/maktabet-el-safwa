@@ -16,6 +16,7 @@ import { arabicMessages } from 'utils';
 
 import { NoteResource } from 'resources/notes';
 import { reservationsResource } from 'resources/reservations';
+import { settingsResource } from 'resources/settings';
 
 const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 
@@ -39,6 +40,7 @@ export const App = () => (
         >
           <Resource {...NoteResource} />
           <Resource {...reservationsResource} />
+          <Resource {...settingsResource} />
 
           <CustomRoutes noLayout>
             <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
