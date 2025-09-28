@@ -5,11 +5,11 @@ import Paper from '@mui/material/Paper';
 import { Layout as RALayout, CheckForApplicationUpdate } from 'react-admin';
 
 import { Menu, Header } from '.';
-import { CreateReservation } from 'resources/reservations/reaservation-create';
+import { ReservationCreate } from 'resources/reservations/reaservation-create';
 
 export const Layout = ({ children }: { children: ReactNode }) => (
   <StyledRALayout sidebar={Menu} appBar={Header}>
-    <CreateReservation />
+    <ReservationCreate />
     <StyledContent>{children}</StyledContent>
     <CheckForApplicationUpdate />
   </StyledRALayout>

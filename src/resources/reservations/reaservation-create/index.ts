@@ -1,3 +1,1 @@
-export * from './CancelModal';
-export * from './ClientInput';
-export * from './CreateReservation';
+export * from './ReservationCreate';

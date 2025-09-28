@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { Edit, DeleteForever, DoneAll } from '@mui/icons-material';
-import { Box, ButtonGroup, Modal, styled, Typography } from '@mui/material';
+import { Edit, DoneAll } from '@mui/icons-material';
+import { ButtonGroup, styled, Typography } from '@mui/material';
 import { Button, useDelete, useRedirect, useRefresh, useTranslate } from 'react-admin';
 
-import { ModalContent, ModalWrapper } from 'components/UI';
+import { NestedModal } from 'components/UI';
 import { myProvider, supabase } from 'lib';
 import { ReservationRecord } from 'store';
 
@@ -59,54 +58,14 @@ export const DeletelModal = ({ id }: { id: string }) => {
   const [deleteOne] = useDelete();
   const refresh = useRefresh();
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
   const handleDelete = () => deleteOne('reservations', { id }, { onSuccess: refresh });
   return (
-    <Box>
-      <StyledButton color="error" size="small" onClick={handleOpen}>
-        <DeleteForever fontSize="inherit" />
-        <Typography>{translate('resources.reservations.actions.cancel')}</Typography>
-      </StyledButton>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <ModalWrapper>
-          <ModalContent
-            sx={(theme) => ({
-              p: 2,
-              backgroundColor: theme.palette.grey[100],
-              border: `2px solid ${theme.palette.error.main}`,
-            })}
-          >
-            <Typography>{translate('resources.reservations.actions.cancel')}</Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{ fontFamily: 'inherit' }}
-                onClick={handleClose}
-                color="primary"
-              >
-                {translate('ra.action.undo')}
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                sx={{ fontFamily: 'inherit' }}
-                onClick={handleDelete}
-              >
-                {translate('ra.action.cancel')}
-              </Button>
-            </Box>
-          </ModalContent>
-        </ModalWrapper>
-      </Modal>
-    </Box>
+    <NestedModal
+      confirmFn={handleDelete}
+      title={translate('resources.reservations.actions.cancel')}
+      buttonText={translate('resources.reservations.actions.cancel')}
+      buttonSize="large"
+    />
   );
 };
 

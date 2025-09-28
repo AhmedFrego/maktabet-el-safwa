@@ -10,16 +10,16 @@ import {
   useTranslate,
 } from 'react-admin';
 
-import { ModalContent, ModalWrapper } from 'components/UI';
+import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
 import { supabase } from 'lib';
 import { clearItems, setIsReserving, useAppDispatch, useAppSelector } from 'store';
 import { TablesInsert } from 'types';
 import { toArabicNumerals, toSupabaseTimestamp } from 'utils';
 
-import { CancelModal, ClientInput } from '.';
 import { ReservedItem } from '../components';
+import { ClientInput } from 'components/form';
 
-export const CreateReservation = () => {
+export const ReservationCreate = () => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
   const { isReserving, reservedItems: reserved_items } = useAppSelector(
@@ -104,7 +104,10 @@ const CTA = () => {
 
   return (
     <Box sx={{ display: 'flex', gap: '1rem' }}>
-      <CancelModal />
+      <NestedModal
+        confirmFn={() => dispatch(clearItems())}
+        title={translate('resources.reservations.actions.cancel')}
+      />
       <Button
         variant="outlined"
         sx={{ fontFamily: 'inherit' }}
