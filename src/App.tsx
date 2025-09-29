@@ -17,11 +17,21 @@ import { arabicMessages } from 'utils';
 import { NoteResource } from 'resources/notes';
 import { reservationsResource } from 'resources/reservations';
 import { settingsResource } from 'resources/settings';
+import { BranchSelector } from 'components';
+import { PropsWithChildren } from 'react';
+import { ReservationCreate } from 'resources/reservations/reaservation-create';
 
 const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 
 document.documentElement.dir = 'rtl';
 document.documentElement.lang = 'ar';
+
+const CustomLayout = ({ children }: PropsWithChildren) => (
+  <>
+    <BranchSelector /> <ReservationCreate />
+    <Layout>{children}</Layout>
+  </>
+);
 
 export const App = () => (
   <BrowserRouter>
@@ -34,7 +44,7 @@ export const App = () => (
           loginPage={LoginPage}
           theme={lightTheme}
           darkTheme={darkTheme}
-          layout={Layout}
+          layout={CustomLayout}
           dashboard={Dashboard}
           catchAll={NotFound}
         >

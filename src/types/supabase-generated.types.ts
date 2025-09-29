@@ -136,6 +136,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      branch: {
+        Row: {
+          admin: string;
+          avatar_url: string;
+          id: Database['public']['Enums']['branches'];
+          loaction: string;
+          location_geo: string | null;
+          name: string;
+          phone_numbers: Json[] | null;
+        };
+        Insert: {
+          admin?: string;
+          avatar_url: string;
+          id: Database['public']['Enums']['branches'];
+          loaction: string;
+          location_geo?: string | null;
+          name: string;
+          phone_numbers?: Json[] | null;
+        };
+        Update: {
+          admin?: string;
+          avatar_url?: string;
+          id?: Database['public']['Enums']['branches'];
+          loaction?: string;
+          location_geo?: string | null;
+          name?: string;
+          phone_numbers?: Json[] | null;
+        };
+        Relationships: [];
+      };
       cover_paper_sizes: {
         Row: {
           id: string;
@@ -201,35 +231,6 @@ export type Database = {
             columns: ['type'];
             isOneToOne: false;
             referencedRelation: 'cover_paper_types';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      delivered_reservations: {
-        Row: {
-          delivered_at: string;
-          delivered_by: string | null;
-          id: string;
-          reservation_id: string;
-        };
-        Insert: {
-          delivered_at: string;
-          delivered_by?: string | null;
-          id?: string;
-          reservation_id: string;
-        };
-        Update: {
-          delivered_at?: string;
-          delivered_by?: string | null;
-          id?: string;
-          reservation_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'delivered_reservations_reservation_id_fkey';
-            columns: ['reservation_id'];
-            isOneToOne: true;
-            referencedRelation: 'reservations';
             referencedColumns: ['id'];
           },
         ];
@@ -376,6 +377,7 @@ export type Database = {
       };
       reservations: {
         Row: {
+          branch: Database['public']['Enums']['branches'];
           client_id: string;
           created_at: string;
           created_by: string;
@@ -390,6 +392,7 @@ export type Database = {
           total_price: number;
         };
         Insert: {
+          branch?: Database['public']['Enums']['branches'];
           client_id: string;
           created_at?: string;
           created_by: string;
@@ -404,6 +407,7 @@ export type Database = {
           total_price: number;
         };
         Update: {
+          branch?: Database['public']['Enums']['branches'];
           client_id?: string;
           created_at?: string;
           created_by?: string;
@@ -429,7 +433,7 @@ export type Database = {
       };
       settings: {
         Row: {
-          branch_id: string;
+          branch: Database['public']['Enums']['branches'] | null;
           current_term: string;
           current_year: string;
           default_paper_size: string;
@@ -438,7 +442,7 @@ export type Database = {
           price_ceil_to: number | null;
         };
         Insert: {
-          branch_id?: string;
+          branch?: Database['public']['Enums']['branches'] | null;
           current_term: string;
           current_year: string;
           default_paper_size: string;
@@ -447,7 +451,7 @@ export type Database = {
           price_ceil_to?: number | null;
         };
         Update: {
-          branch_id?: string;
+          branch?: Database['public']['Enums']['branches'] | null;
           current_term?: string;
           current_year?: string;
           default_paper_size?: string;
@@ -569,6 +573,7 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      branches: 'bakus';
       reservation_state: 'in-progress' | 'ready' | 'canceled' | 'delivered';
       user_role: 'owner' | 'admin' | 'client' | 'vip-client';
     };
@@ -696,6 +701,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      branches: ['bakus'],
       reservation_state: ['in-progress', 'ready', 'canceled', 'delivered'],
       user_role: ['owner', 'admin', 'client', 'vip-client'],
     },

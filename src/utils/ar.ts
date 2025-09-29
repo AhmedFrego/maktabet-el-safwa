@@ -210,6 +210,37 @@ export const arabicMessages: TranslationMessages = {
     },
   },
   resources: {
+    branches: {
+      name: 'فرع |||| الفروع',
+      fields: {
+        id: 'المعرّف',
+        name: 'اسم الفرع',
+        admin: 'المسؤول',
+        avatar_url: 'الصورة',
+        location: 'الموقع',
+        location_geo: 'الإحداثيات الجغرافية',
+        phone_number: 'أرقام الهاتف',
+        whats_app_number: 'رقم واتساب',
+      },
+      actions: {
+        choose: 'اختر الفرع',
+        set_default: 'تعيين كافتراضي',
+        contact: 'تواصل مع الفرع',
+        edit: 'تعديل الفرع',
+        delete: 'حذف الفرع',
+        create: 'إضافة فرع جديد',
+      },
+      labels: {
+        details: 'تفاصيل الفرع',
+        contact_info: 'معلومات الاتصال',
+        geo: 'الموقع الجغرافي',
+        list: 'قائمة الفروع',
+        create: 'إضافة فرع',
+        edit: 'تعديل الفرع',
+        show: 'عرض الفرع',
+      },
+    },
+
     notes: {
       name: ' مذكرات |||| مذكرة',
       fields: {
