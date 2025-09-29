@@ -92,10 +92,10 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
         >
           <TableRow>
             <StyledTableCell sx={{ width: '100%' }}>المحجوز</StyledTableCell>
-            <StyledTableCell align="center">ح.و</StyledTableCell>
-            <StyledTableCell align="center">ع</StyledTableCell>
-            <StyledTableCell align="center">س.و</StyledTableCell>
-            <StyledTableCell align="center">إ.س</StyledTableCell>
+            <StyledTableCell align="center">حجم الورق</StyledTableCell>
+            <StyledTableCell align="center">عدد</StyledTableCell>
+            <StyledTableCell align="center">سعر الوحدة</StyledTableCell>
+            <StyledTableCell align="center">إجمالي السعر</StyledTableCell>
           </TableRow>
         </TableHead>
 

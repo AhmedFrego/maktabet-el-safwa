@@ -136,36 +136,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      branch: {
-        Row: {
-          admin: string;
-          avatar_url: string;
-          id: Database['public']['Enums']['branches'];
-          loaction: string;
-          location_geo: string | null;
-          name: string;
-          phone_numbers: Json[] | null;
-        };
-        Insert: {
-          admin?: string;
-          avatar_url: string;
-          id: Database['public']['Enums']['branches'];
-          loaction: string;
-          location_geo?: string | null;
-          name: string;
-          phone_numbers?: Json[] | null;
-        };
-        Update: {
-          admin?: string;
-          avatar_url?: string;
-          id?: Database['public']['Enums']['branches'];
-          loaction?: string;
-          location_geo?: string | null;
-          name?: string;
-          phone_numbers?: Json[] | null;
-        };
-        Relationships: [];
-      };
       cover_paper_sizes: {
         Row: {
           id: string;
@@ -433,7 +403,11 @@ export type Database = {
       };
       settings: {
         Row: {
-          branch: Database['public']['Enums']['branches'] | null;
+          branch_admin: string;
+          branch_avatar_url: string;
+          branch_geo_location: string | null;
+          branch_location: string | null;
+          branch_name: string;
           current_term: string;
           current_year: string;
           default_paper_size: string;
@@ -442,7 +416,11 @@ export type Database = {
           price_ceil_to: number | null;
         };
         Insert: {
-          branch?: Database['public']['Enums']['branches'] | null;
+          branch_admin: string;
+          branch_avatar_url?: string;
+          branch_geo_location?: string | null;
+          branch_location?: string | null;
+          branch_name?: string;
           current_term: string;
           current_year: string;
           default_paper_size: string;
@@ -451,7 +429,11 @@ export type Database = {
           price_ceil_to?: number | null;
         };
         Update: {
-          branch?: Database['public']['Enums']['branches'] | null;
+          branch_admin?: string;
+          branch_avatar_url?: string;
+          branch_geo_location?: string | null;
+          branch_location?: string | null;
+          branch_name?: string;
           current_term?: string;
           current_year?: string;
           default_paper_size?: string;

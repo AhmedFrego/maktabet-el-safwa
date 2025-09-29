@@ -6,15 +6,15 @@ import { Tables } from 'types';
 import { Loading } from 'components/UI';
 
 export const BranchSelector = () => {
-  const [branch, setBranch] = useStore<Tables<'branch'>>('currentBranch');
+  const [setting, setSetting] = useStore<Tables<'settings'>>('currentBranch');
   const translate = useTranslate();
   const notify = useNotify();
 
-  const { data: branches, isLoading, error } = useGetList<Tables<'branch'>>('branch');
+  const { data: settings, isLoading, error } = useGetList<Tables<'settings'>>('settings');
 
   useEffect(() => {
-    if (branches?.length === 1) setBranch(branches[0]);
-  }, [branches, setBranch]);
+    if (settings?.length === 1) setSetting(settings[0]);
+  }, [setSetting, settings]);
 
   if (isLoading) {
     return (
@@ -32,19 +32,19 @@ export const BranchSelector = () => {
   }
 
   return (
-    <Dialog open={!branch} fullWidth maxWidth="sm">
+    <Dialog open={!setting} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontFamily: 'inherit' }} color="info">
         {translate('resources.branches.actions.choose')}
       </DialogTitle>
-      {branches && (
+      {settings && (
         <Box sx={{ paddingBottom: 3, display: 'flex', justifyContent: 'center', gap: 3 }}>
-          {branches.map((branch) => {
-            const { avatar_url, name } = branch;
+          {settings.map((setting) => {
+            const { branch_avatar_url, branch_name, id } = setting;
 
             return (
               <Box
-                key={branch.id}
-                onClick={() => setBranch(branch)}
+                key={id}
+                onClick={() => setSetting(setting)}
                 sx={(theme) => ({
                   display: 'flex',
                   flexDirection: 'column',
@@ -57,8 +57,8 @@ export const BranchSelector = () => {
                   },
                 })}
               >
-                <Avatar src={avatar_url} />
-                <Typography>{name}</Typography>
+                <Avatar src={branch_avatar_url} />
+                <Typography>{branch_name}</Typography>
               </Box>
             );
           })}
