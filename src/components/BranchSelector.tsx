@@ -6,7 +6,7 @@ import { Tables } from 'types';
 import { Loading } from 'components/UI';
 
 export const BranchSelector = () => {
-  const [setting, setSetting] = useStore<Tables<'settings'>>('currentBranch');
+  const [setting, setSetting] = useStore<Tables<'settings'>>('settings');
   const translate = useTranslate();
   const notify = useNotify();
 

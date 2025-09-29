@@ -27,10 +27,10 @@ document.documentElement.dir = 'rtl';
 document.documentElement.lang = 'ar';
 
 const CustomLayout = ({ children }: PropsWithChildren) => {
-  const [branch] = useStore<Tables<'branch'>>('currentBranch');
+  const [setting] = useStore<Tables<'settings'>>('settings');
   return (
     <>
-      {!branch && <BranchSelector />} <ReservationCreate />
+      {!setting && <BranchSelector />} <ReservationCreate />
       <Layout>{children}</Layout>
     </>
   );

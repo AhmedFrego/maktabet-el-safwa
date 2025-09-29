@@ -1,17 +1,11 @@
-import { useStore, useGetList } from 'react-admin';
+import { useStore } from 'react-admin';
 
 import { Tables } from 'types/supabase-generated.types';
 
 export const Settings = () => {
-  const [branch] = useStore<Tables<'branch'>>('currentBranch');
-  const { data, isLoading } = useGetList<Tables<'settings'>>('settings', {
-    filter: { branch: branch?.id },
-  });
+  const [setting] = useStore<Tables<'settings'>>('settings');
 
-  if (isLoading) return <p>Loading...</p>;
-  const record = data?.[0];
-
-  console.log(record);
+  console.log(setting);
   return (
     <></>
     // <Edit>
