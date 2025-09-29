@@ -4,17 +4,22 @@ import {
   ToggleThemeButton,
   LoadingIndicator,
   useTranslate,
+  useRedirect,
+  useStore,
 } from 'react-admin';
 import { styled } from '@mui/material/styles';
-import { EditNote } from '@mui/icons-material';
+import { EditNote, Settings } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector, setIsReserving } from 'store';
 
-import { Box, Badge, Button } from '@mui/material';
+import { Box, Badge, Button, IconButton } from '@mui/material';
 
 import { Logo } from '.';
 import { toArabicNumerals } from 'utils';
+import { Tables } from 'types/supabase-generated.types';
 
 export const Header = () => {
+  const reDirect = useRedirect();
+  const [setting] = useStore<Tables<'settings'>>('settings');
   return (
     <StyledAppBar
       toolbar={
@@ -22,6 +27,9 @@ export const Header = () => {
           <ReservationButton />
           <ToggleThemeButton />
           <LoadingIndicator />
+          <IconButton onClick={() => reDirect(`/settings/${setting?.id}`)}>
+            <Settings />
+          </IconButton>
         </>
       }
     >

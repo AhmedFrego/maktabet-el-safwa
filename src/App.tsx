@@ -3,23 +3,21 @@ import { Admin, CustomRoutes, Resource, useStore } from 'react-admin';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { ForgotPasswordPage, LoginPage, SetPasswordPage } from 'ra-supabase';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
-
 import { CacheProvider } from '@emotion/react';
-import { darkTheme, lightTheme, rtlCache } from 'theme';
-
-import { store } from 'store';
 import { Provider } from 'react-redux';
 
 import { BranchSelector } from 'components';
 import { Layout } from 'components/layout';
-import { Dashboard, NotFound, Settings } from 'pages';
 import { myProvider as dataProvider, authProvider } from 'lib';
+import { Dashboard, NotFound, Settings } from 'pages';
+import { store } from 'store';
+import { darkTheme, lightTheme, rtlCache } from 'theme';
+import { Tables } from 'types';
 import { arabicMessages } from 'utils';
 
 import { NoteResource } from 'resources/notes';
 import { reservationsResource } from 'resources/reservations';
 import { ReservationCreate } from 'resources/reservations/reaservation-create';
-import { Tables } from 'types/supabase-generated.types';
 
 const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 
@@ -53,14 +51,13 @@ export const App = () => (
         >
           <Resource {...NoteResource} />
           <Resource {...reservationsResource} />
-          {/* <Resource {...settingsResource} /> */}
 
           <CustomRoutes noLayout>
             <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
             <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
           </CustomRoutes>
           <CustomRoutes>
-            <Route path={'settings'} element={<Settings />} />
+            <Route path={'settings/:id'} element={<Settings />} />
           </CustomRoutes>
         </Admin>
       </Provider>
