@@ -323,27 +323,22 @@ export type Database = {
         Row: {
           gsm: string | null;
           id: string;
-          name: string | null;
+          size: string | null;
+          type: string | null;
         };
         Insert: {
           gsm?: string | null;
           id?: string;
-          name?: string | null;
+          size?: string | null;
+          type?: string | null;
         };
         Update: {
           gsm?: string | null;
           id?: string;
-          name?: string | null;
+          size?: string | null;
+          type?: string | null;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'paper_types_name_fkey';
-            columns: ['name'];
-            isOneToOne: false;
-            referencedRelation: 'paper_sizes';
-            referencedColumns: ['id'];
-          },
-        ];
+        Relationships: [];
       };
       reservations: {
         Row: {
@@ -403,39 +398,48 @@ export type Database = {
       };
       settings: {
         Row: {
+          available_covers: string[] | null;
           branch_admin: string;
           branch_avatar_url: string;
           branch_geo_location: string | null;
           branch_location: string | null;
           branch_name: string;
+          covers_prices: string[] | null;
           current_term: string;
           current_year: string;
+          default_cover: string | null;
           default_paper_size: string;
           id: string;
           paper_prices: Json[] | null;
           price_ceil_to: number | null;
         };
         Insert: {
+          available_covers?: string[] | null;
           branch_admin: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
           branch_location?: string | null;
           branch_name?: string;
+          covers_prices?: string[] | null;
           current_term: string;
           current_year: string;
+          default_cover?: string | null;
           default_paper_size: string;
           id?: string;
           paper_prices?: Json[] | null;
           price_ceil_to?: number | null;
         };
         Update: {
+          available_covers?: string[] | null;
           branch_admin?: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
           branch_location?: string | null;
           branch_name?: string;
+          covers_prices?: string[] | null;
           current_term?: string;
           current_year?: string;
+          default_cover?: string | null;
           default_paper_size?: string;
           id?: string;
           paper_prices?: Json[] | null;
@@ -454,6 +458,13 @@ export type Database = {
             columns: ['default_paper_size'];
             isOneToOne: false;
             referencedRelation: 'paper_sizes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'settings_default_cover_fkey';
+            columns: ['default_cover'];
+            isOneToOne: false;
+            referencedRelation: 'cover_paper_sizes';
             referencedColumns: ['id'];
           },
         ];

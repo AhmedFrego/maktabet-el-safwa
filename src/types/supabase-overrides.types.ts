@@ -4,16 +4,25 @@ import type { Database as DatabaseGenerated } from './supabase-generated.types';
 
 import { ReservationRecord } from 'store/slices';
 
-export interface paperPricesType {
+export interface PaperPricesType {
   id: string;
   oneFacePrice: number;
   twoFacesPrice: number;
 }
 
-type ReservationsOverride = {
-  reserved_items: ReservationRecord[];
+export interface CoverPricesType extends PaperPricesType {
+  to_paper_size: string[];
+}
+
+type ReservationsOverride = { reserved_items: ReservationRecord[] };
+
+type SettingsOverride = {
+  paper_prices: PaperPricesType[] | null;
+  covers_prices: CoverPricesType[] | null;
 };
-type SettingsOverride = { paper_prices: paperPricesType[] | null };
+
+type CoverTypesOverride = { to_paper_size: string[] };
+
 export type MergedDatabase = MergeDeep<
   DatabaseGenerated,
   {
@@ -28,6 +37,11 @@ export type MergedDatabase = MergeDeep<
           Row: ReservationsOverride;
           Insert: ReservationsOverride;
           Update: ReservationsOverride;
+        };
+        cover_paper_sizes: {
+          Row: CoverTypesOverride;
+          Insert: CoverTypesOverride;
+          Update: CoverTypesOverride;
         };
       };
     };

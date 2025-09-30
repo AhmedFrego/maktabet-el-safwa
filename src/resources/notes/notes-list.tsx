@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 
 import { RecordCard, StyledContainer, ListActions } from 'components/UI';
 import { useAppSelector } from 'store';
-import { Tables, type paperPricesType } from 'types';
+import { Tables, type PaperPricesType } from 'types';
 import { calcRecordPrice, toArabicNumerals } from 'utils';
 import { type Note, CustomFilterSidebar, noteToCard } from '.';
 
@@ -67,5 +67,5 @@ const NoteContainer = ({ paperPrices }: CardGridProps) => {
 };
 
 interface CardGridProps {
-  paperPrices: paperPricesType[] | null;
+  paperPrices: PaperPricesType[] | null;
 }

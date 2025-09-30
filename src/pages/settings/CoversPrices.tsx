@@ -1,6 +1,7 @@
 import { Box, Button, ButtonGroup, Divider, Modal, Typography } from '@mui/material';
 import { useState } from 'react';
 import {
+  AutocompleteArrayInput,
   Form,
   Identifier,
   NumberInput,
@@ -18,17 +19,27 @@ import {
 import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 
-export const PrintingPrices = () => {
+export const CoversPrices = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
+  const { data: cover_paper_sizes } = useGetList<Tables<'cover_paper_sizes'>>('cover_paper_sizes');
   const { data: paper_sizes } = useGetList<Tables<'paper_sizes'>>('paper_sizes');
-  const [deleteOne] = useDelete<Tables<'paper_sizes'>>();
-  const [update] = useUpdate<Omit<TablesUpdate<'settings'>, 'id'> & { id: Identifier }>();
 
-  const updateDefaultPaper = (id: string) => {
+  const [deleteOne] = useDelete<Tables<'cover_paper_sizes'>>();
+  const [update, { isLoading }] = useUpdate<
+    Omit<TablesUpdate<'settings'>, 'id'> & { id: Identifier }
+  >();
+
+  const updateAvailability = (id: string) => {
+    const availableCovers = setting?.available_covers ?? [];
+    const data = availableCovers.includes(id)
+      ? availableCovers.filter((x) => x !== id)
+      : [...availableCovers, id];
     update('settings', {
-      previousData: setting,
       id: setting?.id,
-      data: { default_paper_size: id },
+      previousData: setting,
+      data: {
+        available_covers: data,
+      },
     });
   };
 
@@ -44,26 +55,26 @@ export const PrintingPrices = () => {
           pb: 2,
         })}
       >
-        أسعار الطباعة
+        أسعار التغليف
       </Typography>
       <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
 
-      {paper_sizes?.map((size, index) => {
-        const oldPaperPrices = setting?.paper_prices?.find((price) => price.id === size.id);
+      {cover_paper_sizes?.map((size, index) => {
+        const oldPaperPrices = setting?.covers_prices?.find((price) => price.id === size.id);
         return (
           <Box key={size.id}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
               <Typography>{size.name}</Typography>
               <NumberInput
-                source={`paper_prices.${size.id}.oneFacePrice`}
+                source={`covers_prices.${size.id}.oneFacePrice`}
                 label="سعر الوجه الواحد بالقروش"
                 helperText={false}
                 validate={[required()]}
                 defaultValue={oldPaperPrices?.oneFacePrice}
               />
               <NumberInput
-                source={`paper_prices.${size.id}.twoFacesPrice`}
+                source={`covers_prices.${size.id}.twoFacesPrice`}
                 label="سعر الوجهين بالقروش"
                 helperText={false}
                 validate={[required()]}
@@ -73,20 +84,26 @@ export const PrintingPrices = () => {
                 title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
                 buttonText="حذف"
                 confirmFn={() => {
-                  deleteOne('paper_sizes', { id: size.id });
+                  deleteOne('cover_paper_sizes', { id: size.id });
                 }}
               />
-              {setting?.default_paper_size !== size.id && (
-                <Button
-                  variant="outlined"
-                  sx={{ fontFamily: 'inherit' }}
-                  onClick={() => updateDefaultPaper(size.id)}
-                >
-                  تعيين كإفتراضي
-                </Button>
-              )}
+              <Button
+                variant="outlined"
+                sx={{ fontFamily: 'inherit' }}
+                onClick={() => updateAvailability(size.id)}
+                loading={isLoading}
+              >
+                {setting?.available_covers?.includes(size.id) ? 'تعيين ك غير متاح' : 'تعيين ك متاح'}
+              </Button>
             </Box>
-            {index !== paper_sizes.length - 1 && <Divider />}
+            <AutocompleteArrayInput
+              source={`covers_prices.${size.id}.to_paper_size`}
+              label="مناسب للورق مقاس: "
+              variant="standard"
+              choices={paper_sizes}
+              defaultValue={oldPaperPrices?.to_paper_size}
+            />
+            {index !== cover_paper_sizes.length - 1 && <Divider />}
           </Box>
         );
       })}
@@ -117,7 +134,7 @@ const CreateModal = () => {
   return (
     <Box>
       <Button variant="text" sx={{ fontFamily: 'inherit' }} onClick={handleOpen}>
-        إضافة مقاس جديد
+        إضافة نوع جديد
       </Button>
       <Modal
         open={open}

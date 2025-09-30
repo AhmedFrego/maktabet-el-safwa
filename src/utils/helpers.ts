@@ -1,4 +1,4 @@
-import { paperPricesType } from 'types/supabase-overrides.types';
+import { PaperPricesType } from 'types';
 
 export const mapArrayToOption = <T>(
   array: T[] = [],
@@ -99,7 +99,7 @@ interface CalcRecordPriceProps {
     pages: string | number;
     do_round?: boolean | null;
   };
-  paperPrices?: paperPricesType[] | null;
+  paperPrices?: PaperPricesType[] | null;
   roundTo?: number | null;
 }
 
