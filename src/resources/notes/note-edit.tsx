@@ -47,7 +47,7 @@ export const NoteEdit = () => (
         </AccordionSummary>
         <AccordionDetails>
           <TextInput sx={{ width: '100%' }} source="year" />
-          <ReferenceInput source="default_paper_size" reference="paper_sizes">
+          <ReferenceInput source="default_paper_size" reference="paper_types">
             <AutocompleteInput
               sx={{ width: '100%' }}
               filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}

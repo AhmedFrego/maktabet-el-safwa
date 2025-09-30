@@ -74,7 +74,7 @@ export const NoteShow = () => {
 
             <Container>
               {translate('resources.notes.fields.default_paper_size')} :
-              <ReferenceField source="default_paper_size" reference="paper_sizes" />
+              <ReferenceField source="default_paper_size" reference="paper_types" />
               <Divider />
             </Container>
 

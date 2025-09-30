@@ -95,7 +95,7 @@ export type Database = {
             foreignKeyName: 'books_default_paper_size_fkey';
             columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: 'paper_sizes';
+            referencedRelation: 'paper_types';
             referencedColumns: ['id'];
           },
           {
@@ -136,7 +136,7 @@ export type Database = {
         };
         Relationships: [];
       };
-      cover_paper_sizes: {
+      cover_types: {
         Row: {
           id: string;
           name: string;
@@ -153,57 +153,6 @@ export type Database = {
           to_paper_size?: Json[] | null;
         };
         Relationships: [];
-      };
-      cover_paper_types: {
-        Row: {
-          id: string;
-          name: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-        };
-        Relationships: [];
-      };
-      cover_types: {
-        Row: {
-          gsm: string;
-          id: string;
-          name: string | null;
-          type: string | null;
-        };
-        Insert: {
-          gsm: string;
-          id?: string;
-          name?: string | null;
-          type?: string | null;
-        };
-        Update: {
-          gsm?: string;
-          id?: string;
-          name?: string | null;
-          type?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'cover_types_name_fkey';
-            columns: ['name'];
-            isOneToOne: false;
-            referencedRelation: 'cover_paper_sizes';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'cover_types_type_fkey';
-            columns: ['type'];
-            isOneToOne: false;
-            referencedRelation: 'cover_paper_types';
-            referencedColumns: ['id'];
-          },
-        ];
       };
       notes: {
         Row: {
@@ -278,7 +227,7 @@ export type Database = {
             foreignKeyName: 'notes_defaul_paper_size_fkey';
             columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: 'paper_sizes';
+            referencedRelation: 'paper_types';
             referencedColumns: ['id'];
           },
           {
@@ -304,7 +253,7 @@ export type Database = {
           },
         ];
       };
-      paper_sizes: {
+      paper_types: {
         Row: {
           id: string;
           name: string;
@@ -316,27 +265,6 @@ export type Database = {
         Update: {
           id?: string;
           name?: string;
-        };
-        Relationships: [];
-      };
-      paper_types: {
-        Row: {
-          gsm: string | null;
-          id: string;
-          size: string | null;
-          type: string | null;
-        };
-        Insert: {
-          gsm?: string | null;
-          id?: string;
-          size?: string | null;
-          type?: string | null;
-        };
-        Update: {
-          gsm?: string | null;
-          id?: string;
-          size?: string | null;
-          type?: string | null;
         };
         Relationships: [];
       };
@@ -404,7 +332,7 @@ export type Database = {
           branch_geo_location: string | null;
           branch_location: string | null;
           branch_name: string;
-          covers_prices: string[] | null;
+          covers_prices: Json[] | null;
           current_term: string;
           current_year: string;
           default_cover: string | null;
@@ -420,7 +348,7 @@ export type Database = {
           branch_geo_location?: string | null;
           branch_location?: string | null;
           branch_name?: string;
-          covers_prices?: string[] | null;
+          covers_prices?: Json[] | null;
           current_term: string;
           current_year: string;
           default_cover?: string | null;
@@ -436,7 +364,7 @@ export type Database = {
           branch_geo_location?: string | null;
           branch_location?: string | null;
           branch_name?: string;
-          covers_prices?: string[] | null;
+          covers_prices?: Json[] | null;
           current_term?: string;
           current_year?: string;
           default_cover?: string | null;
@@ -457,14 +385,14 @@ export type Database = {
             foreignKeyName: 'setting_default_paper_size_fkey';
             columns: ['default_paper_size'];
             isOneToOne: false;
-            referencedRelation: 'paper_sizes';
+            referencedRelation: 'paper_types';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'settings_default_cover_fkey';
             columns: ['default_cover'];
             isOneToOne: false;
-            referencedRelation: 'cover_paper_sizes';
+            referencedRelation: 'cover_types';
             referencedColumns: ['id'];
           },
         ];

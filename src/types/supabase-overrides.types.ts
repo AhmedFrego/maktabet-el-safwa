@@ -38,7 +38,7 @@ export type MergedDatabase = MergeDeep<
           Insert: ReservationsOverride;
           Update: ReservationsOverride;
         };
-        cover_paper_sizes: {
+        cover_paper_types: {
           Row: CoverTypesOverride;
           Insert: CoverTypesOverride;
           Update: CoverTypesOverride;

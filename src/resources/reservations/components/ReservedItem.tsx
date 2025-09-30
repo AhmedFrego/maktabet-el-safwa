@@ -58,7 +58,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord<unknown> }) => 
               </>
             }
           </Box>
-          <ReferenceInput source="paper_size" reference="paper_sizes">
+          <ReferenceInput source="paper_size" reference="paper_types">
             <AutocompleteInput
               sx={{ width: 'fit-content' }}
               variant="standard"

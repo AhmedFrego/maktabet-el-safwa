@@ -103,12 +103,12 @@ export const NoteCreate = () => {
           </AccordionSummary>
           <AccordionDetails>
             <TextInput sx={{ width: '100%' }} source="year" />
-            <ReferenceInput source="default_paper_size" reference="paper_sizes">
+            <ReferenceInput source="default_paper_size" reference="paper_types">
               <AutocompleteInput
                 sx={{ width: '100%' }}
                 filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
                 onCreate={async (value) => {
-                  const { data } = await dataProvider.create('paper_sizes', {
+                  const { data } = await dataProvider.create('paper_types', {
                     data: { name: value },
                   });
                   return data;

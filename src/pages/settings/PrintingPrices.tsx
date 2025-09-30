@@ -20,8 +20,8 @@ import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const PrintingPrices = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
-  const { data: paper_sizes } = useGetList<Tables<'paper_sizes'>>('paper_sizes');
-  const [deleteOne] = useDelete<Tables<'paper_sizes'>>();
+  const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
+  const [deleteOne] = useDelete<Tables<'paper_types'>>();
   const [update] = useUpdate<Omit<TablesUpdate<'settings'>, 'id'> & { id: Identifier }>();
 
   const updateDefaultPaper = (id: string) => {
@@ -49,7 +49,7 @@ export const PrintingPrices = () => {
       <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
 
-      {paper_sizes?.map((size, index) => {
+      {paper_types?.map((size, index) => {
         const oldPaperPrices = setting?.paper_prices?.find((price) => price.id === size.id);
         return (
           <Box key={size.id}>
@@ -73,7 +73,7 @@ export const PrintingPrices = () => {
                 title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
                 buttonText="حذف"
                 confirmFn={() => {
-                  deleteOne('paper_sizes', { id: size.id });
+                  deleteOne('paper_types', { id: size.id });
                 }}
               />
               {setting?.default_paper_size !== size.id && (
@@ -86,7 +86,7 @@ export const PrintingPrices = () => {
                 </Button>
               )}
             </Box>
-            {index !== paper_sizes.length - 1 && <Divider />}
+            {index !== paper_types.length - 1 && <Divider />}
           </Box>
         );
       })}
@@ -96,7 +96,7 @@ export const PrintingPrices = () => {
 
 const CreateModal = () => {
   const translate = useTranslate();
-  const [create] = useCreate<TablesInsert<'paper_sizes'>>();
+  const [create] = useCreate<TablesInsert<'paper_types'>>();
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -105,7 +105,7 @@ const CreateModal = () => {
   const addPaperSize: SaveHandler<{ name: string }> = (params) => {
     console.log(params.name);
     return create(
-      'paper_sizes',
+      'paper_types',
       { data: { name: params.name } },
       {
         onSuccess: () => handleClose(),

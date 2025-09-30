@@ -21,10 +21,10 @@ import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const CoversPrices = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
-  const { data: cover_paper_sizes } = useGetList<Tables<'cover_paper_sizes'>>('cover_paper_sizes');
-  const { data: paper_sizes } = useGetList<Tables<'paper_sizes'>>('paper_sizes');
+  const { data: cover_paper_types } = useGetList<Tables<'cover_types'>>('cover_types');
+  const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
 
-  const [deleteOne] = useDelete<Tables<'cover_paper_sizes'>>();
+  const [deleteOne] = useDelete<Tables<'cover_types'>>();
   const [update, { isLoading }] = useUpdate<
     Omit<TablesUpdate<'settings'>, 'id'> & { id: Identifier }
   >();
@@ -60,7 +60,7 @@ export const CoversPrices = () => {
       <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
 
-      {cover_paper_sizes?.map((size, index) => {
+      {cover_paper_types?.map((size, index) => {
         const oldPaperPrices = setting?.covers_prices?.find((price) => price.id === size.id);
         return (
           <Box key={size.id}>
@@ -84,7 +84,7 @@ export const CoversPrices = () => {
                 title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
                 buttonText="حذف"
                 confirmFn={() => {
-                  deleteOne('cover_paper_sizes', { id: size.id });
+                  deleteOne('cover_paper_types', { id: size.id });
                 }}
               />
               <Button
@@ -100,10 +100,10 @@ export const CoversPrices = () => {
               source={`covers_prices.${size.id}.to_paper_size`}
               label="مناسب للورق مقاس: "
               variant="standard"
-              choices={paper_sizes}
+              choices={paper_types}
               defaultValue={oldPaperPrices?.to_paper_size}
             />
-            {index !== cover_paper_sizes.length - 1 && <Divider />}
+            {index !== cover_paper_types.length - 1 && <Divider />}
           </Box>
         );
       })}
@@ -113,7 +113,7 @@ export const CoversPrices = () => {
 
 const CreateModal = () => {
   const translate = useTranslate();
-  const [create] = useCreate<TablesInsert<'paper_sizes'>>();
+  const [create] = useCreate<TablesInsert<'cover_types'>>();
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -122,7 +122,7 @@ const CreateModal = () => {
   const addPaperSize: SaveHandler<{ name: string }> = (params) => {
     console.log(params.name);
     return create(
-      'paper_sizes',
+      'cover_types',
       { data: { name: params.name } },
       {
         onSuccess: () => handleClose(),

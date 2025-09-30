@@ -22,7 +22,7 @@ export const NoteList = () => {
             '*',
             'academicYear:academic_years(name, short_name)',
             'term:terms(name)',
-            'paper_size:paper_sizes(name)',
+            'paper_size:paper_types(name)',
             'teacher:teachers(name)',
             'subject:subjects(name)',
           ],

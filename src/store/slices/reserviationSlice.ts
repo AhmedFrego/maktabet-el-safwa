@@ -5,7 +5,7 @@ export type ReservationStatus = Enums<'reservation_state'>;
 //Put this SQL in a migration file for reproducibility.
 export interface ReservationBase {
   title: string;
-  paperSizeId: Tables<'paper_sizes'>['name'];
+  paperSizeId: Tables<'paper_types'>['name'];
   quantity: number;
   totalPrice: number;
   status: ReservationStatus;
@@ -14,8 +14,8 @@ export interface ReservationBase {
 export interface ReservationMustKeys {
   id: string;
   price: number | null;
-  default_paper_size: Tables<'paper_sizes'>['id'];
-  paper_size: { name: Tables<'paper_sizes'>['name'] };
+  default_paper_size: Tables<'paper_types'>['id'];
+  paper_size: { name: Tables<'paper_types'>['name'] };
   title: string;
 }
 
