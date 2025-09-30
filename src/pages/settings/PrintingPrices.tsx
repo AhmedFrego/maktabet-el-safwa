@@ -2,6 +2,7 @@ import { Box, Button, ButtonGroup, Divider, Modal, Typography } from '@mui/mater
 import { useState } from 'react';
 import {
   Form,
+  Identifier,
   NumberInput,
   required,
   SaveHandler,
@@ -11,15 +12,25 @@ import {
   useGetList,
   useStore,
   useTranslate,
+  useUpdate,
 } from 'react-admin';
 
 import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
-import { Tables, TablesInsert } from 'types';
+import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const PrintingPrices = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
   const { data: paper_sizes } = useGetList<Tables<'paper_sizes'>>('paper_sizes');
   const [deleteOne] = useDelete<Tables<'paper_sizes'>>();
+  const [update] = useUpdate<Omit<TablesUpdate<'settings'>, 'id'> & { id: Identifier }>();
+
+  const updateDefaultPaper = (id: string) => {
+    update('settings', {
+      previousData: setting,
+      id: setting?.id,
+      data: { default_paper_size: id },
+    });
+  };
 
   return (
     <>
@@ -38,7 +49,7 @@ export const PrintingPrices = () => {
       <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
 
-      {paper_sizes?.map((size) => {
+      {paper_sizes?.map((size, index) => {
         const oldPaperPrices = setting?.paper_prices?.find((price) => price.id === size.id);
         return (
           <Box key={size.id}>
@@ -65,8 +76,17 @@ export const PrintingPrices = () => {
                   deleteOne('paper_sizes', { id: size.id });
                 }}
               />
+              {setting?.default_paper_size !== size.id && (
+                <Button
+                  variant="outlined"
+                  sx={{ fontFamily: 'inherit' }}
+                  onClick={() => updateDefaultPaper(size.id)}
+                >
+                  تعيين كإفتراضي
+                </Button>
+              )}
             </Box>
-            <Divider />
+            {index !== paper_sizes.length - 1 && <Divider />}
           </Box>
         );
       })}
