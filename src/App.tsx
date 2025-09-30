@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Admin, CustomRoutes, Resource, useStore } from 'react-admin';
+import { Admin, CustomRoutes, Resource } from 'react-admin';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { ForgotPasswordPage, LoginPage, SetPasswordPage } from 'ra-supabase';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
@@ -12,7 +12,6 @@ import { myProvider as dataProvider, authProvider } from 'lib';
 import { Dashboard, NotFound, Settings } from 'pages';
 import { store } from 'store';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
-import { Tables } from 'types';
 import { arabicMessages } from 'utils';
 
 import { NoteResource } from 'resources/notes';
@@ -25,10 +24,9 @@ document.documentElement.dir = 'rtl';
 document.documentElement.lang = 'ar';
 
 const CustomLayout = ({ children }: PropsWithChildren) => {
-  const [setting] = useStore<Tables<'settings'>>('settings');
   return (
     <>
-      {!setting && <BranchSelector />} <ReservationCreate />
+      <BranchSelector /> <ReservationCreate />
       <Layout>{children}</Layout>
     </>
   );
@@ -57,7 +55,7 @@ export const App = () => (
             <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
           </CustomRoutes>
           <CustomRoutes>
-            <Route path={'settings/:id'} element={<Settings />} />
+            <Route path={'settings'} element={<Settings />} />
           </CustomRoutes>
         </Admin>
       </Provider>
