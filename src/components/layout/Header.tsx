@@ -65,10 +65,10 @@ const ReservationButton = () => {
       </Badge>
       {translate(
         !isReserving
-          ? 'resources.notes.actions.reserve'
+          ? 'resources.reservations.actions.create'
           : reservedItems.length === 0
-            ? 'resources.notes.actions.cancel_reserve'
-            : 'resources.notes.actions.confirm_reserve'
+            ? 'resources.reservations.actions.cancel'
+            : 'resources.reservations.actions.confirm'
       )}
     </StyledReservationButton>
   );

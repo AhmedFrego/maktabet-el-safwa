@@ -8,17 +8,13 @@ import {
   ImageField,
   useTranslate,
   FunctionField,
-  useGetList,
 } from 'react-admin';
 
 import { Tables } from 'types';
-import { calcRecordPrice, formatToYYYYMMDD, toArabicNumerals } from 'utils/helpers';
+import { formatToYYYYMMDD, toArabicNumerals } from 'utils/helpers';
 
-export const NoteShow = () => {
+export const PublicationShow = () => {
   const translate = useTranslate();
-  const { data: settings } = useGetList<Tables<'settings'>>('settings', {
-    meta: { columns: ['*'] },
-  });
 
   return (
     <Show>
@@ -84,15 +80,7 @@ export const NoteShow = () => {
                 source="created_at"
                 render={(record) => {
                   if (record.price) return toArabicNumerals(record.price);
-                  else
-                    return toArabicNumerals(
-                      '( محسوب تلقائياً ) ' +
-                        calcRecordPrice({
-                          record,
-                          paperPrices: settings?.[0].paper_prices,
-                          roundTo: settings?.[0].price_ceil_to,
-                        }) || 0
-                    );
+                  else return toArabicNumerals('( محسوب تلقائياً ) ' + 0);
                 }}
               />
               {translate('custom.currency.long')} <Divider />

@@ -13,7 +13,7 @@ import { ImageInput, FileField } from 'react-admin';
 import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
 import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 
-export const NoteEdit = () => (
+export const PublicationEdit = () => (
   <Edit>
     <StyledForm>
       <ReferenceInput source="subject_id" reference="subjects">

@@ -1,4 +1,5 @@
 import { TranslationMessages } from 'ra-core';
+import { Enums } from 'types/supabase-generated.types';
 
 export const arabicMessages: TranslationMessages = {
   ra: {
@@ -240,16 +241,16 @@ export const arabicMessages: TranslationMessages = {
         show: 'عرض الفرع',
       },
     },
-
-    notes: {
-      name: ' مذكرات |||| مذكرة',
+    publications: {
+      name: ' مصادر تعليمية |||| مصدر تعليمي',
       fields: {
         id: 'الرمز التعريفي',
         created_at: 'تاريخ الإنشاء',
         created_by: 'أنشأه',
         updated_at: 'تاريخ آخر تعديل',
         updated_by: 'عدله',
-        teacher_id: 'المدرس',
+        publisher: 'الناشر',
+        publication_type: 'نوع المصدر',
         pages: 'عدد الصفحات',
         cover_url: 'رابط الغلاف',
         year: 'السنة',
@@ -262,12 +263,15 @@ export const arabicMessages: TranslationMessages = {
         nickname: 'الاسم المستعار',
         do_round: 'تدوير السعر',
         price: 'السعر',
+        two_faces_cover: 'غلاف مطبوع على الوجهين',
       },
       actions: {
         create: 'إنشاء مذكرة',
-        reserve: 'بدء الحجز',
-        cancel_reserve: 'إلغاء الحجز',
-        confirm_reserve: 'تأكيد الحجز',
+      },
+      labels: {
+        ['note' as Enums<'publications_types'>]: 'مذكرة',
+        ['book' as Enums<'publications_types'>]: 'كتاب',
+        ['other' as Enums<'publications_types'>]: 'أخرى',
       },
     },
     users: {

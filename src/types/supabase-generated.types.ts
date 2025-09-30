@@ -1,4 +1,4 @@
-import { MergedDatabase } from './supabase-overrides.types';
+import { MergedDatabase } from '.';
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -15,124 +15,19 @@ export type Database = {
           id: string;
           name: string;
           short_name: string;
+          stage: Database['public']['Enums']['stage'];
         };
         Insert: {
           id?: string;
           name: string;
           short_name: string;
+          stage?: Database['public']['Enums']['stage'];
         };
         Update: {
           id?: string;
           name?: string;
           short_name?: string;
-        };
-        Relationships: [];
-      };
-      books: {
-        Row: {
-          academic_year: string;
-          additional_data: string | null;
-          cover_url: string | null;
-          created_at: string;
-          created_by: string | null;
-          default_paper_size: string;
-          do_round: boolean | null;
-          id: string;
-          pages: number;
-          publisher: string;
-          related_books: Json | null;
-          subject_id: string;
-          term: string;
-          updated_at: string | null;
-          updated_by: string | null;
-          year: string;
-        };
-        Insert: {
-          academic_year: string;
-          additional_data?: string | null;
-          cover_url?: string | null;
-          created_at?: string;
-          created_by?: string | null;
-          default_paper_size: string;
-          do_round?: boolean | null;
-          id?: string;
-          pages: number;
-          publisher: string;
-          related_books?: Json | null;
-          subject_id: string;
-          term: string;
-          updated_at?: string | null;
-          updated_by?: string | null;
-          year: string;
-        };
-        Update: {
-          academic_year?: string;
-          additional_data?: string | null;
-          cover_url?: string | null;
-          created_at?: string;
-          created_by?: string | null;
-          default_paper_size?: string;
-          do_round?: boolean | null;
-          id?: string;
-          pages?: number;
-          publisher?: string;
-          related_books?: Json | null;
-          subject_id?: string;
-          term?: string;
-          updated_at?: string | null;
-          updated_by?: string | null;
-          year?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'books_academic_year_fkey';
-            columns: ['academic_year'];
-            isOneToOne: false;
-            referencedRelation: 'academic_years';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'books_default_paper_size_fkey';
-            columns: ['default_paper_size'];
-            isOneToOne: false;
-            referencedRelation: 'paper_types';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'books_publisher_fkey';
-            columns: ['publisher'];
-            isOneToOne: false;
-            referencedRelation: 'books_publishers';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'books_subject_id_fkey';
-            columns: ['subject_id'];
-            isOneToOne: false;
-            referencedRelation: 'subjects';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'books_term_fkey';
-            columns: ['term'];
-            isOneToOne: false;
-            referencedRelation: 'terms';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      books_publishers: {
-        Row: {
-          id: string;
-          name: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
+          stage?: Database['public']['Enums']['stage'];
         };
         Relationships: [];
       };
@@ -154,23 +49,39 @@ export type Database = {
         };
         Relationships: [];
       };
-      notes: {
+      paper_types: {
+        Row: {
+          id: string;
+          name: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+        };
+        Relationships: [];
+      };
+      publications: {
         Row: {
           academic_year: string;
           additional_data: string | null;
           cover_url: string | null;
           created_at: string;
-          created_by: string | null;
+          created_by: string;
           default_paper_size: string;
           do_round: boolean | null;
           id: string;
-          nickname: string | null;
           pages: number;
           price: number | null;
-          related_notes: Json[] | null;
+          publication_type: Database['public']['Enums']['publications_types'] | null;
+          publisher: string;
+          related_publications: Json[] | null;
           subject_id: string;
-          teacher_id: string;
-          term_id: string;
+          term: Database['public']['Enums']['term'] | null;
+          two_faces_cover: boolean | null;
           updated_at: string | null;
           updated_by: string | null;
           year: string;
@@ -180,17 +91,18 @@ export type Database = {
           additional_data?: string | null;
           cover_url?: string | null;
           created_at?: string;
-          created_by?: string | null;
+          created_by: string;
           default_paper_size: string;
           do_round?: boolean | null;
           id?: string;
-          nickname?: string | null;
           pages: number;
           price?: number | null;
-          related_notes?: Json[] | null;
+          publication_type?: Database['public']['Enums']['publications_types'] | null;
+          publisher: string;
+          related_publications?: Json[] | null;
           subject_id: string;
-          teacher_id: string;
-          term_id: string;
+          term?: Database['public']['Enums']['term'] | null;
+          two_faces_cover?: boolean | null;
           updated_at?: string | null;
           updated_by?: string | null;
           year: string;
@@ -200,60 +112,54 @@ export type Database = {
           additional_data?: string | null;
           cover_url?: string | null;
           created_at?: string;
-          created_by?: string | null;
+          created_by?: string;
           default_paper_size?: string;
           do_round?: boolean | null;
           id?: string;
-          nickname?: string | null;
           pages?: number;
           price?: number | null;
-          related_notes?: Json[] | null;
+          publication_type?: Database['public']['Enums']['publications_types'] | null;
+          publisher?: string;
+          related_publications?: Json[] | null;
           subject_id?: string;
-          teacher_id?: string;
-          term_id?: string;
+          term?: Database['public']['Enums']['term'] | null;
+          two_faces_cover?: boolean | null;
           updated_at?: string | null;
           updated_by?: string | null;
           year?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'notes_academic_year_fkey';
+            foreignKeyName: 'publications_academic_year_fkey';
             columns: ['academic_year'];
             isOneToOne: false;
             referencedRelation: 'academic_years';
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'notes_defaul_paper_size_fkey';
+            foreignKeyName: 'publications_default_paper_size_fkey';
             columns: ['default_paper_size'];
             isOneToOne: false;
             referencedRelation: 'paper_types';
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'notes_subject_id_fkey';
+            foreignKeyName: 'publications_publisher_fkey';
+            columns: ['publisher'];
+            isOneToOne: false;
+            referencedRelation: 'publishers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'publications_subject_id_fkey';
             columns: ['subject_id'];
             isOneToOne: false;
             referencedRelation: 'subjects';
             referencedColumns: ['id'];
           },
-          {
-            foreignKeyName: 'notes_teacher_fkey';
-            columns: ['teacher_id'];
-            isOneToOne: false;
-            referencedRelation: 'teachers';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'notes_term_fkey';
-            columns: ['term_id'];
-            isOneToOne: false;
-            referencedRelation: 'terms';
-            referencedColumns: ['id'];
-          },
         ];
       };
-      paper_types: {
+      publishers: {
         Row: {
           id: string;
           name: string;
@@ -333,7 +239,7 @@ export type Database = {
           branch_location: string | null;
           branch_name: string;
           covers_prices: Json[] | null;
-          current_term: string;
+          current_term: Database['public']['Enums']['term'];
           current_year: string;
           default_cover: string | null;
           default_paper_size: string;
@@ -349,7 +255,7 @@ export type Database = {
           branch_location?: string | null;
           branch_name?: string;
           covers_prices?: Json[] | null;
-          current_term: string;
+          current_term: Database['public']['Enums']['term'];
           current_year: string;
           default_cover?: string | null;
           default_paper_size: string;
@@ -365,7 +271,7 @@ export type Database = {
           branch_location?: string | null;
           branch_name?: string;
           covers_prices?: Json[] | null;
-          current_term?: string;
+          current_term?: Database['public']['Enums']['term'];
           current_year?: string;
           default_cover?: string | null;
           default_paper_size?: string;
@@ -374,13 +280,6 @@ export type Database = {
           price_ceil_to?: number | null;
         };
         Relationships: [
-          {
-            foreignKeyName: 'setting_current_term_fkey';
-            columns: ['current_term'];
-            isOneToOne: false;
-            referencedRelation: 'terms';
-            referencedColumns: ['id'];
-          },
           {
             foreignKeyName: 'setting_default_paper_size_fkey';
             columns: ['default_paper_size'];
@@ -411,35 +310,6 @@ export type Database = {
           name?: string;
         };
         Relationships: [];
-      };
-      teachers: {
-        Row: {
-          id: string;
-          name: string;
-          nickname: string | null;
-          subject_id: string | null;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          nickname?: string | null;
-          subject_id?: string | null;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          nickname?: string | null;
-          subject_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'teachers_subject_id_fkey';
-            columns: ['subject_id'];
-            isOneToOne: false;
-            referencedRelation: 'subjects';
-            referencedColumns: ['id'];
-          },
-        ];
       };
       terms: {
         Row: {
@@ -495,7 +365,10 @@ export type Database = {
     };
     Enums: {
       branches: 'bakus';
+      publications_types: 'note' | 'book' | 'other';
       reservation_state: 'in-progress' | 'ready' | 'canceled' | 'delivered';
+      stage: 'KG' | 'primary' | 'preparatory' | 'secondary' | 'other';
+      term: '1st' | '2nd' | 'full_year';
       user_role: 'owner' | 'admin' | 'client' | 'vip-client';
     };
     CompositeTypes: {
@@ -623,7 +496,10 @@ export const Constants = {
   public: {
     Enums: {
       branches: ['bakus'],
+      publications_types: ['note', 'book', 'other'],
       reservation_state: ['in-progress', 'ready', 'canceled', 'delivered'],
+      stage: ['KG', 'primary', 'preparatory', 'secondary', 'other'],
+      term: ['1st', '2nd', 'full_year'],
       user_role: ['owner', 'admin', 'client', 'vip-client'],
     },
   },
