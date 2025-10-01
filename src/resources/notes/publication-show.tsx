@@ -21,8 +21,8 @@ export const PublicationShow = () => {
       <SimpleShowLayout>
         <Grid container spacing={2} sx={{ height: '100%' }}>
           <Grid size={6}>
-            {translate('resources.notes.fields.id')} :
-            <TextField source="id" label={translate('resources.notes.fields.id')} />
+            {translate('resources.publications.fields.id')} :
+            <TextField source="id" label={translate('resources.publications.fields.id')} />
             <ImageField
               source="cover_url"
               sx={{
@@ -37,45 +37,54 @@ export const PublicationShow = () => {
           </Grid>
           <Grid container size={6} sx={{ flexDirection: 'column' }}>
             <Container>
-              {translate('resources.notes.fields.subject_id')} :
+              {translate('resources.publications.fields.subject_id')} :
               <ReferenceField source="subject_id" reference="subjects" />
               <TextField source="nickname" />
               <Divider />
             </Container>
+
             <Container>
-              {translate('resources.notes.fields.teacher_id')} :
-              <ReferenceField source="teacher_id" reference="teachers" />
-              <Divider />
-            </Container>
-            <Container>
-              {translate('resources.notes.fields.academic_year')} :
-              <ReferenceField source="academic_year" reference="academic_years" /> <Divider />
-            </Container>
-            <Container>
-              {translate('resources.notes.fields.term_id')} :
-              <ReferenceField source="term_id" reference="terms" />
+              {translate('resources.publications.fields.publisher')} :
+              <ReferenceField source="publisher" reference="publishers" />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.year')} :
+              {translate('resources.publications.fields.academic_year')} :
+              <ReferenceField source="academic_year" reference="academic_years" /> <Divider />
+            </Container>
+
+            <Container>
+              {translate('resources.publications.fields.term')} :
+              <FunctionField
+                label="Name"
+                render={(record) =>
+                  ` ${translate(`resources.publications.labels.term.${record.term}`)}`
+                }
+              />
+              <Divider />
+            </Container>
+
+            <Container>
+              {translate('resources.publications.fields.year')} :
               <FunctionField source="year" render={(record) => toArabicNumerals(record.year)} />
               <Divider />
             </Container>
+
             <Container>
-              {translate('resources.notes.fields.pages')} :
+              {translate('resources.publications.fields.pages')} :
               <FunctionField source="pages" render={(record) => toArabicNumerals(record.pages)} />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.default_paper_size')} :
+              {translate('resources.publications.fields.default_paper_size')} :
               <ReferenceField source="default_paper_size" reference="paper_types" />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.price')} :
+              {translate('resources.publications.fields.price')} :
               <FunctionField
                 source="created_at"
                 render={(record) => {
@@ -87,7 +96,7 @@ export const PublicationShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.created_at')} :
+              {translate('resources.publications.fields.created_at')} :
               <FunctionField
                 source="created_at"
                 render={(record) => {
@@ -99,19 +108,19 @@ export const PublicationShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.created_by')} :
+              {translate('resources.publications.fields.created_by')} :
               <ReferenceField
                 source="created_by"
                 reference="users"
-                render={({ referenceRecord }: { referenceRecord: Tables<'users'> }) => {
-                  return <>{referenceRecord.full_name}</>;
-                }}
+                render={({ referenceRecord }: { referenceRecord?: Tables<'users'> }) =>
+                  referenceRecord?.full_name
+                }
               />
               <Divider />
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.updated_at')} :
+              {translate('resources.publications.fields.updated_at')} :
               <FunctionField
                 source="updated_at"
                 render={(record) => {
@@ -125,21 +134,34 @@ export const PublicationShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.notes.fields.updated_by')} :
+              {translate('resources.publications.fields.updated_by')} :
               <ReferenceField
                 source="updated_by"
                 reference="users"
-                render={({ referenceRecord }: { referenceRecord: Tables<'users'> }) => {
-                  console.log(referenceRecord);
-                  return <>{referenceRecord.full_name || '0000000000'}</>;
-                }}
+                render={({ referenceRecord }: { referenceRecord?: Tables<'users'> }) =>
+                  referenceRecord?.full_name
+                }
               />
               <Divider />
             </Container>
 
-            <TextField source="additional_data" />
-            <TextField source="related_notes" />
-            <BooleanField source="do_round" />
+            <Container>
+              {translate('resources.publications.fields.do_round')} :
+              <BooleanField source="do_round" />
+              <Divider />
+            </Container>
+
+            <Container>
+              {translate('resources.publications.fields.additional_data')} :
+              <TextField source="additional_data" />
+              <Divider />
+            </Container>
+
+            <Container>
+              {translate('resources.publications.fields.related_publications')} :
+              <TextField source="related_publications" />
+              <Divider />
+            </Container>
           </Grid>
         </Grid>
       </SimpleShowLayout>
