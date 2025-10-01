@@ -16,12 +16,12 @@ import {
   useUpdate,
 } from 'react-admin';
 
-import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
+import { ModalContent, ModalWrapper, NestedModal, PaperBox } from 'components/UI';
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const CoversPrices = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
-  const { data: cover_paper_types } = useGetList<Tables<'cover_types'>>('cover_types');
+  const { data: cover_types } = useGetList<Tables<'cover_types'>>('cover_types');
   const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
 
   const [deleteOne] = useDelete<Tables<'cover_types'>>();
@@ -49,26 +49,22 @@ export const CoversPrices = () => {
         variant="h3"
         color="primary"
         sx={(theme) => ({
-          borderBottom: `1px solid ${theme.palette.secondary.light}`,
+          backgroundColor: theme.palette.primary.light,
+          color: theme.palette.primary.contrastText,
           textAlign: 'center',
           p: 1,
-          pb: 2,
+          mt: 2,
         })}
       >
         أسعار التغليف
       </Typography>
-      <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {cover_paper_types?.map((type) => {
+        {cover_types?.map((type) => {
           const oldPaperPrices = setting?.covers_prices?.find((price) => price.id === type.id);
-          const xx = cover_paper_types.find((x) => x.id === type.id);
-          console.log(xx);
+          const xx = cover_types.find((x) => x.id === type.id);
           return (
-            <Box
-              key={type.id}
-              sx={(theme) => ({ backgroundColor: theme.palette.background.paper, p: 1 })}
-            >
+            <PaperBox key={type.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
                 <Typography>{type.name}</Typography>
                 <NumberInput
@@ -103,17 +99,14 @@ export const CoversPrices = () => {
                     : 'تعيين ك متاح'}
                 </Button>
               </Box>
-              <Box>
-                <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {' '}
-                  مناسب لمقاسات :
-                  {xx?.to_paper_size?.map((x) => {
-                    const p = paper_types?.find((p) => p.id === x);
-                    return <Chip key={x} label={p?.name} />;
-                  })}
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                مناسب لمقاسات :
+                {xx?.to_paper_size?.map((x) => {
+                  const p = paper_types?.find((p) => p.id === x);
+                  return <Chip key={x} label={p?.name} />;
+                })}
               </Box>
-            </Box>
+            </PaperBox>
           );
         })}
       </Box>

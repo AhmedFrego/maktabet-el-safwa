@@ -69,14 +69,16 @@ export const Settings = () => {
       <Title title={`إعدادات ${setting?.branch_name}`} />
       <PrintingPrices />
       <CoversPrices />
+
       <Typography
         variant="h3"
         color="primary"
         sx={(theme) => ({
-          borderBottom: `1px solid ${theme.palette.secondary.light}`,
+          backgroundColor: theme.palette.primary.light,
+          color: theme.palette.primary.contrastText,
           textAlign: 'center',
           p: 1,
-          pb: 2,
+          mt: 2,
         })}
       >
         إعدادات عامة
@@ -104,8 +106,8 @@ export const Settings = () => {
           defaultValue={setting?.current_term}
         />
       </Box>
-      <Button variant="contained" type="submit" loading={isPending}>
-        ju
+      <Button variant="contained" type="submit" loading={isPending} sx={{ fontFamily: 'inherit' }}>
+        {translate('ra.action.save')}
       </Button>
     </Form>
   );

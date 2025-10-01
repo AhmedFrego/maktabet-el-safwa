@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Divider, Modal, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Modal, Typography } from '@mui/material';
 import { useState } from 'react';
 import {
   Form,
@@ -15,7 +15,7 @@ import {
   useUpdate,
 } from 'react-admin';
 
-import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
+import { ModalContent, ModalWrapper, NestedModal, PaperBox } from 'components/UI';
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const PrintingPrices = () => {
@@ -38,58 +38,57 @@ export const PrintingPrices = () => {
         variant="h3"
         color="primary"
         sx={(theme) => ({
-          borderBottom: `1px solid ${theme.palette.secondary.light}`,
+          backgroundColor: theme.palette.primary.light,
+          color: theme.palette.primary.contrastText,
           textAlign: 'center',
           p: 1,
-          pb: 2,
         })}
       >
         أسعار الطباعة
       </Typography>
-      <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
-
-      {paper_types?.map((size, index) => {
-        const oldPaperPrices = setting?.paper_prices?.find((price) => price.id === size.id);
-        return (
-          <Box key={size.id}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
-              <Typography>{size.name}</Typography>
-              <NumberInput
-                source={`paper_prices.${size.id}.oneFacePrice`}
-                label="سعر الوجه الواحد بالقروش"
-                helperText={false}
-                validate={[required()]}
-                defaultValue={oldPaperPrices?.oneFacePrice}
-              />
-              <NumberInput
-                source={`paper_prices.${size.id}.twoFacesPrice`}
-                label="سعر الوجهين بالقروش"
-                helperText={false}
-                validate={[required()]}
-                defaultValue={oldPaperPrices?.twoFacesPrice}
-              />
-              <NestedModal
-                title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
-                buttonText="حذف"
-                confirmFn={() => {
-                  deleteOne('paper_types', { id: size.id });
-                }}
-              />
-              {setting?.default_paper_size !== size.id && (
-                <Button
-                  variant="outlined"
-                  sx={{ fontFamily: 'inherit' }}
-                  onClick={() => updateDefaultPaper(size.id)}
-                >
-                  تعيين كإفتراضي
-                </Button>
-              )}
-            </Box>
-            {index !== paper_types.length - 1 && <Divider />}
-          </Box>
-        );
-      })}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {paper_types?.map((size) => {
+          const oldPaperPrices = setting?.paper_prices?.find((price) => price.id === size.id);
+          return (
+            <PaperBox key={size.id}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1 }}>
+                <Typography>{size.name}</Typography>
+                <NumberInput
+                  source={`paper_prices.${size.id}.oneFacePrice`}
+                  label="سعر الوجه الواحد بالقروش"
+                  helperText={false}
+                  validate={[required()]}
+                  defaultValue={oldPaperPrices?.oneFacePrice}
+                />
+                <NumberInput
+                  source={`paper_prices.${size.id}.twoFacesPrice`}
+                  label="سعر الوجهين بالقروش"
+                  helperText={false}
+                  validate={[required()]}
+                  defaultValue={oldPaperPrices?.twoFacesPrice}
+                />
+                <NestedModal
+                  title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
+                  buttonText="حذف"
+                  confirmFn={() => {
+                    deleteOne('paper_types', { id: size.id });
+                  }}
+                />
+                {setting?.default_paper_size !== size.id && (
+                  <Button
+                    variant="outlined"
+                    sx={{ fontFamily: 'inherit' }}
+                    onClick={() => updateDefaultPaper(size.id)}
+                  >
+                    تعيين كإفتراضي
+                  </Button>
+                )}
+              </Box>
+            </PaperBox>
+          );
+        })}
+      </Box>
     </>
   );
 };
