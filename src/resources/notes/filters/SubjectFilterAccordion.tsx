@@ -2,7 +2,6 @@ import { AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { Book } from '@mui/icons-material';
-import { Note } from '../types';
 import {
   StyledAccordionSummary,
   StyledFilterListItem,
@@ -10,18 +9,10 @@ import {
   StyledAccordion,
 } from './styles';
 import { useTranslate } from 'react-admin';
+import { idName } from 'types/types';
 
-export const SubjectFilterAccordion = ({ notes }: { notes: Note[] }) => {
+export const SubjectFilterAccordion = ({ uniqueSubjects }: { uniqueSubjects: idName[] }) => {
   const translate = useTranslate();
-  const subjectsMap = new Map();
-
-  notes.forEach((n) => {
-    if (n.subject?.name && n.subject_id) {
-      subjectsMap.set(n.subject.name, { name: n.subject.name, id: n.subject_id });
-    }
-  });
-
-  const uniqueSubjects = Array.from(subjectsMap.values());
 
   return (
     <StyledAccordion disableGutters>

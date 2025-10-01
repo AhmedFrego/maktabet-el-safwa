@@ -1,9 +1,9 @@
 import { Accordion, AccordionSummary, Typography, styled } from '@mui/material';
 import { FilterListItem } from 'react-admin';
 
-export const StyledAccordion = styled(Accordion)(() => ({
-  marginRight: '3px',
-}));
+export const StyledAccordion = styled(Accordion)({
+  marginRight: 1,
+});
 
 export const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
@@ -19,7 +19,7 @@ export const StyledFilterListItem = styled(FilterListItem)(({ theme }) => ({
   fontSize: theme.typography.caption.fontSize,
 
   '& > .MuiListItemButton-root': {
-    paddingInlineStart: '0',
+    paddingInlineStart: 0,
   },
 
   '& .muirtl-u87xkc-MuiTypography-root': { fontSize: theme.typography.caption.fontSize },

@@ -2,16 +2,18 @@ import { useTranslate } from 'react-admin';
 import { AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CalendarToday } from '@mui/icons-material';
-import { Note } from '../types';
+
 import {
   StyledAccordionSummary,
   StyledFilterListItem,
   StyledTypography,
   StyledAccordion,
 } from './styles';
-export const YearFilterAccordion = ({ notes }: { notes: Note[] }) => {
+
+import { toArabicNumerals } from 'utils';
+
+export const YearFilterAccordion = ({ uniqueYears }: { uniqueYears: string[] }) => {
   const translate = useTranslate();
-  const years = Array.from(new Set(notes.map((n) => n.year))).sort((a, b) => +a - +b);
 
   return (
     <StyledAccordion disableGutters>
@@ -21,8 +23,8 @@ export const YearFilterAccordion = ({ notes }: { notes: Note[] }) => {
         </StyledTypography>
       </StyledAccordionSummary>
       <AccordionDetails>
-        {years.map((year) => (
-          <StyledFilterListItem key={year} label={String(year)} value={{ year }} />
+        {uniqueYears.map((year) => (
+          <StyledFilterListItem key={year} label={toArabicNumerals(year)} value={{ year }} />
         ))}
       </AccordionDetails>
     </StyledAccordion>
