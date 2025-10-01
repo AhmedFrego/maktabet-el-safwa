@@ -4,3 +4,4 @@ export * from './styles';
 export * from './SubjectFilterAccordion';
 export * from './TermFilterAccordion';
 export * from './YearFilterAccordion';
+export * from './PublicationsTypeFilter';

@@ -6,6 +6,7 @@ import {
   AcademicYearFilterAccordion,
   TermFilterAccordion,
   SubjectFilterAccordion,
+  PublicationsTypeFilter,
 } from '.';
 import { idName } from 'types';
 
@@ -42,6 +43,7 @@ export const CustomFilterSidebar = () => {
   return (
     <Card sx={{ order: -1, width: 220 }}>
       <CardContent sx={{ p: 0 }}>
+        <PublicationsTypeFilter />
         <AcademicYearFilterAccordion uniqueAcademicYears={uniqueAcademicYears} />
         <SubjectFilterAccordion uniqueSubjects={uniqueSubjects} />
         <YearFilterAccordion uniqueYears={uniqueYears} />

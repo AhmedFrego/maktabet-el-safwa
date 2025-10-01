@@ -13,6 +13,8 @@ export const StyledTypography = styled(Typography)(({ theme }) => ({
   fontWeight: '900',
   fontSize: theme.typography.caption.fontSize,
   color: theme.palette.mode === 'dark' ? theme.palette.info.light : theme.palette.info.dark,
+  display: 'flex',
+  gap: 2,
 }));
 
 export const StyledFilterListItem = styled(FilterListItem)(({ theme }) => ({
