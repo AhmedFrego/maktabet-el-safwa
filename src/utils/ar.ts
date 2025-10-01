@@ -257,10 +257,9 @@ export const arabicMessages: TranslationMessages = {
         subject_id: 'المادة',
         academic_year: 'السنة الدراسية',
         default_paper_size: 'حجم الورق الافتراضي',
-        term_id: 'الفصل الدراسي',
+        term: 'الفصل الدراسي',
         additional_data: 'بيانات إضافية',
-        related_notes: 'مذكرات ذات صلة',
-        nickname: 'الاسم المستعار',
+        related_publications: 'مصادر ذات صلة',
         do_round: 'تدوير السعر',
         price: 'السعر',
         two_faces_cover: 'غلاف مطبوع على الوجهين',
@@ -269,9 +268,16 @@ export const arabicMessages: TranslationMessages = {
         create: 'إنشاء مذكرة',
       },
       labels: {
-        ['note' as Enums<'publications_types'>]: 'مذكرة',
-        ['book' as Enums<'publications_types'>]: 'كتاب',
-        ['other' as Enums<'publications_types'>]: 'أخرى',
+        publications_types: {
+          ['note' as Enums<'publications_types'>]: 'مذكرة',
+          ['book' as Enums<'publications_types'>]: 'كتاب',
+          ['other' as Enums<'publications_types'>]: 'أخرى',
+        },
+        term: {
+          ['1st' as Enums<'term'>]: 'الأول',
+          ['2nd' as Enums<'term'>]: 'الثاني',
+          ['full_year' as Enums<'term'>]: 'مدمج (سنة كاملة)',
+        },
       },
     },
     users: {

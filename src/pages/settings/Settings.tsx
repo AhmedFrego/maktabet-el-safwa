@@ -5,17 +5,18 @@ import {
   Form,
   useUpdate,
   SaveHandler,
-  ReferenceInput,
   AutocompleteInput,
   TextInput,
   required,
   choices,
+  useTranslate,
 } from 'react-admin';
 
-import { Tables, PaperPricesType, CoverPricesType } from 'types';
+import { Tables, PaperPricesType, Enums } from 'types';
 import { PrintingPrices, CoversPrices } from '.';
 
 export const Settings = () => {
+  const translate = useTranslate();
   const [update, { isPending }] = useUpdate<Tables<'settings'>>();
 
   const [setting, setSetting] = useStore<Tables<'settings'>>('settings');
@@ -24,7 +25,7 @@ export const Settings = () => {
     paper_prices: PaperPricesPrimitiveShape;
     covers_prices: PaperPricesPrimitiveShape;
 
-    current_term: string;
+    current_term: Enums<'term'>;
     current_year: string;
   }> = (params) => {
     if (!setting?.id) return Promise.reject(new Error('missing setting id'));
@@ -34,7 +35,7 @@ export const Settings = () => {
     ) as unknown as PaperPricesType[];
     const transformedCoversPrices = toPaperType(
       params.covers_prices ?? {}
-    ) as unknown as CoverPricesType[];
+    ) as unknown as PaperPricesType[];
     return update(
       'settings',
       {
@@ -53,6 +54,15 @@ export const Settings = () => {
       }
     ).then(() => undefined);
   };
+
+  const termsOptions = [
+    { id: '1st', name: translate('resources.publications.labels.term.1st') },
+    { id: '2nd', name: translate('resources.publications.labels.term.2nd') },
+    { id: 'full_year', name: translate('resources.publications.labels.term.full_year') },
+  ] as {
+    id: Enums<'term'>;
+    name: string;
+  }[];
 
   return (
     <Form onSubmit={submitHandler}>
@@ -86,14 +96,13 @@ export const Settings = () => {
             ]),
           ]}
         />
-        <ReferenceInput source="current_term" reference="terms">
-          <AutocompleteInput
-            sx={{ width: '100%' }}
-            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-            defaultValue={setting?.current_term}
-            label="الترم الحالي"
-          />
-        </ReferenceInput>
+        <AutocompleteInput
+          fullWidth
+          source="term"
+          filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+          choices={termsOptions}
+          defaultValue={setting?.current_term}
+        />
       </Box>
       <Button variant="contained" type="submit" loading={isPending}>
         ju

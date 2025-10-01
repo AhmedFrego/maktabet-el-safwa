@@ -10,13 +10,11 @@ import {
   useDataProvider,
   useStore,
   useTranslate,
-  useCreate,
 } from 'react-admin';
 import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
 import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
-
 import { supabase } from 'lib';
 import { Enums, STOREGE_URL, Tables } from 'types';
 
@@ -24,7 +22,7 @@ import { Publication } from '.';
 
 export const PublicationCreate = () => {
   const dataProvider = useDataProvider();
-  const [settings] = useStore<Tables<'settings'>>('settings');
+  const [setting] = useStore<Tables<'settings'>>('settings');
   const translate = useTranslate();
 
   type PublicationWithFileCover = Omit<Publication, 'cover_url'> & {
@@ -53,18 +51,18 @@ export const PublicationCreate = () => {
   };
 
   const publicationTypesChoises = [
-    { id: 'book', name: translate('resources.publications.labels.book') },
-    { id: 'note', name: translate('resources.publications.labels.note') },
-    { id: 'other', name: translate('resources.publications.labels.other') },
+    { id: 'book', name: translate('resources.publications.labels.publications_types.book') },
+    { id: 'note', name: translate('resources.publications.labels.publications_types.note') },
+    { id: 'other', name: translate('resources.publications.labels.publications_types.other') },
   ] as {
     id: Enums<'publications_types'>;
     name: string;
   }[];
 
   const termsOptions = [
-    { id: '1st', name: '1st' },
-    { id: '2nd', name: '2nd' },
-    { id: 'full_year', name: 'full_year' },
+    { id: '1st', name: translate('resources.publications.labels.term.1st') },
+    { id: '2nd', name: translate('resources.publications.labels.term.2nd') },
+    { id: 'full_year', name: translate('resources.publications.labels.term.full_year') },
   ] as {
     id: Enums<'term'>;
     name: string;
@@ -74,9 +72,9 @@ export const PublicationCreate = () => {
     <Create transform={transform}>
       <StyledForm
         defaultValues={{
-          year: settings?.current_year,
-          term: settings?.current_term,
-          default_paper_size: settings?.default_paper_size,
+          year: setting?.current_year,
+          term: setting?.current_term,
+          default_paper_size: setting?.default_paper_size,
         }}
       >
         <AutocompleteInput source="publication_type" choices={publicationTypesChoises} fullWidth />
@@ -151,7 +149,7 @@ export const PublicationCreate = () => {
               source="term"
               filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
               choices={termsOptions}
-              defaultValue={settings?.current_term}
+              defaultValue={setting?.current_term}
             />
             <TextInput fullWidth source="additional_data" />
             <TextInput fullWidth source="related_publications" />

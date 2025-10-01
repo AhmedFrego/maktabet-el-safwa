@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Divider, Modal, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Chip, Modal, Typography } from '@mui/material';
 import { useState } from 'react';
 import {
   AutocompleteArrayInput,
@@ -59,54 +59,64 @@ export const CoversPrices = () => {
       </Typography>
       <Button variant="text" sx={{ fontFamily: 'inherit' }}></Button>
       <CreateModal />
-
-      {cover_paper_types?.map((size, index) => {
-        const oldPaperPrices = setting?.covers_prices?.find((price) => price.id === size.id);
-        return (
-          <Box key={size.id}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
-              <Typography>{size.name}</Typography>
-              <NumberInput
-                source={`covers_prices.${size.id}.oneFacePrice`}
-                label="سعر الوجه الواحد بالقروش"
-                helperText={false}
-                validate={[required()]}
-                defaultValue={oldPaperPrices?.oneFacePrice}
-              />
-              <NumberInput
-                source={`covers_prices.${size.id}.twoFacesPrice`}
-                label="سعر الوجهين بالقروش"
-                helperText={false}
-                validate={[required()]}
-                defaultValue={oldPaperPrices?.twoFacesPrice}
-              />
-              <NestedModal
-                title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
-                buttonText="حذف"
-                confirmFn={() => {
-                  deleteOne('cover_paper_types', { id: size.id });
-                }}
-              />
-              <Button
-                variant="outlined"
-                sx={{ fontFamily: 'inherit' }}
-                onClick={() => updateAvailability(size.id)}
-                loading={isLoading}
-              >
-                {setting?.available_covers?.includes(size.id) ? 'تعيين ك غير متاح' : 'تعيين ك متاح'}
-              </Button>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {cover_paper_types?.map((type) => {
+          const oldPaperPrices = setting?.covers_prices?.find((price) => price.id === type.id);
+          const xx = cover_paper_types.find((x) => x.id === type.id);
+          console.log(xx);
+          return (
+            <Box
+              key={type.id}
+              sx={(theme) => ({ backgroundColor: theme.palette.background.paper, p: 1 })}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
+                <Typography>{type.name}</Typography>
+                <NumberInput
+                  source={`covers_prices.${type.id}.oneFacePrice`}
+                  label="سعر الوجه الواحد بالقروش"
+                  helperText={false}
+                  validate={[required()]}
+                  defaultValue={oldPaperPrices?.oneFacePrice}
+                />
+                <NumberInput
+                  source={`covers_prices.${type.id}.twoFacesPrice`}
+                  label="سعر الوجهين بالقروش"
+                  helperText={false}
+                  validate={[required()]}
+                  defaultValue={oldPaperPrices?.twoFacesPrice}
+                />
+                <NestedModal
+                  title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
+                  buttonText="حذف"
+                  confirmFn={() => {
+                    deleteOne('cover_types', { id: type.id });
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  sx={{ fontFamily: 'inherit' }}
+                  onClick={() => updateAvailability(type.id)}
+                  loading={isLoading}
+                >
+                  {setting?.available_covers?.includes(type.id)
+                    ? 'تعيين ك غير متاح'
+                    : 'تعيين ك متاح'}
+                </Button>
+              </Box>
+              <Box>
+                <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {' '}
+                  مناسب لمقاسات :
+                  {xx?.to_paper_size?.map((x) => {
+                    const p = paper_types?.find((p) => p.id === x);
+                    return <Chip key={x} label={p?.name} />;
+                  })}
+                </Typography>
+              </Box>
             </Box>
-            <AutocompleteArrayInput
-              source={`covers_prices.${size.id}.to_paper_size`}
-              label="مناسب للورق مقاس: "
-              variant="standard"
-              choices={paper_types}
-              defaultValue={oldPaperPrices?.to_paper_size}
-            />
-            {index !== cover_paper_types.length - 1 && <Divider />}
-          </Box>
-        );
-      })}
+          );
+        })}
+      </Box>
     </>
   );
 };
@@ -114,16 +124,19 @@ export const CoversPrices = () => {
 const CreateModal = () => {
   const translate = useTranslate();
   const [create] = useCreate<TablesInsert<'cover_types'>>();
+  const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const addPaperSize: SaveHandler<{ name: string }> = (params) => {
-    console.log(params.name);
+  const addPaperSize: SaveHandler<{ name: string; to_paper_size: string[] }> = ({
+    name,
+    to_paper_size,
+  }) => {
     return create(
       'cover_types',
-      { data: { name: params.name } },
+      { data: { name, to_paper_size } },
       {
         onSuccess: () => handleClose(),
         onError: (err) => console.error(err),
@@ -153,6 +166,12 @@ const CreateModal = () => {
             <Form onSubmit={addPaperSize}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <TextInput source="name" label="مقاس الورق" />
+                <AutocompleteArrayInput
+                  source="to_paper_size"
+                  label="مناسب للورق مقاس: "
+                  variant="standard"
+                  choices={paper_types}
+                />
                 <ButtonGroup>
                   <Button
                     variant="contained"

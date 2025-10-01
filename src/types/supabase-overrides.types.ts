@@ -10,15 +10,11 @@ export interface PaperPricesType {
   twoFacesPrice: number;
 }
 
-export interface CoverPricesType extends PaperPricesType {
-  to_paper_size: string[];
-}
-
 type ReservationsOverride = { reserved_items: ReservationRecord[] };
 
 type SettingsOverride = {
   paper_prices: PaperPricesType[] | null;
-  covers_prices: CoverPricesType[] | null;
+  covers_prices: PaperPricesType[] | null;
 };
 
 type CoverTypesOverride = { to_paper_size: string[] };
@@ -38,7 +34,7 @@ export type MergedDatabase = MergeDeep<
           Insert: ReservationsOverride;
           Update: ReservationsOverride;
         };
-        cover_paper_types: {
+        cover_types: {
           Row: CoverTypesOverride;
           Insert: CoverTypesOverride;
           Update: CoverTypesOverride;
