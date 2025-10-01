@@ -1,4 +1,5 @@
 import { Container, Divider, Grid } from '@mui/material';
+import { useCalcPrice } from 'hooks/useCalcPrice';
 import {
   BooleanField,
   ReferenceField,
@@ -8,6 +9,7 @@ import {
   ImageField,
   useTranslate,
   FunctionField,
+  useRecordContext,
 } from 'react-admin';
 
 import { Tables } from 'types';
@@ -15,6 +17,8 @@ import { formatToYYYYMMDD, toArabicNumerals } from 'utils/helpers';
 
 export const PublicationShow = () => {
   const translate = useTranslate();
+  const record = useRecordContext();
+  console.log(record);
 
   return (
     <Show>
@@ -162,9 +166,18 @@ export const PublicationShow = () => {
               <TextField source="related_publications" />
               <Divider />
             </Container>
+            <CustomTermField />
           </Grid>
         </Grid>
       </SimpleShowLayout>
     </Show>
   );
+};
+
+const CustomTermField = () => {
+  const record = useRecordContext<Tables<'publications'>>();
+  const { calcPrice } = useCalcPrice();
+  if (record) console.log(calcPrice({ record }));
+  if (!record) return null;
+  return <span>{record.term}</span>;
 };

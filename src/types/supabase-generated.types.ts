@@ -74,6 +74,8 @@ export type Database = {
           default_paper_size: string;
           do_round: boolean | null;
           id: string;
+          inc_dec_price: number | null;
+          is_double_face: boolean | null;
           pages: number;
           price: number | null;
           publication_type: Database['public']['Enums']['publications_types'] | null;
@@ -95,6 +97,8 @@ export type Database = {
           default_paper_size: string;
           do_round?: boolean | null;
           id?: string;
+          inc_dec_price?: number | null;
+          is_double_face?: boolean | null;
           pages: number;
           price?: number | null;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
@@ -116,6 +120,8 @@ export type Database = {
           default_paper_size?: string;
           do_round?: boolean | null;
           id?: string;
+          inc_dec_price?: number | null;
+          is_double_face?: boolean | null;
           pages?: number;
           price?: number | null;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
@@ -297,21 +303,6 @@ export type Database = {
         ];
       };
       subjects: {
-        Row: {
-          id: string;
-          name: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-        };
-        Relationships: [];
-      };
-      terms: {
         Row: {
           id: string;
           name: string;
