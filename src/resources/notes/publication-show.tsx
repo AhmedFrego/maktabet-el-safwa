@@ -1,16 +1,18 @@
-import { Container, Divider, Grid } from '@mui/material';
+import { Box, Container, Divider, Grid, Switch, Typography } from '@mui/material';
+import { useCalcPrice } from 'hooks/useCalcPrice';
+import { useState } from 'react';
 import {
   BooleanField,
   ReferenceField,
   Show,
   SimpleShowLayout,
   TextField,
-  ImageField,
   useTranslate,
   FunctionField,
+  useRecordContext,
 } from 'react-admin';
 
-import { Tables } from 'types';
+import { DEFAULT_COVER_URL, Tables } from 'types';
 import { formatToYYYYMMDD, toArabicNumerals } from 'utils/helpers';
 
 export const PublicationShow = () => {
@@ -19,21 +21,11 @@ export const PublicationShow = () => {
   return (
     <Show>
       <SimpleShowLayout>
-        <Grid container spacing={2} sx={{ height: '100%' }}>
+        <Grid container spacing={1.5} sx={{ height: '100%' }}>
           <Grid size={6}>
             {translate('resources.publications.fields.id')} :
             <TextField source="id" label={translate('resources.publications.fields.id')} />
-            <ImageField
-              source="cover_url"
-              sx={{
-                '& .RaImageField-image': {
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '35em',
-                  objectFit: 'contain',
-                },
-              }}
-            />
+            <CoverImageField source="cover_url" defaultSrc={DEFAULT_COVER_URL} />
           </Grid>
           <Grid container size={6} sx={{ flexDirection: 'column' }}>
             <Container>
@@ -84,15 +76,15 @@ export const PublicationShow = () => {
             </Container>
 
             <Container>
-              {translate('resources.publications.fields.price')} :
               <FunctionField
                 source="created_at"
                 render={(record) => {
-                  if (record.price) return toArabicNumerals(record.price);
-                  else return toArabicNumerals('( محسوب تلقائياً ) ' + 0);
+                  if (record.price)
+                    return `${translate('resources.publications.fields.price')} :${toArabicNumerals(record.price)}`;
+                  else return <CustomTermField record={record} />;
                 }}
               />
-              {translate('custom.currency.long')} <Divider />
+              <Divider />
             </Container>
 
             <Container>
@@ -167,4 +159,40 @@ export const PublicationShow = () => {
       </SimpleShowLayout>
     </Show>
   );
+};
+
+const CustomTermField = ({ record }: { record: Tables<'publications'> }) => {
+  const { calcPrice } = useCalcPrice();
+  const translate = useTranslate();
+  const [dublix, setDublix] = useState(true);
+  if (!record) return null;
+
+  const { cover, price } = calcPrice({ record });
+  if (record) console.log(calcPrice({ record }));
+  return (
+    <Box>
+      <Typography>{`نوع الغلاف : ${cover?.name}`}</Typography>
+      <Typography>
+        طباعة على الوجهين :
+        <Switch
+          value={dublix}
+          defaultChecked={dublix}
+          onChange={(event) => setDublix(event.target.checked)}
+        />
+      </Typography>
+      <Typography>{`${translate('resources.publications.fields.price')}: ${toArabicNumerals(dublix ? price.twoFacesPrice : price.oneFacePrice)}`}</Typography>
+    </Box>
+  );
+};
+
+const CoverImageField = ({ source, defaultSrc }: { source: string; defaultSrc: string }) => {
+  const record = useRecordContext();
+  const value = record?.[source] || defaultSrc;
+  return value ? (
+    <img
+      src={value}
+      alt="cover"
+      style={{ width: '100%', height: 'auto', maxHeight: '35em', objectFit: 'contain' }}
+    />
+  ) : null;
 };

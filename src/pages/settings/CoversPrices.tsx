@@ -69,14 +69,14 @@ export const CoversPrices = () => {
                 <Typography>{type.name}</Typography>
                 <NumberInput
                   source={`covers_prices.${type.id}.oneFacePrice`}
-                  label="سعر الوجه الواحد بالقروش"
+                  label="سعر الوجه الواحد بالجنيه"
                   helperText={false}
                   validate={[required()]}
                   defaultValue={oldPaperPrices?.oneFacePrice}
                 />
                 <NumberInput
                   source={`covers_prices.${type.id}.twoFacesPrice`}
-                  label="سعر الوجهين بالقروش"
+                  label="سعر الوجهين بالجنيه"
                   helperText={false}
                   validate={[required()]}
                   defaultValue={oldPaperPrices?.twoFacesPrice}
