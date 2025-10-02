@@ -19,6 +19,13 @@ type SettingsOverride = {
 
 type CoverTypesOverride = { to_paper_size: string[] };
 
+type PublicationOverride = {
+  change_price: {
+    oneFacePrice: number;
+    twoFacesPrice: number;
+  };
+};
+
 export type MergedDatabase = MergeDeep<
   DatabaseGenerated,
   {
@@ -38,6 +45,11 @@ export type MergedDatabase = MergeDeep<
           Row: CoverTypesOverride;
           Insert: CoverTypesOverride;
           Update: CoverTypesOverride;
+        };
+        publications: {
+          Row: PublicationOverride;
+          Insert: PublicationOverride;
+          Update: PublicationOverride;
         };
       };
     };

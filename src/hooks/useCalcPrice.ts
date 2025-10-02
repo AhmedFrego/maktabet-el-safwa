@@ -23,9 +23,15 @@ export const useCalcPrice = () => {
 
     const round_to = record.do_round ? setting?.price_ceil_to || 1 : 1;
 
+    console.log(record.change_price.oneFacePrice);
+
     const roundedPriceWithCover = {
-      oneFacePrice: Math.ceil((printPrices.oneFacePrice + coverPrice) / round_to) * round_to,
-      twoFacesPrice: Math.ceil((printPrices.twoFacesPrice + coverPrice) / round_to) * round_to,
+      oneFacePrice:
+        Math.ceil((printPrices.oneFacePrice + coverPrice) / round_to) * round_to +
+        record.change_price.oneFacePrice,
+      twoFacesPrice:
+        Math.ceil((printPrices.twoFacesPrice + coverPrice) / round_to) * round_to +
+        record.change_price.twoFacesPrice,
     };
     return { price: roundedPriceWithCover, cover: chosenCover };
   };

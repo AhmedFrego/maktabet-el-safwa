@@ -261,7 +261,7 @@ export const arabicMessages: TranslationMessages = {
         additional_data: 'بيانات إضافية',
         related_publications: 'مصادر ذات صلة',
         do_round: 'تدوير السعر',
-        price: 'السعر',
+        change_price: { oneFacePrice: 'للوجه الواحد', twoFacesPrice: 'للوجهين' },
         two_faces_cover: 'غلاف مطبوع على الوجهين',
       },
       actions: {

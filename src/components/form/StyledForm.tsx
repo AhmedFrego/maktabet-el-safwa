@@ -6,6 +6,9 @@ export const StyledForm = styled(SimpleForm)(({ theme }) => ({
   justifyContent: 'center',
   margin: 'auto',
   width: 'fit-content',
-  borderInline: `2px solid ${theme.palette.info.light}`,
+  backgroundColor: theme.palette.background.default,
   minWidth: theme.spacing(40),
+  '& > *': {
+    gap: 10,
+  },
 }));

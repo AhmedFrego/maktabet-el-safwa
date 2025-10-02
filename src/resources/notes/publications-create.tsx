@@ -6,12 +6,12 @@ import {
   NumberInput,
   BooleanInput,
   ImageInput,
-  FileField,
   useDataProvider,
   useStore,
   useTranslate,
+  ImageField,
 } from 'react-admin';
-import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
+import { AccordionSummary, Accordion, AccordionDetails, Box, Typography } from '@mui/material';
 import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
@@ -19,6 +19,7 @@ import { supabase } from 'lib';
 import { Enums, STOREGE_URL, Tables } from 'types';
 
 import { Publication } from '.';
+import { toArabicNumerals } from 'utils/helpers';
 
 export const PublicationCreate = () => {
   const dataProvider = useDataProvider();
@@ -31,6 +32,7 @@ export const PublicationCreate = () => {
 
   const transform = async (data: PublicationWithFileCover | Publication): Promise<Publication> => {
     const { data: session } = await supabase.auth.getSession();
+    console.log(data);
 
     if (!session.session) return Promise.reject('no logged in user');
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
@@ -77,7 +79,12 @@ export const PublicationCreate = () => {
           default_paper_size: setting?.default_paper_size,
         }}
       >
-        <AutocompleteInput source="publication_type" choices={publicationTypesChoises} fullWidth />
+        <AutocompleteInput
+          source="publication_type"
+          choices={publicationTypesChoises}
+          fullWidth
+          helperText={false}
+        />
         <ReferenceInput source="subject_id" reference="subjects">
           <AutocompleteInput
             fullWidth
@@ -86,11 +93,13 @@ export const PublicationCreate = () => {
               const { data } = await dataProvider.create('subjects', { data: { name: value } });
               return data;
             }}
+            helperText={false}
           />
         </ReferenceInput>
         <ReferenceInput source="publisher" reference="publishers">
           <AutocompleteInput
             sx={{ width: '100%', fontSize: '1rem' }}
+            helperText={false}
             filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
             onCreate={async (value) => {
               const { data } = await dataProvider.create('publishers', { data: { name: value } });
@@ -106,11 +115,24 @@ export const PublicationCreate = () => {
           <AutocompleteInput
             fullWidth
             filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+            helperText={false}
           />
         </ReferenceInput>
-        <NumberInput fullWidth source="pages" />
-        <ImageInput source="cover_url" accept={{ 'image/*': ['.png', '.jpg'] }}>
-          <FileField source="src" title="title" />
+        <NumberInput fullWidth source="pages" helperText={false} />
+        <ImageInput
+          source="cover_url"
+          accept={{ 'image/*': ['.png', '.jpg'] }}
+          helperText={false}
+          sx={(theme) => ({
+            '& .RaFileInput-dropZone': {
+              backgroundColor: theme.palette.background.paper,
+              '& p': {
+                m: 0.5,
+              },
+            },
+          })}
+        >
+          <ImageField source="src" title="title" />
         </ImageInput>
         <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
           <AccordionSummary
@@ -130,11 +152,12 @@ export const PublicationCreate = () => {
           >
             المزيد من التفاصيل
           </AccordionSummary>
-          <AccordionDetails>
-            <TextInput fullWidth source="year" />
+          <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <TextInput fullWidth source="year" helperText={false} />
             <ReferenceInput source="default_paper_size" reference="paper_types">
               <AutocompleteInput
                 fullWidth
+                helperText={false}
                 filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
                 onCreate={async (value) => {
                   const { data } = await dataProvider.create('paper_types', {
@@ -150,12 +173,21 @@ export const PublicationCreate = () => {
               filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
               choices={termsOptions}
               defaultValue={setting?.current_term}
+              helperText={false}
             />
-            <TextInput fullWidth source="additional_data" />
-            <TextInput fullWidth source="related_publications" />
-            <BooleanInput source="do_round" defaultValue={true} />
-            <BooleanInput source="two_faces_cover" defaultValue={false} />
-            <NumberInput fullWidth source="price" />
+            <TextInput fullWidth source="additional_data" helperText={false} />
+            <TextInput fullWidth source="related_publications" helperText={false} />
+            <BooleanInput source="do_round" defaultValue={true} helperText={false} />
+            <BooleanInput source="two_faces_cover" defaultValue={false} helperText={false} />
+            <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
+              <Typography>
+                {toArabicNumerals('تعديل السعر بقيمة (5, - 10 , إلخ ...) بالجنيه')}
+              </Typography>
+              <Box sx={{ width: '100%', gap: 1, display: 'flex' }}>
+                <NumberInput source="change_price.oneFacePrice" helperText={false} />
+                <NumberInput source="change_price.twoFacesPrice" helperText={false} />
+              </Box>
+            </Box>
           </AccordionDetails>
         </Accordion>
       </StyledForm>
