@@ -1,19 +1,19 @@
 import { Box, Container, Divider, Grid, Switch, Typography } from '@mui/material';
-import { useCalcPrice } from 'hooks/useCalcPrice';
-import { useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import {
-  BooleanField,
-  ReferenceField,
   Show,
-  SimpleShowLayout,
   TextField,
   useTranslate,
+  BooleanField,
   FunctionField,
+  ReferenceField,
   useRecordContext,
+  SimpleShowLayout,
 } from 'react-admin';
 
+import { useCalcPrice } from 'hooks';
 import { DEFAULT_COVER_URL, Tables } from 'types';
-import { formatToYYYYMMDD, toArabicNumerals } from 'utils/helpers';
+import { formatToYYYYMMDD, toArabicNumerals } from 'utils';
 
 export const PublicationShow = () => {
   const translate = useTranslate();
@@ -28,78 +28,7 @@ export const PublicationShow = () => {
             <CoverImageField source="cover_url" defaultSrc={DEFAULT_COVER_URL} />
           </Grid>
           <Grid container size={6} sx={{ flexDirection: 'column' }}>
-            <Container>
-              {translate('resources.publications.fields.subject_id')} :
-              <ReferenceField source="subject_id" reference="subjects" />
-              <TextField source="nickname" />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.publisher')} :
-              <ReferenceField source="publisher" reference="publishers" />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.academic_year')} :
-              <ReferenceField source="academic_year" reference="academic_years" /> <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.term')} :
-              <FunctionField
-                label="Name"
-                render={(record) =>
-                  ` ${translate(`resources.publications.labels.term.${record.term}`)}`
-                }
-              />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.year')} :
-              <FunctionField source="year" render={(record) => toArabicNumerals(record.year)} />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.pages')} :
-              <FunctionField source="pages" render={(record) => toArabicNumerals(record.pages)} />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.default_paper_size')} :
-              <ReferenceField source="default_paper_size" reference="paper_types" />
-              <Divider />
-            </Container>
-
-            <Container>
-              <FunctionField
-                source="created_at"
-                render={(record) => {
-                  if (record.price)
-                    return `${translate('resources.publications.fields.price')} :${toArabicNumerals(record.price)}`;
-                  else return <CustomTermField record={record} />;
-                }}
-              />
-              <Divider />
-            </Container>
-
-            <Container>
-              {translate('resources.publications.fields.created_at')} :
-              <FunctionField
-                source="created_at"
-                render={(record) => {
-                  const date = new Date(record.created_at);
-                  return toArabicNumerals(formatToYYYYMMDD(date.toLocaleDateString('en-GB')));
-                }}
-              />
-              <Divider />
-            </Container>
-
-            <Container>
+            <DividedContainer>
               {translate('resources.publications.fields.created_by')} :
               <ReferenceField
                 source="created_by"
@@ -108,52 +37,107 @@ export const PublicationShow = () => {
                   referenceRecord?.full_name
                 }
               />
-              <Divider />
-            </Container>
+            </DividedContainer>
 
-            <Container>
-              {translate('resources.publications.fields.updated_at')} :
+            <DividedContainer>
+              {translate('resources.publications.fields.created_at')} :
               <FunctionField
-                source="updated_at"
+                source="created_at"
                 render={(record) => {
-                  if (record.updated_at) {
-                    const date = new Date(record.updated_at);
-                    return toArabicNumerals(formatToYYYYMMDD(date.toLocaleDateString('en-GB')));
-                  } else return '--/--/----';
+                  const date = new Date(record.created_at);
+                  return toArabicNumerals(formatToYYYYMMDD(date.toLocaleDateString('en-GB')));
                 }}
               />
-              <Divider />
-            </Container>
+            </DividedContainer>
+            <DividedContainer>
+              {translate('resources.publications.fields.subject_id')} :
+              <ReferenceField source="subject_id" reference="subjects" />
+            </DividedContainer>
 
-            <Container>
-              {translate('resources.publications.fields.updated_by')} :
-              <ReferenceField
-                source="updated_by"
-                reference="users"
-                render={({ referenceRecord }: { referenceRecord?: Tables<'users'> }) =>
-                  referenceRecord?.full_name
-                }
+            <DividedContainer>
+              {translate('resources.publications.fields.publisher')} :
+              <ReferenceField source="publisher" reference="publishers" />
+            </DividedContainer>
+
+            <DividedContainer>
+              {translate('resources.publications.fields.academic_year')} :
+              <ReferenceField source="academic_year" reference="academic_years" />
+            </DividedContainer>
+
+            <DividedContainer>
+              {translate('resources.publications.fields.term')} :
+              <FunctionField
+                render={(record) => translate(`resources.publications.labels.term.${record.term}`)}
               />
-              <Divider />
-            </Container>
+            </DividedContainer>
 
-            <Container>
+            <DividedContainer>
+              {translate('resources.publications.fields.year')} :
+              <FunctionField source="year" render={(record) => toArabicNumerals(record.year)} />
+            </DividedContainer>
+
+            <DividedContainer>
+              {translate('resources.publications.fields.pages')} :
+              <FunctionField source="pages" render={(record) => toArabicNumerals(record.pages)} />
+            </DividedContainer>
+
+            <DividedContainer>
+              {translate('resources.publications.fields.default_paper_size')} :
+              <ReferenceField source="default_paper_size" reference="paper_types" />
+            </DividedContainer>
+
+            <DividedContainer>
+              <FunctionField render={(record) => <CustomPriceField record={record} />} />
+            </DividedContainer>
+
+            <DividedContainer>
               {translate('resources.publications.fields.do_round')} :
               <BooleanField source="do_round" />
-              <Divider />
-            </Container>
+            </DividedContainer>
 
-            <Container>
+            <DividedContainer>
               {translate('resources.publications.fields.additional_data')} :
               <TextField source="additional_data" />
-              <Divider />
-            </Container>
+            </DividedContainer>
 
-            <Container>
+            <DividedContainer>
               {translate('resources.publications.fields.related_publications')} :
               <TextField source="related_publications" />
-              <Divider />
-            </Container>
+            </DividedContainer>
+
+            <FunctionField
+              label="Name"
+              render={(record) => {
+                if (record.updated_at && record.updated_by)
+                  return (
+                    <>
+                      <DividedContainer>
+                        {translate('resources.publications.fields.updated_by')} :
+                        <ReferenceField
+                          source="updated_by"
+                          reference="users"
+                          render={({ referenceRecord }: { referenceRecord?: Tables<'users'> }) =>
+                            referenceRecord?.full_name
+                          }
+                        />
+                      </DividedContainer>
+
+                      <DividedContainer>
+                        {translate('resources.publications.fields.updated_at')} :
+                        <FunctionField
+                          source="updated_at"
+                          render={(record) => {
+                            const date = new Date(record.updated_at);
+                            return toArabicNumerals(
+                              formatToYYYYMMDD(date.toLocaleDateString('en-GB'))
+                            );
+                          }}
+                        />
+                      </DividedContainer>
+                    </>
+                  );
+              }}
+            />
           </Grid>
         </Grid>
       </SimpleShowLayout>
@@ -161,7 +145,7 @@ export const PublicationShow = () => {
   );
 };
 
-const CustomTermField = ({ record }: { record: Tables<'publications'> }) => {
+const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
   const { calcPrice } = useCalcPrice();
   const translate = useTranslate();
   const [dublix, setDublix] = useState(true);
@@ -171,7 +155,7 @@ const CustomTermField = ({ record }: { record: Tables<'publications'> }) => {
   if (record) console.log(calcPrice({ record }));
   return (
     <Box>
-      <Typography>{`نوع الغلاف : ${cover?.name}`}</Typography>
+      <Typography>{`نوع الغلاف : ${cover?.name || 'لا يوجد مقاس مناسب'}`}</Typography>
       <Typography>
         طباعة على الوجهين :
         <Switch
@@ -196,3 +180,10 @@ const CoverImageField = ({ source, defaultSrc }: { source: string; defaultSrc: s
     />
   ) : null;
 };
+
+const DividedContainer = ({ children }: PropsWithChildren) => (
+  <Container>
+    {children}
+    <Divider />
+  </Container>
+);
