@@ -10,6 +10,7 @@ import {
   required,
   choices,
   useTranslate,
+  number,
 } from 'react-admin';
 
 import { Tables, PaperPricesType, Enums } from 'types';
@@ -87,7 +88,7 @@ export const Settings = () => {
         <TextInput
           sx={{ width: '100%' }}
           source="current_year"
-          label="العام الدراسي"
+          label={translate('custom.labels.current_year')}
           defaultValue={setting?.current_year}
           validate={[
             required(),
@@ -104,6 +105,14 @@ export const Settings = () => {
           filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
           choices={termsOptions}
           defaultValue={setting?.current_term}
+          label={translate('custom.labels.current_term')}
+        />
+        <TextInput
+          sx={{ width: '100%' }}
+          source="price_ceil_to"
+          label={translate('custom.labels.price_ceil_to')}
+          defaultValue={+(setting?.price_ceil_to || 0)}
+          validate={[required(), number()]}
         />
       </Box>
       <Button variant="contained" type="submit" loading={isPending} sx={{ fontFamily: 'inherit' }}>

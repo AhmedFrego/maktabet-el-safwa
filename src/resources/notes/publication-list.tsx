@@ -1,10 +1,11 @@
-import { List, useListContext } from 'react-admin';
+import { Button, List, useListContext, useTranslate } from 'react-admin';
 import { useNavigate } from 'react-router';
 
-import { RecordCard, StyledContainer, ListActions } from 'components/UI';
+import { RecordCard, StyledContainer, ListActions, Loading } from 'components/UI';
 import { useAppSelector } from 'store';
 import { toArabicNumerals } from 'utils';
 import { type Publication, CustomFilterSidebar, publicationToCard } from '.';
+import { Box, Typography } from '@mui/material';
 
 export const PublicationsList = () => {
   return (
@@ -29,15 +30,36 @@ export const PublicationsList = () => {
 };
 
 const NoteContainer = () => {
-  const { data: publications, isLoading } = useListContext<Publication>();
+  const { data: publications, isLoading, setFilters } = useListContext<Publication>();
   const state = useAppSelector((state) => state.reservation);
   const navigate = useNavigate();
+  const translate = useTranslate();
 
-  if (isLoading) return <>Loading...</>;
+  const handleClear = () => setFilters({}, []);
+
+  if (isLoading) return <Loading />;
 
   return (
     <StyledContainer>
-      {publications &&
+      {publications && !publications?.length ? (
+        <Box
+          sx={(theme) => ({
+            my: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            backgroundColor: theme.palette.background.default,
+            p: 3,
+            borderRadius: 2,
+          })}
+        >
+          <Typography>{translate('ra.navigation.no_filtered_results')}</Typography>
+          <Button sx={{ fontFamily: 'inherit' }} variant="outlined" onClick={handleClear}>
+            {translate('ra.navigation.clear_filters')}
+          </Button>
+        </Box>
+      ) : (
+        publications &&
         publications.map((record: Publication) => {
           return (
             <RecordCard
@@ -52,7 +74,8 @@ const NoteContainer = () => {
               recordToCard={publicationToCard}
             />
           );
-        })}
+        })
+      )}
     </StyledContainer>
   );
 };

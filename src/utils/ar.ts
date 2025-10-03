@@ -241,6 +241,23 @@ export const arabicMessages: TranslationMessages = {
         show: 'عرض الفرع',
       },
     },
+    cover_types: {
+      name: 'غلاف |||| الأغلفة',
+      fields: {
+        id: 'المعرّف',
+        name: 'اسم الغلاف',
+        to_paper_size: 'مناسب للورق مقاس',
+      },
+      actions: {
+        choose: 'اختر المقاس',
+        set_default: 'تعيين كافتراضي',
+        edit: 'تعديل بيانات الغلاف',
+        create: 'إضافة نوع غلاف جديد',
+      },
+      labels: {
+        details: 'تفاصيل الغلاف',
+      },
+    },
     publications: {
       name: ' مصادر تعليمية |||| مصدر تعليمي',
       fields: {
@@ -344,6 +361,9 @@ export const arabicMessages: TranslationMessages = {
       paid_amount: 'المبلغ المدفوع',
       remain_amount: 'المبلغ المتبقي',
       no_remain_amount: 'خالص الثمن',
+      current_year: 'العام الدراسي الحالي',
+      current_term: 'الفصل الدراسي الحالي',
+      price_ceil_to: 'تقريب الأسعار إلى',
     },
   },
 };
