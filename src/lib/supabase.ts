@@ -75,7 +75,7 @@ export const myProvider: DataProvider = {
 
       const { data, error, count } = await query;
       if (error) throw error;
-
+      console.log(data);
       return {
         data: (data ?? []) as unknown as RecordType[],
         total: count ?? (data ? data.length : 0),

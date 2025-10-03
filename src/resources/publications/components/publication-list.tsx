@@ -1,11 +1,10 @@
 import { Button, List, useListContext, useTranslate } from 'react-admin';
 import { useNavigate } from 'react-router';
-
-import { RecordCard, StyledContainer, ListActions, Loading } from 'components/UI';
-import { useAppSelector } from 'store';
-import { toArabicNumerals } from 'utils';
-import { type Publication, CustomFilterSidebar, publicationToCard } from '.';
 import { Box, Typography } from '@mui/material';
+
+import { StyledContainer, ListActions, Loading } from 'components/UI';
+import { useAppSelector } from 'store';
+import { CustomFilterSidebar, Publication, PublicationCard } from '..';
 
 export const PublicationsList = () => {
   return (
@@ -24,12 +23,12 @@ export const PublicationsList = () => {
         },
       }}
     >
-      <NoteContainer />
+      <PublicationsContainer />
     </List>
   );
 };
 
-const NoteContainer = () => {
+const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
   const state = useAppSelector((state) => state.reservation);
   const navigate = useNavigate();
@@ -44,13 +43,13 @@ const NoteContainer = () => {
       {publications && !publications?.length ? (
         <Box
           sx={(theme) => ({
-            my: 10,
+            backgroundColor: theme.palette.background.default,
             display: 'flex',
             flexDirection: 'column',
-            gap: 4,
-            backgroundColor: theme.palette.background.default,
-            p: 3,
             borderRadius: 2,
+            my: 10,
+            gap: 4,
+            p: 3,
           })}
         >
           <Typography>{translate('ra.navigation.no_filtered_results')}</Typography>
@@ -60,18 +59,14 @@ const NoteContainer = () => {
         </Box>
       ) : (
         publications &&
-        publications.map((record: Publication) => {
+        publications.map((record) => {
           return (
-            <RecordCard
+            <PublicationCard
               key={record.id}
               onClick={() => {
                 if (!state.isReserving) navigate(`${record.id}/show`);
               }}
-              record={{
-                ...record,
-                title: `${record.subject.name} ${record.additional_data || ''} ${record.publisher_data.name} ${toArabicNumerals(record.academicYear.short_name)}`,
-              }}
-              recordToCard={publicationToCard}
+              record={record}
             />
           );
         })

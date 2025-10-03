@@ -8,17 +8,18 @@ import {
   TextInput,
   useEditController,
   useTranslate,
+  ImageInput,
+  FileField,
 } from 'react-admin';
-import { StyledForm } from 'components/form';
+import { AccordionSummary, Accordion, AccordionDetails, Fab } from '@mui/material';
+import { KeyboardDoubleArrowDown, Save } from '@mui/icons-material';
 
-import { ImageInput, FileField } from 'react-admin';
-import { AccordionSummary, Accordion, AccordionDetails } from '@mui/material';
-import { KeyboardDoubleArrowDown } from '@mui/icons-material';
-import { Enums, TablesUpdate } from 'types/supabase-generated.types';
-import { supabase } from 'lib/supabase';
-import { Publication, PublicationWithFileCover } from './types';
-import { STOREGE_URL } from 'types/constants';
-import { extractFileName } from 'utils/helpers';
+import { StyledForm } from 'components/form';
+import { supabase } from 'lib';
+import { Enums, TablesUpdate, STOREGE_URL } from 'types';
+import { extractFileName } from 'utils';
+
+import { Publication, PublicationWithFileCover } from '.';
 
 export const PublicationEdit = () => {
   const translate = useTranslate();
@@ -42,7 +43,7 @@ export const PublicationEdit = () => {
     if (file) {
       const { data: cover, error } = await supabase.storage
         .from('covers')
-        .update(extractFileName(record?.cover_url), file);
+        .update(extractFileName(record?.cover_url || '') || '', file);
 
       if (error) {
         throw error;
@@ -58,8 +59,21 @@ export const PublicationEdit = () => {
     return data as unknown as Publication;
   };
   return (
-    <Edit transform={transform}>
-      <StyledForm>
+    <Edit transform={transform} actions={false}>
+      <StyledForm
+        toolbar={
+          <Fab
+            variant="extended"
+            color="info"
+            sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
+            type="submit"
+          >
+            <Save sx={{ mr: 1 }} />
+            {translate('ra.action.save')}
+          </Fab>
+        }
+        sx={{ maxWidth: 50 }}
+      >
         <ReferenceInput source="subject_id" reference="subjects">
           <AutocompleteInput
             fullWidth
@@ -116,12 +130,7 @@ export const PublicationEdit = () => {
               />
             </ReferenceInput>
 
-            <AutocompleteInput
-              fullWidth
-              filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-              source="term"
-              choices={termsOptions}
-            />
+            <AutocompleteInput fullWidth source="term" choices={termsOptions} />
 
             <TextInput fullWidth source="additional_data" />
 

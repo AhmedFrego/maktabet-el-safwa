@@ -14,7 +14,7 @@ import { store } from 'store';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
 import { arabicMessages } from 'utils';
 
-import { NoteResource } from 'resources/notes';
+import { PublicationResource } from 'resources/publications';
 import { reservationsResource } from 'resources/reservations';
 import { ReservationCreate } from 'resources/reservations/reaservation-create';
 
@@ -47,7 +47,7 @@ export const App = () => (
           dashboard={Dashboard}
           catchAll={NotFound}
         >
-          <Resource {...NoteResource} />
+          <Resource {...PublicationResource} />
           <Resource {...reservationsResource} />
 
           <CustomRoutes noLayout>

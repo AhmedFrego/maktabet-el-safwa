@@ -3,23 +3,29 @@ import {
   TextInput,
   ReferenceInput,
   AutocompleteInput,
-  NumberInput,
   BooleanInput,
   ImageInput,
   useDataProvider,
   useStore,
   useTranslate,
   ImageField,
+  number,
 } from 'react-admin';
 import { AccordionSummary, Accordion, AccordionDetails, Box, Typography, Fab } from '@mui/material';
-import { KeyboardDoubleArrowDown, ControlPoint as Navigation } from '@mui/icons-material';
+import { KeyboardDoubleArrowDown, ControlPoint } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
-import { Enums, STOREGE_URL, Tables, TablesInsert } from 'types';
+import { STOREGE_URL, Tables, TablesInsert } from 'types';
+import { toArabicNumerals } from 'utils';
 
-import { Publication, PublicationWithFileCover } from '.';
-import { toArabicNumerals } from 'utils/helpers';
+import {
+  Publication,
+  PublicationWithFileCover,
+  useTermsChoises,
+  usePublicationTypesChoices,
+  useAcademicYearsChoises,
+} from '..';
 
 export const PublicationCreate = () => {
   const dataProvider = useDataProvider();
@@ -37,36 +43,23 @@ export const PublicationCreate = () => {
       const { data: cover, error } = await supabase.storage
         .from('covers')
         .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, file);
-      if (error) {
-        throw error;
-      } else {
+      if (error) throw error;
+      else {
         const fullPath = `${STOREGE_URL}${cover?.fullPath}`;
         data.cover_url = fullPath;
       }
     } else data.cover_url = null;
+
     data.created_by = session.session?.user.id;
     data.created_at = new Date().toISOString();
 
     return data as unknown as Publication;
   };
 
-  const publicationTypesChoises = [
-    { id: 'book', name: translate('resources.publications.labels.publications_types.book') },
-    { id: 'note', name: translate('resources.publications.labels.publications_types.note') },
-    { id: 'other', name: translate('resources.publications.labels.publications_types.other') },
-  ] as {
-    id: Enums<'publications_types'>;
-    name: string;
-  }[];
+  const publicationTypesChoises = usePublicationTypesChoices();
+  const termsOptions = useTermsChoises();
 
-  const termsOptions = [
-    { id: '1st', name: translate('resources.publications.labels.term.1st') },
-    { id: '2nd', name: translate('resources.publications.labels.term.2nd') },
-    { id: 'full_year', name: translate('resources.publications.labels.term.full_year') },
-  ] as {
-    id: Enums<'term'>;
-    name: string;
-  }[];
+  const academicYearsChoises = useAcademicYearsChoises();
 
   return (
     <Create transform={transform} sx={{ position: 'relative' }}>
@@ -81,8 +74,9 @@ export const PublicationCreate = () => {
             variant="extended"
             color="info"
             sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
+            type="submit"
           >
-            <Navigation sx={{ mr: 1 }} />
+            <ControlPoint sx={{ mr: 1 }} />
             {translate('ra.action.create')}
           </Fab>
         }
@@ -93,6 +87,7 @@ export const PublicationCreate = () => {
           fullWidth
           helperText={false}
         />
+
         <ReferenceInput source="subject_id" reference="subjects">
           <AutocompleteInput
             fullWidth
@@ -104,29 +99,28 @@ export const PublicationCreate = () => {
             helperText={false}
           />
         </ReferenceInput>
+
         <ReferenceInput source="publisher" reference="publishers">
           <AutocompleteInput
             sx={{ width: '100%', fontSize: '1rem' }}
             helperText={false}
             filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-            onCreate={async (value) => {
-              const { data } = await dataProvider.create('publishers', { data: { name: value } });
+            onCreate={async (name) => {
+              const { data } = await dataProvider.create('publishers', { data: { name } });
               return data;
             }}
           />
         </ReferenceInput>
-        <ReferenceInput
+
+        <AutocompleteInput
           source="academic_year"
-          reference="academic_years"
-          sort={{ field: 'stage', order: 'DESC' }}
-        >
-          <AutocompleteInput
-            fullWidth
-            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-            helperText={false}
-          />
-        </ReferenceInput>
-        <NumberInput fullWidth source="pages" helperText={false} />
+          fullWidth
+          helperText={false}
+          choices={academicYearsChoises}
+        />
+
+        <TextInput fullWidth source="pages" helperText={false} validate={[number()]} />
+
         <ImageInput
           source="cover_url"
           accept={{ 'image/*': ['.png', '.jpg'] }}
@@ -142,7 +136,8 @@ export const PublicationCreate = () => {
         >
           <ImageField source="src" title="title" />
         </ImageInput>
-        <Accordion sx={{ '&.Mui-expanded': { m: 0 } }} defaultExpanded={true}>
+
+        <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
           <AccordionSummary
             expandIcon={<KeyboardDoubleArrowDown />}
             sx={(theme) => ({
@@ -162,6 +157,7 @@ export const PublicationCreate = () => {
           </AccordionSummary>
           <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextInput fullWidth source="year" helperText={false} />
+
             <ReferenceInput source="default_paper_size" reference="paper_types">
               <AutocompleteInput
                 fullWidth
@@ -175,6 +171,7 @@ export const PublicationCreate = () => {
                 }}
               />
             </ReferenceInput>
+
             <AutocompleteInput
               fullWidth
               source="term"
@@ -183,17 +180,31 @@ export const PublicationCreate = () => {
               defaultValue={setting?.current_term}
               helperText={false}
             />
+
             <TextInput fullWidth source="additional_data" helperText={false} />
+
             <TextInput fullWidth source="related_publications" helperText={false} />
+
             <BooleanInput source="do_round" defaultValue={true} helperText={false} />
+
             <BooleanInput source="two_faces_cover" defaultValue={false} helperText={false} />
+
             <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
               <Typography>
                 {toArabicNumerals('تعديل السعر بقيمة (5, - 10 , إلخ ...) بالجنيه')}
               </Typography>
+
               <Box sx={{ width: '100%', gap: 1, display: 'flex' }}>
-                <NumberInput source="change_price.oneFacePrice" helperText={false} />
-                <NumberInput source="change_price.twoFacesPrice" helperText={false} />
+                <TextInput
+                  source="change_price.oneFacePrice"
+                  helperText={false}
+                  validate={[number()]}
+                />
+                <TextInput
+                  source="change_price.twoFacesPrice"
+                  helperText={false}
+                  validate={[number()]}
+                />
               </Box>
             </Box>
           </AccordionDetails>

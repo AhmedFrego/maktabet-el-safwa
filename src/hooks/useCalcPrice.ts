@@ -1,5 +1,4 @@
 import { useStore } from 'react-admin';
-import { Publication } from 'resources/notes';
 import { Tables } from 'types/supabase-generated.types';
 import { useGetCovers } from './useGetCovers';
 
@@ -37,8 +36,8 @@ export const useCalcPrice = () => {
   return { calcPrice };
 };
 
-interface UseCalcPriceProps {
-  record: Publication | Tables<'publications'>;
-  paperSize?: Tables<'paper_types'>['id'];
+interface UseCalcPriceProps<T = unknown> {
+  record: T & Tables<'publications'>;
+  paperSize?: string;
   cover?: string;
 }

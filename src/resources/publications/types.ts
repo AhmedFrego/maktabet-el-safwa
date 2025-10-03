@@ -13,3 +13,13 @@ export type PublicationWithFileCover = Omit<
 > & {
   cover_url?: { rawFile: File };
 };
+
+export interface recordCardStructure {
+  coverUrl: string | null;
+  chipText?: string;
+  tagText?: (string | number)[];
+  bottomText: {
+    start: string;
+    end: string;
+  };
+}

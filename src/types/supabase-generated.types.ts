@@ -10,23 +10,50 @@ export type Database = {
   };
   public: {
     Tables: {
-      academic_years: {
+      academic_years_duplicate: {
         Row: {
           id: string;
           name: string;
           short_name: string;
+          sort_value: number | null;
           stage: Database['public']['Enums']['stage'];
         };
         Insert: {
           id?: string;
           name: string;
           short_name: string;
+          sort_value?: number | null;
           stage?: Database['public']['Enums']['stage'];
         };
         Update: {
           id?: string;
           name?: string;
           short_name?: string;
+          sort_value?: number | null;
+          stage?: Database['public']['Enums']['stage'];
+        };
+        Relationships: [];
+      };
+      academic_yearss: {
+        Row: {
+          id: string;
+          name: string;
+          short_name: string;
+          sort_value: number | null;
+          stage: Database['public']['Enums']['stage'];
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          short_name: string;
+          sort_value?: number | null;
+          stage?: Database['public']['Enums']['stage'];
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          short_name?: string;
+          sort_value?: number | null;
           stage?: Database['public']['Enums']['stage'];
         };
         Relationships: [];
@@ -66,17 +93,16 @@ export type Database = {
       };
       publications: {
         Row: {
-          academic_year: string;
+          academic_year: Database['public']['Enums']['academic_years'];
           additional_data: string | null;
+          change_price: Json | null;
           cover_url: string | null;
           created_at: string;
           created_by: string;
           default_paper_size: string;
           do_round: boolean | null;
           id: string;
-          inc_dec_price: number | null;
           pages: number;
-          price: number | null;
           publication_type: Database['public']['Enums']['publications_types'] | null;
           publisher: string;
           related_publications: Json[] | null;
@@ -88,17 +114,16 @@ export type Database = {
           year: string;
         };
         Insert: {
-          academic_year: string;
+          academic_year: Database['public']['Enums']['academic_years'];
           additional_data?: string | null;
+          change_price?: Json | null;
           cover_url?: string | null;
-          created_at?: string;
+          created_at: string;
           created_by: string;
           default_paper_size: string;
           do_round?: boolean | null;
           id?: string;
-          inc_dec_price?: number | null;
           pages: number;
-          price?: number | null;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
           publisher: string;
           related_publications?: Json[] | null;
@@ -110,17 +135,16 @@ export type Database = {
           year: string;
         };
         Update: {
-          academic_year?: string;
+          academic_year?: Database['public']['Enums']['academic_years'];
           additional_data?: string | null;
+          change_price?: Json | null;
           cover_url?: string | null;
           created_at?: string;
           created_by?: string;
           default_paper_size?: string;
           do_round?: boolean | null;
           id?: string;
-          inc_dec_price?: number | null;
           pages?: number;
-          price?: number | null;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
           publisher?: string;
           related_publications?: Json[] | null;
@@ -132,13 +156,6 @@ export type Database = {
           year?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: 'publications_academic_year_fkey';
-            columns: ['academic_year'];
-            isOneToOne: false;
-            referencedRelation: 'academic_years';
-            referencedColumns: ['id'];
-          },
           {
             foreignKeyName: 'publications_default_paper_size_fkey';
             columns: ['default_paper_size'];
@@ -239,8 +256,10 @@ export type Database = {
           branch_admin: string;
           branch_avatar_url: string;
           branch_geo_location: string | null;
+          branch_hours: Json | null;
           branch_location: string | null;
           branch_name: string;
+          branch_phone_numbers: Json | null;
           covers_prices: Json[] | null;
           current_term: Database['public']['Enums']['term'];
           current_year: string;
@@ -255,8 +274,10 @@ export type Database = {
           branch_admin: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
+          branch_hours?: Json | null;
           branch_location?: string | null;
           branch_name?: string;
+          branch_phone_numbers?: Json | null;
           covers_prices?: Json[] | null;
           current_term: Database['public']['Enums']['term'];
           current_year: string;
@@ -271,8 +292,10 @@ export type Database = {
           branch_admin?: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
+          branch_hours?: Json | null;
           branch_location?: string | null;
           branch_name?: string;
+          branch_phone_numbers?: Json | null;
           covers_prices?: Json[] | null;
           current_term?: Database['public']['Enums']['term'];
           current_year?: string;
@@ -352,6 +375,22 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      academic_years:
+        | 'KG0'
+        | 'KG1'
+        | 'KG2'
+        | '1st_primary'
+        | '2nd_primary'
+        | '3rd_primary'
+        | '4th_primary'
+        | '5th_primary'
+        | '6th_primary'
+        | '1st_preparatory'
+        | '2nd_preparatory'
+        | '3rd_preparatory'
+        | '1st_secondary'
+        | '2nd_secondary'
+        | '3rd_secondary';
       branches: 'bakus';
       publications_types: 'note' | 'book' | 'other';
       reservation_state: 'in-progress' | 'ready' | 'canceled' | 'delivered';
@@ -483,6 +522,23 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      academic_years: [
+        'KG0',
+        'KG1',
+        'KG2',
+        '1st_primary',
+        '2nd_primary',
+        '3rd_primary',
+        '4th_primary',
+        '5th_primary',
+        '6th_primary',
+        '1st_preparatory',
+        '2nd_preparatory',
+        '3rd_preparatory',
+        '1st_secondary',
+        '2nd_secondary',
+        '3rd_secondary',
+      ],
       branches: ['bakus'],
       publications_types: ['note', 'book', 'other'],
       reservation_state: ['in-progress', 'ready', 'canceled', 'delivered'],
