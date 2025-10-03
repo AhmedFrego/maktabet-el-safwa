@@ -268,6 +268,7 @@ export const arabicMessages: TranslationMessages = {
         create: 'إنشاء مذكرة',
       },
       labels: {
+        price: 'السعر',
         publications_types: {
           ['note' as Enums<'publications_types'>]: 'مذكرة',
           ['book' as Enums<'publications_types'>]: 'كتاب',

@@ -31,9 +31,6 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
       reserved_items: markItemsAsDelivered(reserved_items),
     };
 
-    console.log('Update id:', id);
-    console.log('Update payload:', payload);
-
     await myProvider.update('reservations', { id, data: payload, previousData: reservation });
     refresh();
   };

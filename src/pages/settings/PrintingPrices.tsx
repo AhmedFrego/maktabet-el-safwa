@@ -102,7 +102,6 @@ const CreateModal = () => {
   const handleClose = () => setOpen(false);
 
   const addPaperSize: SaveHandler<{ name: string }> = (params) => {
-    console.log(params.name);
     return create(
       'paper_types',
       { data: { name: params.name } },

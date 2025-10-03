@@ -16,9 +16,9 @@ import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
-import { Enums, STOREGE_URL, Tables } from 'types';
+import { Enums, STOREGE_URL, Tables, TablesInsert } from 'types';
 
-import { Publication } from '.';
+import { Publication, PublicationWithFileCover } from '.';
 import { toArabicNumerals } from 'utils/helpers';
 
 export const PublicationCreate = () => {
@@ -26,13 +26,10 @@ export const PublicationCreate = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
   const translate = useTranslate();
 
-  type PublicationWithFileCover = Omit<Publication, 'cover_url'> & {
-    cover_url?: { rawFile: File };
-  };
-
-  const transform = async (data: PublicationWithFileCover | Publication): Promise<Publication> => {
+  const transform = async (
+    data: PublicationWithFileCover | TablesInsert<'publications'>
+  ): Promise<TablesInsert<'publications'>> => {
     const { data: session } = await supabase.auth.getSession();
-    console.log(data);
 
     if (!session.session) return Promise.reject('no logged in user');
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
@@ -48,6 +45,7 @@ export const PublicationCreate = () => {
       }
     } else data.cover_url = null;
     data.created_by = session.session?.user.id;
+    data.created_at = new Date().toISOString();
 
     return data as unknown as Publication;
   };

@@ -7,7 +7,6 @@ import {
   SimpleForm,
   SimpleFormIterator,
   TextInput,
-  useEditContext,
 } from 'react-admin';
 import { Divider } from '@mui/material';
 
@@ -32,8 +31,6 @@ export const ReservationEdit = () => {
 };
 
 const EditForm = () => {
-  const { record } = useEditContext();
-  console.log(record);
   return (
     <>
       <ArrayInput source="reserved_items">

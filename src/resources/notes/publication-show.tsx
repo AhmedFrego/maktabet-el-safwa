@@ -152,7 +152,6 @@ const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
   if (!record) return null;
 
   const { cover, price } = calcPrice({ record });
-  if (record) console.log(calcPrice({ record }));
   return (
     <Box>
       <Typography>{`نوع الغلاف : ${cover?.name || 'لا يوجد مقاس مناسب'}`}</Typography>
@@ -164,7 +163,7 @@ const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
           onChange={(event) => setDublix(event.target.checked)}
         />
       </Typography>
-      <Typography>{`${translate('resources.publications.fields.price')}: ${toArabicNumerals(dublix ? price.twoFacesPrice : price.oneFacePrice)}`}</Typography>
+      <Typography>{`${translate('resources.publications.labels.price')}: ${toArabicNumerals(dublix ? price.twoFacesPrice : price.oneFacePrice)} ${translate('custom.currency.short')}`}</Typography>
     </Box>
   );
 };
