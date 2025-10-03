@@ -11,8 +11,8 @@ import {
   useTranslate,
   ImageField,
 } from 'react-admin';
-import { AccordionSummary, Accordion, AccordionDetails, Box, Typography } from '@mui/material';
-import { KeyboardDoubleArrowDown } from '@mui/icons-material';
+import { AccordionSummary, Accordion, AccordionDetails, Box, Typography, Fab } from '@mui/material';
+import { KeyboardDoubleArrowDown, ControlPoint as Navigation } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
@@ -69,13 +69,23 @@ export const PublicationCreate = () => {
   }[];
 
   return (
-    <Create transform={transform}>
+    <Create transform={transform} sx={{ position: 'relative' }}>
       <StyledForm
         defaultValues={{
           year: setting?.current_year,
           term: setting?.current_term,
           default_paper_size: setting?.default_paper_size,
         }}
+        toolbar={
+          <Fab
+            variant="extended"
+            color="info"
+            sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
+          >
+            <Navigation sx={{ mr: 1 }} />
+            {translate('ra.action.create')}
+          </Fab>
+        }
       >
         <AutocompleteInput
           source="publication_type"
@@ -132,7 +142,7 @@ export const PublicationCreate = () => {
         >
           <ImageField source="src" title="title" />
         </ImageInput>
-        <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
+        <Accordion sx={{ '&.Mui-expanded': { m: 0 } }} defaultExpanded={true}>
           <AccordionSummary
             expandIcon={<KeyboardDoubleArrowDown />}
             sx={(theme) => ({
