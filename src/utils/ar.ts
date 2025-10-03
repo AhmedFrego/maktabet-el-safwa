@@ -360,6 +360,9 @@ export const arabicMessages: TranslationMessages = {
       paid_amount: 'المبلغ المدفوع',
       remain_amount: 'المبلغ المتبقي',
       no_remain_amount: 'خالص الثمن',
+      current_year: 'العام الدراسي الحالي',
+      current_term: 'الفصل الدراسي الحالي',
+      price_ceil_to: 'تقريب الأسعار إلى',
     },
   },
 };
