@@ -8,11 +8,11 @@ import {
   SubjectFilterAccordion,
   PublicationsTypeFilter,
 } from '.';
-import { idName } from 'types';
+import { Enums, idName } from 'types';
 
 interface FilterColumns {
   id: Identifier;
-  academic_years: idName;
+  academic_year: Enums<'academic_years'>;
   subjects: idName;
   year: string;
 }
@@ -22,17 +22,17 @@ export const CustomFilterSidebar = () => {
 
   const { data } = useGetList<FilterColumns>('publications', {
     meta: {
-      columns: ['id,year', 'academic_years:academic_years(name,id)', 'subjects:subjects(id,name)'],
+      columns: ['id,year,academic_year', 'subjects:subjects(id,name)'],
     },
   });
 
-  let uniqueAcademicYears: idName[] = [];
+  let uniqueAcademicYears: Enums<'academic_years'>[] = [];
   let uniqueSubjects: idName[] = [];
   let uniqueYears: string[] = [];
 
   if (data) {
     uniqueAcademicYears = [
-      ...new Map(data.map((x) => [x.academic_years.id, x.academic_years])).values(),
+      ...new Map(data.map((x) => [x.academic_year, x.academic_year])).values(),
     ];
     uniqueSubjects = [...new Map(data.map((x) => [x.subjects.id, x.subjects])).values()];
     uniqueYears = [...new Map(data.map((x) => [x.year, x.year])).values()];

@@ -8,12 +8,12 @@ import {
   StyledTypography,
   StyledAccordion,
 } from './styles';
-import { idName } from 'types';
+import { Enums } from 'types';
 
 export const AcademicYearFilterAccordion = ({
   uniqueAcademicYears,
 }: {
-  uniqueAcademicYears: idName[];
+  uniqueAcademicYears: Enums<'academic_years'>[];
 }) => {
   const translate = useTranslate();
 
@@ -27,9 +27,9 @@ export const AcademicYearFilterAccordion = ({
       <AccordionDetails>
         {uniqueAcademicYears.map((year) => (
           <StyledFilterListItem
-            key={year.id}
-            label={year.name}
-            value={{ academic_year: year.id }}
+            key={year}
+            label={translate(`custom.labels.academic_years.${year}.name`)}
+            value={{ academic_year: year }}
           />
         ))}
       </AccordionDetails>
