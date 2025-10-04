@@ -5,7 +5,6 @@ import {
   Form,
   useUpdate,
   SaveHandler,
-  AutocompleteInput,
   TextInput,
   required,
   choices,
@@ -15,6 +14,7 @@ import {
 
 import { Tables, PaperPricesType, Enums } from 'types';
 import { PrintingPrices, CoversPrices } from '.';
+import { TermInput } from 'resources/publications';
 
 export const Settings = () => {
   const translate = useTranslate();
@@ -56,15 +56,6 @@ export const Settings = () => {
     ).then(() => undefined);
   };
 
-  const termsOptions = [
-    { id: '1st', name: translate('resources.publications.labels.term.1st') },
-    { id: '2nd', name: translate('resources.publications.labels.term.2nd') },
-    { id: 'full_year', name: translate('resources.publications.labels.term.full_year') },
-  ] as {
-    id: Enums<'term'>;
-    name: string;
-  }[];
-
   return (
     <Form onSubmit={submitHandler}>
       <Title title={`إعدادات ${setting?.branch_name}`} />
@@ -99,14 +90,7 @@ export const Settings = () => {
             ]),
           ]}
         />
-        <AutocompleteInput
-          fullWidth
-          source="term"
-          filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
-          choices={termsOptions}
-          defaultValue={setting?.current_term}
-          label={translate('custom.labels.current_term')}
-        />
+        <TermInput source="term" label={translate('custom.labels.current_term')} />
         <TextInput
           sx={{ width: '100%' }}
           source="price_ceil_to"

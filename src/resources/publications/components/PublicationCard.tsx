@@ -22,10 +22,13 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
   const { calcPrice } = useCalcPrice();
   const translate = useTranslate();
 
-  const { additional_data, subject, academicYear, term, cover_url, publisher_data } = record;
+  const { additional_data, subject, term, cover_url, publisher_data } = record;
   const price = calcPrice({ record }).price.twoFacesPrice;
-  const title = `${subject.name} ${additional_data || ''} ${publisher_data.name} ${academicYear.short_name} ${term}`;
-
+  const academicShortName = translate(
+    `custom.labels.academic_years.${record.academic_year}.short_name`
+  );
+  const title = `${subject.name} ${additional_data || ''} ${publisher_data.name} ${academicShortName} ${term}`;
+  console.log();
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
   const isReserved = reservedItems.find((item) => item.id === record.id);
 
@@ -60,7 +63,7 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
         </StyledSelector>
       )}
       <StyledCardContent>
-        <StyledChip label={toArabicNumerals(academicYear.short_name)} />
+        <StyledChip label={toArabicNumerals(academicShortName)} />
         <StyledTag>
           <span>{toArabicNumerals(price)}</span>
           <span>{translate('custom.currency.short')}</span>

@@ -15,7 +15,6 @@ export const PublicationsList = () => {
         meta: {
           columns: [
             '*',
-            'academicYear:academic_years(name, short_name)',
             'paper_size:paper_types(name)',
             'publisher_data:publishers(name)',
             'subject:subjects(name)',
