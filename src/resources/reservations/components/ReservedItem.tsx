@@ -1,5 +1,5 @@
 import { Add, DeleteForever, Edit, Remove, SaveAs } from '@mui/icons-material';
-import { Box, IconButton, styled, Typography } from '@mui/material';
+import { Box, Divider, IconButton, styled, Typography } from '@mui/material';
 import { useState } from 'react';
 import { AutocompleteInput, ReferenceInput, useTranslate } from 'react-admin';
 
@@ -14,13 +14,13 @@ export const ReservedItem = ({ item }: { item: ReservationRecord<unknown> }) => 
   return (
     <StyledReservedItem>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography>
+        <Typography sx={{ mr: 1 }}>
           {`${toArabicNumerals(item.quantity)} * 
           ${item.title}`}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Typography>{item.paper_size.name}</Typography>
-          <Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography color="textSecondary">{item.paper_size.name}</Typography>
+          <Typography color="textSecondary">
             {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
             <IconButton aria-label="delete">
               {editing ? (

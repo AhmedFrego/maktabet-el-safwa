@@ -381,6 +381,11 @@ export const arabicMessages: TranslationMessages = {
         '2nd_secondary': { name: 'تانيه ثانوي', short_name: '2ث' },
         '3rd_secondary': { name: ' تالته ثانوي', short_name: '3ث' },
       },
+      terms: {
+        ['1st' as Enums<'term'>]: { short_name: 'الأول', name: 'الترم الأول' },
+        ['2nd' as Enums<'term'>]: { short_name: 'الثاني', name: 'الترم الثاني' },
+        ['full_year' as Enums<'term'>]: { short_name: 'مدمج (سنة كاملة)', name: 'سنة كاملة' },
+      },
     },
   },
 };

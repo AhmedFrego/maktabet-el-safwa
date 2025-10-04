@@ -68,6 +68,7 @@ export const ReservationCreate = () => {
               backgroundColor: theme.palette.grey[50],
               border: `2px solid ${theme.palette.info.dark}`,
               borderRadius: 1,
+              width: '100%',
             })}
           >
             <ModalContent>

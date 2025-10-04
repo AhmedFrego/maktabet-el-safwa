@@ -27,8 +27,10 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
   const academicShortName = translate(
     `custom.labels.academic_years.${record.academic_year}.short_name`
   );
-  const title = `${subject.name} ${additional_data || ''} ${publisher_data.name} ${academicShortName} ${term}`;
-  console.log();
+
+  const title = `${subject.name} ${additional_data || ''} ${publisher_data.name} ${academicShortName} ${translate(
+    `custom.labels.terms.${term}.name`
+  )}`;
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
   const isReserved = reservedItems.find((item) => item.id === record.id);
 

@@ -8,10 +8,10 @@ export const ModalWrapper = styled(Box)({
   overflow: 'auto',
 });
 
-export const ModalContent = styled(Box)(({ theme }) => ({
-  width: '30rem',
-  borderRadius: theme.shape.borderRadius,
+export const ModalContent = styled(Box)({
+  width: '-webkit-fill-available',
+  borderRadius: 3,
   display: 'flex',
   flexDirection: 'column',
-  gap: '1rem',
-}));
+  gap: 1,
+});
