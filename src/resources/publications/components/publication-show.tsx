@@ -60,8 +60,13 @@ export const PublicationShow = () => {
             </DividedContainer>
 
             <DividedContainer>
-              {translate('resources.publications.fields.academic_year')} :
-              <ReferenceField source="academic_year" reference="academic_years" />
+              {`${translate('resources.publications.fields.academic_year')}: `}
+              <FunctionField
+                source="academic_year"
+                render={(record) => (
+                  <>{translate(`custom.labels.academic_years.${record.academic_year}.name`)}</>
+                )}
+              />
             </DividedContainer>
 
             <DividedContainer>
