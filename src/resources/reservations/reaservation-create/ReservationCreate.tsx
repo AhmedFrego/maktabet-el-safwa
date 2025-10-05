@@ -7,14 +7,15 @@ import {
   NumberInput,
   required,
   SimpleForm,
+  useStore,
   useTranslate,
 } from 'react-admin';
 
 import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
 import { supabase } from 'lib';
 import { clearItems, setIsReserving, useAppDispatch, useAppSelector } from 'store';
-import { TablesInsert } from 'types';
-import { toArabicNumerals, toSupabaseTimestamp } from 'utils';
+import { Tables, TablesInsert } from 'types';
+import { toArabicNumerals } from 'utils';
 
 import { ReservedItem } from '../components';
 import { ClientInput } from 'components/form';
@@ -22,6 +23,8 @@ import { ClientInput } from 'components/form';
 export const ReservationCreate = () => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
+  const [setting] = useStore<Tables<'settings'>>('settings');
+
   const { isReserving, reservedItems: reserved_items } = useAppSelector(
     (state) => state.reservation
   );
@@ -44,7 +47,8 @@ export const ReservationCreate = () => {
       paid_amount,
       client_id,
       remain_amount: total_price - paid_amount,
-      dead_line: toSupabaseTimestamp(getDateAfterTwoDays()),
+      dead_line: `${new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000)}`,
+      branch: setting?.branch,
     };
 
     return data;
@@ -122,11 +126,4 @@ const CTA = () => {
       </Button>
     </Box>
   );
-};
-
-const getDateAfterTwoDays = (): Date => {
-  const now = new Date();
-  const twoDaysLater = new Date(now);
-  twoDaysLater.setDate(now.getDate() + 2);
-  return twoDaysLater;
 };

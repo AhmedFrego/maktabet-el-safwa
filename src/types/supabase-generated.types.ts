@@ -10,54 +10,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      academic_years_duplicate: {
-        Row: {
-          id: string;
-          name: string;
-          short_name: string;
-          sort_value: number | null;
-          stage: Database['public']['Enums']['stage'];
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          short_name: string;
-          sort_value?: number | null;
-          stage?: Database['public']['Enums']['stage'];
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          short_name?: string;
-          sort_value?: number | null;
-          stage?: Database['public']['Enums']['stage'];
-        };
-        Relationships: [];
-      };
-      academic_yearss: {
-        Row: {
-          id: string;
-          name: string;
-          short_name: string;
-          sort_value: number | null;
-          stage: Database['public']['Enums']['stage'];
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          short_name: string;
-          sort_value?: number | null;
-          stage?: Database['public']['Enums']['stage'];
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          short_name?: string;
-          sort_value?: number | null;
-          stage?: Database['public']['Enums']['stage'];
-        };
-        Relationships: [];
-      };
       cover_types: {
         Row: {
           id: string;
@@ -253,6 +205,7 @@ export type Database = {
       settings: {
         Row: {
           available_covers: string[] | null;
+          branch: Database['public']['Enums']['branches'];
           branch_admin: string;
           branch_avatar_url: string;
           branch_geo_location: string | null;
@@ -265,12 +218,14 @@ export type Database = {
           current_year: string;
           default_cover: string | null;
           default_paper_size: string;
+          deliver_after: number;
           id: string;
           paper_prices: Json[] | null;
           price_ceil_to: number | null;
         };
         Insert: {
           available_covers?: string[] | null;
+          branch: Database['public']['Enums']['branches'];
           branch_admin: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
@@ -283,12 +238,14 @@ export type Database = {
           current_year: string;
           default_cover?: string | null;
           default_paper_size: string;
+          deliver_after: number;
           id?: string;
           paper_prices?: Json[] | null;
           price_ceil_to?: number | null;
         };
         Update: {
           available_covers?: string[] | null;
+          branch?: Database['public']['Enums']['branches'];
           branch_admin?: string;
           branch_avatar_url?: string;
           branch_geo_location?: string | null;
@@ -301,6 +258,7 @@ export type Database = {
           current_year?: string;
           default_cover?: string | null;
           default_paper_size?: string;
+          deliver_after?: number;
           id?: string;
           paper_prices?: Json[] | null;
           price_ceil_to?: number | null;
