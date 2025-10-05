@@ -1,4 +1,4 @@
-import { Create, TextInput, useStore, useTranslate, number } from 'react-admin';
+import { Create, useStore, useTranslate } from 'react-admin';
 import { Fab } from '@mui/material';
 import { ControlPoint } from '@mui/icons-material';
 
@@ -6,16 +6,7 @@ import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
 import { STOREGE_URL, Tables, TablesInsert } from 'types';
 
-import {
-  Publication,
-  PublicationWithFileCover,
-  PublicationTypesInput,
-  SubjectsInput,
-  PublishersInput,
-  CoverInput,
-  ExtrasAccordion,
-  AcademicYearsInput,
-} from '..';
+import { Publication, PublicationWithFileCover, PublicationForm } from '..';
 
 export const PublicationCreate = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
@@ -65,14 +56,7 @@ export const PublicationCreate = () => {
           </Fab>
         }
       >
-        <PublicationTypesInput source="publication_type" />
-        <SubjectsInput />
-        <PublishersInput />
-        <AcademicYearsInput />
-
-        <TextInput fullWidth source="pages" helperText={false} validate={[number()]} />
-        <CoverInput />
-        <ExtrasAccordion />
+        <PublicationForm />
       </StyledForm>
     </Create>
   );

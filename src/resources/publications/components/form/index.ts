@@ -5,3 +5,5 @@ export * from './CoverInput';
 export * from './TermInput';
 export * from './ExtrasAccordion';
 export * from './AcademicYearsInput';
+export * from './YearInput';
+export * from './PublicationForm';

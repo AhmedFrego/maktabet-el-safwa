@@ -7,14 +7,13 @@ import {
   SaveHandler,
   TextInput,
   required,
-  choices,
   useTranslate,
   number,
 } from 'react-admin';
 
 import { Tables, PaperPricesType, Enums } from 'types';
 import { PrintingPrices, CoversPrices } from '.';
-import { TermInput } from 'resources/publications';
+import { TermInput, YearInput } from 'resources/publications';
 
 export const Settings = () => {
   const translate = useTranslate();
@@ -76,20 +75,7 @@ export const Settings = () => {
         إعدادات عامة
       </Typography>
       <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-        <TextInput
-          sx={{ width: '100%' }}
-          source="current_year"
-          label={translate('custom.labels.current_year')}
-          defaultValue={setting?.current_year}
-          validate={[
-            required(),
-            choices([
-              `${new Date().getFullYear() + 1}`,
-              `${new Date().getFullYear()}`,
-              `${new Date().getFullYear() - 1}`,
-            ]),
-          ]}
-        />
+        <YearInput source="current_year" label={translate('custom.labels.current_year')} />
         <TermInput source="term" label={translate('custom.labels.current_term')} />
         <TextInput
           sx={{ width: '100%' }}

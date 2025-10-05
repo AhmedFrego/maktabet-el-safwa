@@ -1,4 +1,4 @@
-import { Edit, TextInput, useEditController, useTranslate, number } from 'react-admin';
+import { Edit, useEditController, useTranslate } from 'react-admin';
 import { Fab } from '@mui/material';
 import { Save } from '@mui/icons-material';
 
@@ -7,15 +7,8 @@ import { supabase } from 'lib';
 import { TablesUpdate, STOREGE_URL } from 'types';
 import { extractFileName } from 'utils';
 
-import {
-  AcademicYearsInput,
-  CoverInput,
-  ExtrasAccordion,
-  PublicationTypesInput,
-  PublishersInput,
-  SubjectsInput,
-} from '.';
-import { Publication, PublicationWithFileCover } from '../types';
+import { PublicationForm } from '.';
+import { Publication, PublicationWithFileCover } from '..';
 
 export const PublicationEdit = () => {
   const translate = useTranslate();
@@ -60,15 +53,7 @@ export const PublicationEdit = () => {
           </Fab>
         }
       >
-        <PublicationTypesInput />
-        <SubjectsInput />
-        <PublishersInput />
-        <AcademicYearsInput />
-
-        <TextInput fullWidth source="pages" helperText={false} validate={[number()]} />
-        <CoverInput />
-
-        <ExtrasAccordion />
+        <PublicationForm />
       </StyledForm>
     </Edit>
   );

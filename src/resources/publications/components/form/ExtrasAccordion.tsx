@@ -1,3 +1,4 @@
+import { PropsWithChildren } from 'react';
 import { KeyboardDoubleArrowDown } from '@mui/icons-material';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import {
@@ -8,9 +9,10 @@ import {
   TextInput,
   useDataProvider,
 } from 'react-admin';
-import { toArabicNumerals } from 'utils/helpers';
-import { TermInput } from './TermInput';
-import { PropsWithChildren } from 'react';
+
+import { toArabicNumerals } from 'utils';
+
+import { TermInput, YearInput } from '.';
 
 export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
   const dataProvider = useDataProvider();
@@ -34,7 +36,7 @@ export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
         المزيد من التفاصيل
       </AccordionSummary>
       <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        <TextInput fullWidth source="year" helperText={false} />
+        <YearInput source="year" />
 
         <ReferenceInput source="default_paper_size" reference="paper_types">
           <AutocompleteInput
