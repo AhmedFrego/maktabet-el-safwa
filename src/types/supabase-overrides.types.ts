@@ -10,11 +10,18 @@ export interface PaperPricesType {
   twoFacesPrice: number;
 }
 
+export interface PhoneNumberType {
+  phone_number: string;
+  have_whats_app: boolean;
+  is_for_calling: boolean;
+}
+
 type ReservationsOverride = { reserved_items: ReservationRecord[] };
 
 type SettingsOverride = {
   paper_prices: PaperPricesType[] | null;
   covers_prices: PaperPricesType[] | null;
+  branch_phone_numbers: PhoneNumberType[] | null;
 };
 
 type CoverTypesOverride = { to_paper_size: string[] };

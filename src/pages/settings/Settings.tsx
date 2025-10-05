@@ -10,12 +10,14 @@ import {
   useTranslate,
   number,
   useRedirect,
+  ResourceContextProvider,
 } from 'react-admin';
-
-import { Tables, PaperPricesType, Enums } from 'types';
-import { PrintingPrices, CoversPrices } from '.';
-import { TermInput, YearInput } from 'resources/publications';
 import { Save } from '@mui/icons-material';
+
+import { TermInput, YearInput } from 'resources/publications';
+import { Tables, PaperPricesType, Enums } from 'types';
+
+import { PrintingPrices, CoversPrices, PhoneNumbersInputs } from '.';
 
 export const Settings = () => {
   const translate = useTranslate();
@@ -31,6 +33,7 @@ export const Settings = () => {
     current_year: string;
     price_ceil_to: string;
     deliver_after: string;
+    branch_phone_numbers: PhoneNumberPrimitiveShape[];
   }> = (params) => {
     if (!setting?.id) return Promise.reject(new Error('missing setting id'));
     const transformedPapersPrices = toPaperType(
@@ -39,7 +42,7 @@ export const Settings = () => {
     const transformedCoversPrices = toPaperType(
       params.covers_prices ?? {}
     ) as unknown as PaperPricesType[];
-    console.log(params.price_ceil_to);
+
     return update(
       'settings',
       {
@@ -51,6 +54,7 @@ export const Settings = () => {
           covers_prices: transformedCoversPrices,
           price_ceil_to: Number(params.price_ceil_to),
           deliver_after: Number(params.deliver_after),
+          branch_phone_numbers: params.branch_phone_numbers,
         },
         previousData: setting,
       },
@@ -65,53 +69,62 @@ export const Settings = () => {
   };
 
   return (
-    <Form onSubmit={submitHandler}>
-      <Title title={`إعدادات ${setting?.branch_name}`} />
-      <PrintingPrices />
-      <CoversPrices />
+    <ResourceContextProvider value="settings">
+      <Form onSubmit={submitHandler}>
+        <Title title={`إعدادات ${setting?.branch_name}`} />
+        <PrintingPrices />
+        <CoversPrices />
 
-      <Typography
-        variant="h3"
-        color="primary"
-        sx={(theme) => ({
-          backgroundColor: theme.palette.primary.light,
-          color: theme.palette.primary.contrastText,
-          textAlign: 'center',
-          p: 1,
-          mt: 2,
-        })}
-      >
-        إعدادات عامة
-      </Typography>
-      <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-        <YearInput source="current_year" label={translate('custom.labels.current_year')} />
-        <TermInput source="term" label={translate('custom.labels.current_term')} />
-        <TextInput
-          sx={{ width: '100%' }}
-          source="price_ceil_to"
-          label={translate('custom.labels.price_ceil_to')}
-          defaultValue={+(setting?.price_ceil_to || 0)}
-          validate={[required(), number()]}
-        />
-        <TextInput
-          sx={{ width: '100%' }}
-          source="deliver_after"
-          label={translate('custom.labels.deliver_after')}
-          defaultValue={+(setting?.deliver_after || 0)}
-          validate={[required(), number()]}
-        />
-      </Box>
+        <Typography
+          variant="h3"
+          color="primary"
+          sx={(theme) => ({
+            backgroundColor: theme.palette.primary.light,
+            color: theme.palette.primary.contrastText,
+            textAlign: 'center',
+            p: 1,
+            mt: 2,
+          })}
+        >
+          إعدادات عامة
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+          <YearInput
+            size="small"
+            source="current_year"
+            label={translate('custom.labels.current_year')}
+          />
+          <TermInput size="small" source="term" label={translate('custom.labels.current_term')} />
+          <TextInput
+            sx={{ width: '100%' }}
+            source="price_ceil_to"
+            size="small"
+            label={translate('custom.labels.price_ceil_to')}
+            defaultValue={+(setting?.price_ceil_to || 0)}
+            validate={[required(), number()]}
+          />
+          <TextInput
+            sx={{ width: '100%' }}
+            source="deliver_after"
+            label={translate('custom.labels.deliver_after')}
+            defaultValue={+(setting?.deliver_after || 0)}
+            validate={[required(), number()]}
+            size="small"
+          />
+        </Box>
+        <PhoneNumbersInputs />
 
-      <Fab
-        variant="extended"
-        color="info"
-        sx={{ bottom: 10, left: 1000, fontFamily: 'inherit', position: 'sticky' }}
-        type="submit"
-      >
-        {isPending ? <CircularProgress size={24} sx={{ mr: 1 }} /> : <Save sx={{ mr: 1 }} />}
-        {translate('ra.action.save')}
-      </Fab>
-    </Form>
+        <Fab
+          variant="extended"
+          color="info"
+          sx={{ bottom: 10, right: 15, fontFamily: 'inherit', position: 'fixed' }}
+          type="submit"
+        >
+          {isPending ? <CircularProgress size={24} sx={{ mr: 1 }} /> : <Save sx={{ mr: 1 }} />}
+          {translate('ra.action.save')}
+        </Fab>
+      </Form>
+    </ResourceContextProvider>
   );
 };
 
@@ -120,4 +133,10 @@ const toPaperType = (obj: PaperPricesPrimitiveShape): unknown[] =>
 
 interface PaperPricesPrimitiveShape {
   [id: string]: { oneFacePrice: number; twoFacesPrice: number };
+}
+
+interface PhoneNumberPrimitiveShape {
+  phone_number: string;
+  have_whats_app: boolean;
+  is_for_calling: boolean;
 }

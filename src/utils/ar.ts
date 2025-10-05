@@ -364,6 +364,8 @@ export const arabicMessages: TranslationMessages = {
       current_year: 'العام الدراسي الحالي',
       current_term: 'الفصل الدراسي الحالي',
       price_ceil_to: 'تقريب الأسعار إلى',
+      branch_phone_numbers: 'أرقام تليفونات الفرع',
+      phone_number: 'رقم التليفون',
       deliver_after: 'التسليم بعد __ ساعة',
       academic_years: {
         KG0: { name: 'تأسيس', short_name: 'قبل الحضانة' },
