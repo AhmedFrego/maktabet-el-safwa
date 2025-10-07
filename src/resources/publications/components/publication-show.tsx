@@ -56,7 +56,7 @@ export const PublicationShow = () => {
 
             <DividedContainer>
               {translate('resources.publications.fields.publisher')} :
-              <ReferenceField source="publisher" reference="publishers" />
+              <ReferenceField source="publisher_id" reference="publishers" />
             </DividedContainer>
 
             <DividedContainer>
@@ -87,8 +87,8 @@ export const PublicationShow = () => {
             </DividedContainer>
 
             <DividedContainer>
-              {translate('resources.publications.fields.default_paper_size')} :
-              <ReferenceField source="default_paper_size" reference="paper_types" />
+              {translate('resources.publications.fields.paper_type')} :
+              <ReferenceField source="paper_type_id" reference="paper_types" />
             </DividedContainer>
 
             <DividedContainer>

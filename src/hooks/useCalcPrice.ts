@@ -6,8 +6,8 @@ export const useCalcPrice = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
   const { getCovers } = useGetCovers();
 
-  const calcPrice = ({ record, paperSize, cover }: UseCalcPriceProps) => {
-    const paperType = paperSize || record.default_paper_size;
+  const calcPrice = ({ record, paperTypeId, coverId: cover }: UseCalcPriceProps) => {
+    const paperType = paperTypeId || record.paper_type_id;
     const paperPrice = setting?.paper_prices?.find((x) => x.id === paperType);
     const printPrices = {
       oneFacePrice: ((paperPrice?.oneFacePrice || 0) * record.pages) / 100,
@@ -38,6 +38,6 @@ export const useCalcPrice = () => {
 
 interface UseCalcPriceProps<T = unknown> {
   record: T & Tables<'publications'>;
-  paperSize?: string;
-  cover?: string;
+  paperTypeId?: string;
+  coverId?: string;
 }

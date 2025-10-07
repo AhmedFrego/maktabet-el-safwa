@@ -1,25 +1,23 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { Enums, Tables } from 'types';
+import { Publication } from 'resources/publications';
+import { Enums } from 'types';
 
 export type ReservationStatus = Enums<'reservation_state'>;
-//Put this SQL in a migration file for reproducibility.
 export interface ReservationBase {
-  title: string;
-  paperSizeId: Tables<'paper_types'>['name'];
   quantity: number;
   totalPrice: number;
   status: ReservationStatus;
+  isDuplix: boolean;
 }
 
-export interface ReservationMustKeys {
-  id: string;
-  price: number | null;
-  default_paper_size: Tables<'paper_types'>['id'];
-  paper_size: { name: Tables<'paper_types'>['name'] };
+export interface ReservationMustKeys extends Publication {
   title: string;
+  price: number;
+  coverId: string | undefined;
+  cover: string | undefined;
 }
 
-export type ReservationRecord<T = unknown> = ReservationBase & ReservationMustKeys & T;
+export type ReservationRecord = ReservationBase & ReservationMustKeys;
 export interface ReservationState {
   reservedItems: ReservationRecord[];
   isReserving: boolean | 'confirming';
@@ -34,32 +32,42 @@ export const reservationSlice = createSlice({
   name: 'reservation',
   initialState,
   reducers: {
-    addOrIncreaseItem<T extends ReservationMustKeys>(
+    addOrIncreaseItem: <T extends ReservationMustKeys>(
       state: ReservationState,
       action: PayloadAction<T>
-    ) {
+    ) => {
+      console.log(action.payload);
       const existingItem = state.reservedItems.find((i) => i.id === action.payload.id);
 
       if (existingItem) {
         existingItem.quantity += 1;
         existingItem.totalPrice = existingItem.quantity * (existingItem.price || 10000);
       } else {
-        // If not → add as new item
         state.reservedItems.push({
           ...action.payload,
           quantity: 1,
           status: 'in-progress',
-          price: action.payload.price,
           totalPrice: action.payload.price || 10000,
-          paperSizeId: action.payload.default_paper_size,
+          isDuplix: true,
         });
       }
     },
+    modifyItem<T extends Partial<ReservationRecord> & { id: string }>(
+      state: ReservationState,
+      action: PayloadAction<T>
+    ) {
+      const index = state.reservedItems.findIndex((item) => item.id === action.payload.id);
 
-    clearItems() {
-      return initialState;
+      if (index !== -1) {
+        state.reservedItems[index] = {
+          ...state.reservedItems[index],
+          ...action.payload,
+        };
+      }
+
+      console.log(state.reservedItems[index]);
     },
-
+    clearItems: () => initialState,
     decreaseItemQuantity(state, action: PayloadAction<string>) {
       const item = state.reservedItems.find((i) => i.id === action.payload);
       if (item) {
@@ -77,7 +85,7 @@ export const reservationSlice = createSlice({
   },
 });
 
-export const { addOrIncreaseItem, clearItems, decreaseItemQuantity, setIsReserving } =
+export const { addOrIncreaseItem, clearItems, decreaseItemQuantity, setIsReserving, modifyItem } =
   reservationSlice.actions;
 
 export default reservationSlice.reducer;

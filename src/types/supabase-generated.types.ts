@@ -51,12 +51,12 @@ export type Database = {
           cover_url: string | null;
           created_at: string;
           created_by: string;
-          default_paper_size: string;
           do_round: boolean | null;
           id: string;
           pages: number;
+          paper_type_id: string;
           publication_type: Database['public']['Enums']['publications_types'] | null;
-          publisher: string;
+          publisher_id: string;
           related_publications: Json[] | null;
           subject_id: string;
           term: Database['public']['Enums']['term'] | null;
@@ -70,14 +70,14 @@ export type Database = {
           additional_data?: string | null;
           change_price?: Json | null;
           cover_url?: string | null;
-          created_at: string;
+          created_at?: string;
           created_by: string;
-          default_paper_size: string;
           do_round?: boolean | null;
           id?: string;
           pages: number;
+          paper_type_id: string;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
-          publisher: string;
+          publisher_id: string;
           related_publications?: Json[] | null;
           subject_id: string;
           term?: Database['public']['Enums']['term'] | null;
@@ -93,12 +93,12 @@ export type Database = {
           cover_url?: string | null;
           created_at?: string;
           created_by?: string;
-          default_paper_size?: string;
           do_round?: boolean | null;
           id?: string;
           pages?: number;
+          paper_type_id?: string;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
-          publisher?: string;
+          publisher_id?: string;
           related_publications?: Json[] | null;
           subject_id?: string;
           term?: Database['public']['Enums']['term'] | null;
@@ -110,14 +110,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'publications_default_paper_size_fkey';
-            columns: ['default_paper_size'];
+            columns: ['paper_type_id'];
             isOneToOne: false;
             referencedRelation: 'paper_types';
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'publications_publisher_fkey';
-            columns: ['publisher'];
+            foreignKeyName: 'publications_publisher_id_fkey';
+            columns: ['publisher_id'];
             isOneToOne: false;
             referencedRelation: 'publishers';
             referencedColumns: ['id'];
@@ -216,7 +216,6 @@ export type Database = {
           covers_prices: Json[] | null;
           current_term: Database['public']['Enums']['term'];
           current_year: string;
-          default_cover: string | null;
           default_paper_size: string;
           deliver_after: number;
           id: string;
@@ -236,7 +235,6 @@ export type Database = {
           covers_prices?: Json[] | null;
           current_term: Database['public']['Enums']['term'];
           current_year: string;
-          default_cover?: string | null;
           default_paper_size: string;
           deliver_after: number;
           id?: string;
@@ -256,7 +254,6 @@ export type Database = {
           covers_prices?: Json[] | null;
           current_term?: Database['public']['Enums']['term'];
           current_year?: string;
-          default_cover?: string | null;
           default_paper_size?: string;
           deliver_after?: number;
           id?: string;
@@ -269,13 +266,6 @@ export type Database = {
             columns: ['default_paper_size'];
             isOneToOne: false;
             referencedRelation: 'paper_types';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'settings_default_cover_fkey';
-            columns: ['default_cover'];
-            isOneToOne: false;
-            referencedRelation: 'cover_types';
             referencedColumns: ['id'];
           },
         ];

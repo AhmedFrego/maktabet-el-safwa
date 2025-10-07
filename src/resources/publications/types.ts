@@ -1,9 +1,9 @@
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export interface Publication extends Tables<'publications'> {
-  publisher_data: { name: string };
+  publisher: { name: string };
   subject: { name: string };
-  paper_size: { name: string };
+  paper_type: { name: string };
 }
 
 export type PublicationWithFileCover = Omit<
@@ -13,12 +13,9 @@ export type PublicationWithFileCover = Omit<
   cover_url?: { rawFile: File };
 };
 
-export interface recordCardStructure {
-  coverUrl: string | null;
-  chipText?: string;
-  tagText?: (string | number)[];
-  bottomText: {
-    start: string;
-    end: string;
-  };
-}
+export const publicationsColumns = [
+  '*',
+  'paper_type:paper_types(name)',
+  'publisher:publishers(name)',
+  'subject:subjects(name)',
+];

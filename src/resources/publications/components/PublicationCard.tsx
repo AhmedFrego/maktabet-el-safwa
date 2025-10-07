@@ -22,13 +22,13 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
   const { calcPrice } = useCalcPrice();
   const translate = useTranslate();
 
-  const { additional_data, subject, term, cover_url, publisher_data } = record;
-  const price = calcPrice({ record }).price.twoFacesPrice;
+  const { additional_data, subject, term, cover_url, publisher } = record;
+  const prices = calcPrice({ record });
   const academicShortName = translate(
     `custom.labels.academic_years.${record.academic_year}.short_name`
   );
 
-  const title = `${subject.name} ${additional_data || ''} ${publisher_data.name} ${academicShortName} ${translate(
+  const title = `${subject.name} ${additional_data || ''} ${publisher.name} ${academicShortName} ${translate(
     `custom.labels.terms.${term}.name`
   )}`;
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
@@ -42,7 +42,17 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
             <Add
               fontSize="inherit"
               color="success"
-              onClick={() => dispatch(addOrIncreaseItem({ ...record, price, title }))}
+              onClick={() =>
+                dispatch(
+                  addOrIncreaseItem({
+                    ...record,
+                    title,
+                    price: prices?.price?.twoFacesPrice,
+                    coverId: prices?.cover?.id,
+                    cover: prices.cover?.name,
+                  })
+                )
+              }
             />
             {isReserved && (
               <>
@@ -67,7 +77,7 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
       <StyledCardContent>
         <StyledChip label={toArabicNumerals(academicShortName)} />
         <StyledTag>
-          <span>{toArabicNumerals(price)}</span>
+          <span>{toArabicNumerals(prices.price.twoFacesPrice)}</span>
           <span>{translate('custom.currency.short')}</span>
         </StyledTag>
         <CoverImage src={cover_url || DEFAULT_COVER_URL} alt={title} />
@@ -75,7 +85,7 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
           {`${subject.name}${additional_data ? ` (${additional_data})` : ''}`}
         </Typography>
         <Typography variant="caption" color="text.secondary" noWrap>
-          {publisher_data.name}
+          {publisher.name}
         </Typography>
       </StyledCardContent>
     </StyledCard>

@@ -36,13 +36,10 @@ export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
         المزيد من التفاصيل
       </AccordionSummary>
       <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        <YearInput source="year" />
-
-        <ReferenceInput source="default_paper_size" reference="paper_types">
+        <ReferenceInput source="paper_type" reference="paper_types">
           <AutocompleteInput
             fullWidth
             helperText={false}
-            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
             onCreate={async (value) => {
               const { data } = await dataProvider.create('paper_types', {
                 data: { name: value },
@@ -53,6 +50,7 @@ export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
         </ReferenceInput>
 
         <TermInput />
+        <YearInput source="year" />
 
         <TextInput fullWidth source="additional_data" helperText={false} />
 

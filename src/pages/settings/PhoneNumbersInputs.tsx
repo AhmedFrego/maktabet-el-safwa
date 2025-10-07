@@ -1,6 +1,5 @@
 import { PhoneDisabled, PhoneEnabled, WhatsApp } from '@mui/icons-material';
 import { Box, Divider } from '@mui/material';
-import { CustomCheckBox } from 'components/form';
 import {
   ArrayInput,
   regex,
@@ -10,7 +9,8 @@ import {
   useStore,
   useTranslate,
 } from 'react-admin';
-import { Tables } from 'types/supabase-generated.types';
+import { CustomCheckBox } from 'components/form';
+import { Tables } from 'types';
 
 export const PhoneNumbersInputs = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');

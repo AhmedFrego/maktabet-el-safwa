@@ -4,28 +4,17 @@ import { Box, Typography } from '@mui/material';
 
 import { StyledContainer, ListActions, Loading } from 'components/UI';
 import { useAppSelector } from 'store';
-import { CustomFilterSidebar, Publication, PublicationCard } from '..';
+import { CustomFilterSidebar, Publication, PublicationCard, publicationsColumns } from '..';
 
-export const PublicationsList = () => {
-  return (
-    <List
-      actions={<ListActions />}
-      aside={<CustomFilterSidebar />}
-      queryOptions={{
-        meta: {
-          columns: [
-            '*',
-            'paper_size:paper_types(name)',
-            'publisher_data:publishers(name)',
-            'subject:subjects(name)',
-          ],
-        },
-      }}
-    >
-      <PublicationsContainer />
-    </List>
-  );
-};
+export const PublicationsList = () => (
+  <List
+    actions={<ListActions />}
+    aside={<CustomFilterSidebar />}
+    queryOptions={{ meta: { columns: publicationsColumns } }}
+  >
+    <PublicationsContainer />
+  </List>
+);
 
 const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
@@ -58,17 +47,13 @@ const PublicationsContainer = () => {
         </Box>
       ) : (
         publications &&
-        publications.map((record) => {
-          return (
-            <PublicationCard
-              key={record.id}
-              onClick={() => {
-                if (!state.isReserving) navigate(`${record.id}/show`);
-              }}
-              record={record}
-            />
-          );
-        })
+        publications.map((record) => (
+          <PublicationCard
+            key={record.id}
+            record={record}
+            onClick={() => !state.isReserving && navigate(`${record.id}/show`)}
+          />
+        ))
       )}
     </StyledContainer>
   );

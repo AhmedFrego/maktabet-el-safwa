@@ -101,7 +101,7 @@ const CreateModal = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const addPaperSize: SaveHandler<{ name: string }> = (params) => {
+  const addPaperType: SaveHandler<{ name: string }> = (params) => {
     return create(
       'paper_types',
       { data: { name: params.name } },
@@ -131,7 +131,7 @@ const CreateModal = () => {
             })}
           >
             <Typography>إضافة مقاس جديد</Typography>
-            <Form onSubmit={addPaperSize}>
+            <Form onSubmit={addPaperType}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <TextInput source="name" label="مقاس الورق" />
                 <ButtonGroup>

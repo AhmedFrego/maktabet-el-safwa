@@ -6,7 +6,8 @@ export const YearInput = ({ ...props }: TextInputProps) => {
 
   return (
     <TextInput
-      sx={{ width: '100%' }}
+      fullWidth
+      helperText={false}
       defaultValue={setting?.current_year}
       validate={[
         required(),

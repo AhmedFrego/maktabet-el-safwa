@@ -273,7 +273,7 @@ export const arabicMessages: TranslationMessages = {
         year: 'السنة',
         subject_id: 'المادة',
         academic_year: 'السنة الدراسية',
-        default_paper_size: 'حجم الورق الافتراضي',
+        paper_type: 'نوع الورق',
         term: 'الفصل الدراسي',
         additional_data: 'بيانات إضافية',
         related_publications: 'مصادر ذات صلة',
