@@ -51,10 +51,10 @@ export const reservationSlice = createSlice({
         });
       }
     },
-    modifyItem<T extends Partial<ReservationRecord> & { id: string }>(
+    modifyItem: <T extends Partial<ReservationRecord> & { id: string }>(
       state: ReservationState,
       action: PayloadAction<T>
-    ) {
+    ) => {
       const index = state.reservedItems.findIndex((item) => item.id === action.payload.id);
 
       if (index !== -1) {

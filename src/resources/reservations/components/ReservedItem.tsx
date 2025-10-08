@@ -21,7 +21,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
   return (
     <StyledReservedItem>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 3 }}>
-        <Typography>{`${toArabicNumerals(item.quantity)} * ${item.title}`}</Typography>
+        <Typography>{`${toArabicNumerals(item.quantity)} * ${toArabicNumerals(item.title)}`}</Typography>
         <Typography color="textSecondary">
           {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
           <IconButton aria-label="delete">

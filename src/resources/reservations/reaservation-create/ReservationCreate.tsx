@@ -10,6 +10,12 @@ import {
   useStore,
   useTranslate,
 } from 'react-admin';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import 'dayjs/locale/ar';
+
+import dayjs from 'dayjs';
 
 import { ModalContent, ModalWrapper, NestedModal } from 'components/UI';
 import { supabase } from 'lib';
@@ -19,6 +25,8 @@ import { toArabicNumerals } from 'utils';
 
 import { ReservedItem } from '../components';
 import { ClientInput } from 'components/form';
+import { useState } from 'react';
+import { PickerValue } from '@mui/x-date-pickers/internals';
 
 export const ReservationCreate = () => {
   const translate = useTranslate();
@@ -29,6 +37,8 @@ export const ReservationCreate = () => {
     (state) => state.reservation
   );
   const total_price = reserved_items.reduce((acc, curr) => acc + curr.totalPrice, 0);
+  const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
+  const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
 
   const confirmReserve = async ({
     paid_amount,
@@ -39,7 +49,6 @@ export const ReservationCreate = () => {
   }) => {
     const { data: session } = await supabase.auth.getSession();
     if (!session.session) return;
-
     const data: TablesInsert<'reservations'> = {
       created_by: session.session.user.id,
       reserved_items,
@@ -47,7 +56,7 @@ export const ReservationCreate = () => {
       paid_amount,
       client_id,
       remain_amount: total_price - paid_amount,
-      dead_line: `${new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000)}`,
+      dead_line: `${deadLine?.toISOString()}`,
       branch: setting?.branch,
     };
 
@@ -75,7 +84,7 @@ export const ReservationCreate = () => {
               width: '100%',
             })}
           >
-            <ModalContent>
+            <ModalContent sx={{ gap: 1.5 }}>
               <ClientInput />
               {reserved_items.map((x) => (
                 <ReservedItem item={x} key={x.id} />
@@ -93,7 +102,21 @@ export const ReservationCreate = () => {
                 source="paid_amount"
                 label={translate('custom.labels.paid_amount')}
                 validate={[required(), maxValue(total_price)]}
+                helperText={false}
               />
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
+                <MobileDateTimePicker
+                  label={translate('resources.reservations.fields.dead_line')}
+                  defaultValue={dayjs(deadLine)}
+                  viewRenderers={{
+                    minutes: null,
+                    seconds: null,
+                  }}
+                  orientation="landscape"
+                  onChange={(v) => setDeadLine(v)}
+                  disablePast
+                />
+              </LocalizationProvider>
               <CTA />
             </ModalContent>
           </SimpleForm>

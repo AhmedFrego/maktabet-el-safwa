@@ -63,6 +63,7 @@ export const ClientInput = () => {
             const q = `%${searchText.trim()}%`;
             return { or: `(full_name.ilike.${q},phone_number.ilike.${q})` };
           }}
+          helperText={false}
           onCreate={handleOnCreate}
         />
       </ReferenceInput>
