@@ -84,15 +84,27 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
 const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 195, borderRadius: 0 }}>
-      <Table aria-label="simple table" stickyHeader sx={{ width: '100%' }}>
+      <Table
+        aria-label="simple table"
+        stickyHeader
+        sx={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          tableLayout: 'auto',
+          '& > th, & > td': {
+            whiteSpace: 'nowrap',
+          },
+        }}
+      >
         <TableHead
           sx={(theme) => ({
             backgroundColor: theme.palette.grey[100],
           })}
         >
-          <TableRow>
-            <StyledTableCell sx={{ width: '100%' }}>المحجوز</StyledTableCell>
-            <StyledTableCell align="center">حجم الورق</StyledTableCell>
+          <TableRow sx={{}}>
+            <StyledTableCell>المحجوز</StyledTableCell>
+            <StyledTableCell align="center">الورق</StyledTableCell>
+            <StyledTableCell align="center">الغلاف</StyledTableCell>
             <StyledTableCell align="center">عدد</StyledTableCell>
             <StyledTableCell align="center">سعر الوحدة</StyledTableCell>
             <StyledTableCell align="center">إجمالي السعر</StyledTableCell>
@@ -117,7 +129,6 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
               <StyledTableCell
                 scope="row"
                 sx={{
-                  width: '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -126,7 +137,8 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
                 {item.title}
               </StyledTableCell>
 
-              <StyledTableCell align="center">{item.paper_size.name}</StyledTableCell>
+              <StyledTableCell align="center">{item.paper_type.name}</StyledTableCell>
+              <StyledTableCell align="center">{item.cover_type?.name}</StyledTableCell>
               <StyledTableCell align="center">{toArabicNumerals(item.quantity)}</StyledTableCell>
               <StyledTableCell align="center">
                 {toArabicNumerals(Number(item.price))}
@@ -153,4 +165,5 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[200]}`,
   padding: 8,
   backgroundColor: 'transparent',
+  whiteSpace: 'nowrap',
 }));
