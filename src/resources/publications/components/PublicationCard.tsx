@@ -48,8 +48,8 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
                     ...record,
                     title,
                     price: prices?.price?.twoFacesPrice,
-                    coverId: prices?.cover?.id,
-                    cover: prices.cover?.name,
+                    cover_type_id: prices?.cover?.id,
+                    cover_type: { name: prices.cover?.name },
                   })
                 )
               }

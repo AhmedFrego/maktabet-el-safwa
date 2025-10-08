@@ -7,14 +7,14 @@ export interface ReservationBase {
   quantity: number;
   totalPrice: number;
   status: ReservationStatus;
-  isDuplix: boolean;
+  isDublix: boolean;
 }
 
 export interface ReservationMustKeys extends Publication {
   title: string;
   price: number;
-  coverId: string | undefined;
-  cover: string | undefined;
+  cover_type_id: string | undefined;
+  cover_type: { name: string | undefined } | undefined;
 }
 
 export type ReservationRecord = ReservationBase & ReservationMustKeys;
@@ -36,7 +36,6 @@ export const reservationSlice = createSlice({
       state: ReservationState,
       action: PayloadAction<T>
     ) => {
-      console.log(action.payload);
       const existingItem = state.reservedItems.find((i) => i.id === action.payload.id);
 
       if (existingItem) {
@@ -48,7 +47,7 @@ export const reservationSlice = createSlice({
           quantity: 1,
           status: 'in-progress',
           totalPrice: action.payload.price || 10000,
-          isDuplix: true,
+          isDublix: true,
         });
       }
     },
@@ -64,8 +63,6 @@ export const reservationSlice = createSlice({
           ...action.payload,
         };
       }
-
-      console.log(state.reservedItems[index]);
     },
     clearItems: () => initialState,
     decreaseItemQuantity(state, action: PayloadAction<string>) {
