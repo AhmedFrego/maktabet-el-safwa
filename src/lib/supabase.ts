@@ -15,12 +15,60 @@ const baseProvider = supabaseDataProvider({
 });
 
 const applyFilters = (query: ReturnType<typeof supabase.from>, filter: Record<string, unknown>) => {
-  Object.entries(filter).forEach(([key, value]) => {
-    if (key === 'or' && typeof value === 'string') {
+  Object.entries(filter).forEach(([rawKey, value]) => {
+    if (rawKey === 'or' && typeof value === 'string') {
       const sanitizedOr = value.replace(/^\(+|\)+$/g, '');
       query.or(sanitizedOr);
-    } else if (Array.isArray(value)) query.in(key, value);
-    else if (value !== undefined) query.eq(key, value);
+      return;
+    }
+
+    const [key, op] = rawKey.split('@');
+
+    if (Array.isArray(value)) {
+      if (op === 'in' || op === undefined) query.in(key, value as unknown[]);
+      else query.eq(key, value as unknown);
+      return;
+    }
+    if (value === undefined) return;
+
+    const val = value as unknown;
+
+    switch (op) {
+      case 'ilike':
+        query.ilike(key, val);
+        break;
+      case 'like':
+        query.like(key, val);
+        break;
+      case 'neq':
+      case 'not':
+        query.neq(key, val);
+        break;
+      case 'gt':
+        query.gt(key, val);
+        break;
+      case 'gte':
+        query.gte(key, val);
+        break;
+      case 'lt':
+        query.lt(key, val);
+        break;
+      case 'lte':
+        query.lte(key, val);
+        break;
+      case 'in':
+        if (Array.isArray(val)) query.in(key, val);
+        else query.in(key, [val]);
+        break;
+      case 'is':
+        query.is(key, val);
+        break;
+      case undefined:
+        query.eq(key, val);
+        break;
+      default:
+        query.eq(rawKey, val);
+    }
   });
 };
 

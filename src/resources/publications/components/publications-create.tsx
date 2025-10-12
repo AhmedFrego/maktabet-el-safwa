@@ -42,7 +42,7 @@ export const PublicationCreate = () => {
         defaultValues={{
           year: setting?.current_year,
           term: setting?.current_term,
-          default_paper_size: setting?.default_paper_size,
+          paper_type_id: setting?.default_paper_size,
         }}
         toolbar={
           <Fab

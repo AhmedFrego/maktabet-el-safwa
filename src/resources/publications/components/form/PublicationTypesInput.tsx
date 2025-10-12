@@ -1,8 +1,9 @@
-import { AutocompleteInput } from 'react-admin';
+import { AutocompleteInput, AutocompleteInputProps } from 'react-admin';
 import { usePublicationTypesChoices } from 'resources/publications/hooks';
 
 export const PublicationTypesInput = ({
   source = 'publication_type',
+  ...props
 }: PublicationTypesInputProps) => {
   const publicationTypesChoises = usePublicationTypesChoices();
   return (
@@ -11,10 +12,11 @@ export const PublicationTypesInput = ({
       choices={publicationTypesChoises}
       fullWidth
       helperText={false}
+      {...props}
     />
   );
 };
 
-interface PublicationTypesInputProps {
+interface PublicationTypesInputProps extends AutocompleteInputProps {
   source?: string;
 }

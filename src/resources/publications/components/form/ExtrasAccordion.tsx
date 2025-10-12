@@ -6,8 +6,8 @@ import {
   BooleanInput,
   number,
   ReferenceInput,
+  required,
   TextInput,
-  useDataProvider,
 } from 'react-admin';
 
 import { toArabicNumerals } from 'utils';
@@ -15,7 +15,6 @@ import { toArabicNumerals } from 'utils';
 import { TermInput, YearInput } from '.';
 
 export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
-  const dataProvider = useDataProvider();
   return (
     <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
       <AccordionSummary
@@ -36,16 +35,12 @@ export const ExtrasAccordion = ({ children }: PropsWithChildren) => {
         المزيد من التفاصيل
       </AccordionSummary>
       <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        <ReferenceInput source="paper_type" reference="paper_types">
+        <ReferenceInput source="paper_type_id" reference="paper_types">
           <AutocompleteInput
             fullWidth
             helperText={false}
-            onCreate={async (value) => {
-              const { data } = await dataProvider.create('paper_types', {
-                data: { name: value },
-              });
-              return data;
-            }}
+            filterToQuery={(searchText) => ({ 'name@ilike': `%${searchText}%` })}
+            validate={[required()]}
           />
         </ReferenceInput>
 

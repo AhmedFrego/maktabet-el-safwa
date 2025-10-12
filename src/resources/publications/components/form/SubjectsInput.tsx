@@ -1,6 +1,11 @@
-import { AutocompleteInput, ReferenceInput, useDataProvider } from 'react-admin';
+import {
+  AutocompleteInput,
+  AutocompleteInputProps,
+  ReferenceInput,
+  useDataProvider,
+} from 'react-admin';
 
-export const SubjectsInput = ({ source = 'subject_id' }: SubjectsInputProps) => {
+export const SubjectsInput = ({ source = 'subject_id', ...props }: SubjectsInputProps) => {
   const dataProvider = useDataProvider();
 
   return (
@@ -13,11 +18,12 @@ export const SubjectsInput = ({ source = 'subject_id' }: SubjectsInputProps) => 
           return data;
         }}
         helperText={false}
+        {...props}
       />
     </ReferenceInput>
   );
 };
 
-interface SubjectsInputProps {
+interface SubjectsInputProps extends AutocompleteInputProps {
   source?: string;
 }

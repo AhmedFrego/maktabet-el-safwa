@@ -1,6 +1,11 @@
-import { AutocompleteInput, ReferenceInput, useDataProvider } from 'react-admin';
+import {
+  AutocompleteInput,
+  AutocompleteInputProps,
+  ReferenceInput,
+  useDataProvider,
+} from 'react-admin';
 
-export const PublishersInput = ({ source = 'publisher' }: PublishersInputProps) => {
+export const PublishersInput = ({ source = 'publisher_id', ...props }: PublishersInputProps) => {
   const dataProvider = useDataProvider();
   return (
     <ReferenceInput source={source} reference="publishers">
@@ -12,11 +17,12 @@ export const PublishersInput = ({ source = 'publisher' }: PublishersInputProps) 
           const { data } = await dataProvider.create('publishers', { data: { name } });
           return data;
         }}
+        {...props}
       />
     </ReferenceInput>
   );
 };
 
-interface PublishersInputProps {
+interface PublishersInputProps extends AutocompleteInputProps {
   source?: string;
 }

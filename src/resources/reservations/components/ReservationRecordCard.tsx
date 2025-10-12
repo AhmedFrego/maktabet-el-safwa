@@ -61,7 +61,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
           })}
         >
           <Typography noWrap>{full_name}</Typography>
-          <Typography noWrap>{toArabicNumerals(phone_number)}</Typography>
+          <Typography noWrap>{phone_number ? toArabicNumerals(phone_number) : ''}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>{`${translate('resources.reservations.fields.total_price')}: ${total_price}`}</Typography>
