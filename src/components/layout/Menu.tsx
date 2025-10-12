@@ -2,11 +2,14 @@ import { Menu as RAMenu, useStore } from 'react-admin';
 
 import { styled, Avatar } from '@mui/material';
 import { Tables } from 'types/supabase-generated.types';
+import { useAppSelector } from 'store';
 
 export const Menu = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
+  const isReserving = useAppSelector((state) => state.reservation.isReserving);
+
   return (
-    <StyledRAMenu>
+    <StyledRAMenu sx={isReserving ? { maxWidth: 0 } : {}}>
       <RAMenu.DashboardItem
         leftIcon={
           <Avatar
@@ -23,11 +26,9 @@ export const Menu = () => {
 };
 
 const StyledRAMenu = styled(RAMenu)(({ theme }) => ({
-  maxWidth: theme.spacing(25),
-  fontSize: theme.typography.caption.fontSize,
+  maxWidth: 200,
 
   '& > *': {
-    fontSize: 'inherit',
     borderBottom: `2px solid ${theme.palette.divider}`,
     '&:hover': { borderLeft: `3px solid ${theme.palette.primary.main}` },
   },

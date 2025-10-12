@@ -41,14 +41,17 @@ export const Header = () => {
 const ReservationButton = () => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
+  const redirect = useRedirect();
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
   const totalQuantity = reservedItems.reduce((cur, acc) => cur + acc.quantity, 0);
   return (
     <StyledReservationButton
       variant="outlined"
       onClick={() => {
-        if (!isReserving) dispatch(setIsReserving(true));
-        else if (!reservedItems.length) dispatch(setIsReserving(false));
+        if (!isReserving) {
+          dispatch(setIsReserving(true));
+          redirect('/publications');
+        } else if (!reservedItems.length) dispatch(setIsReserving(false));
         else dispatch(setIsReserving('confirming'));
       }}
     >

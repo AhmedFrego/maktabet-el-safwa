@@ -6,15 +6,18 @@ import { StyledContainer, ListActions, Loading } from 'components/UI';
 import { useAppSelector } from 'store';
 import { CustomFilterSidebar, Publication, PublicationCard, publicationsColumns } from '..';
 
-export const PublicationsList = () => (
-  <List
-    actions={<ListActions />}
-    aside={<CustomFilterSidebar />}
-    queryOptions={{ meta: { columns: publicationsColumns } }}
-  >
-    <PublicationsContainer />
-  </List>
-);
+export const PublicationsList = () => {
+  const isReserving = useAppSelector((state) => state.reservation.isReserving);
+  return (
+    <List
+      actions={isReserving ? false : <ListActions />}
+      aside={<CustomFilterSidebar />}
+      queryOptions={{ meta: { columns: publicationsColumns } }}
+    >
+      <PublicationsContainer />
+    </List>
+  );
+};
 
 const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
