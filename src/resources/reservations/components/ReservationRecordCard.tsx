@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   Paper,
   styled,
   Table,
@@ -13,14 +14,15 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { useTranslate } from 'react-admin';
-import { ExpandMore } from '@mui/icons-material';
+import { Identifier, useTranslate, useUpdate } from 'react-admin';
+import { Done, DoneAll, ExpandMore, HelpOutline, RotateRight } from '@mui/icons-material';
 
 import { ReservationRecord } from 'store';
 import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
 
 import { Reservation } from '..';
 import { ReservationItemCta } from '.';
+import { TablesInsert } from 'types/supabase-generated.types';
 
 export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
@@ -33,8 +35,29 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     total_price,
     paid_amount,
     remain_amount,
+    id,
   } = reservation;
   const { day, dayOfWeek, month, time } = formatDateTime(dead_line);
+
+  const [update] = useUpdate<
+    Omit<TablesInsert<'reservations'>['reserved_items'], 'id'> & { id: Identifier }
+  >();
+
+  const handleStatusChange = (itemId: string, newStatus: string) => {
+
+    update(
+      'reservations',
+      { id, data: { status: newStatus }, previousData: reservedItems },
+      {
+        onSuccess: () => {
+          // Handle success (e.g., show a notification)
+        },
+        onError: () => {
+          // Handle error (e.g., show an error message)
+        },
+      }
+    );
+  };
 
   return (
     <StyledReservationItem>
@@ -102,6 +125,7 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
           })}
         >
           <TableRow sx={{}}>
+            <StyledTableCell>{<HelpOutline />}</StyledTableCell>
             <StyledTableCell>المحجوز</StyledTableCell>
             <StyledTableCell align="center">الورق</StyledTableCell>
             <StyledTableCell align="center">الغلاف</StyledTableCell>
@@ -126,6 +150,18 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
                 },
               })}
             >
+              <StyledTableCell align="center">
+                <Button variant="text" size="small">
+                  {item.status === 'in-progress' ? (
+                    <RotateRight />
+                  ) : item.status === 'ready' ? (
+                    <Done />
+                  ) : (
+                    <DoneAll />
+                  )}
+                </Button>
+              </StyledTableCell>
+
               <StyledTableCell
                 scope="row"
                 sx={{
