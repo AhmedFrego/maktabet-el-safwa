@@ -301,7 +301,7 @@ export const arabicMessages: TranslationMessages = {
       },
     },
     users: {
-      name: 'المستخدمون |||| مستخدم',
+      name: 'العملاء |||| عميل',
       fields: {
         id: 'الرمز التعريفي',
         created_at: 'تاريخ الإنشاء',
@@ -310,6 +310,7 @@ export const arabicMessages: TranslationMessages = {
         full_name: 'الاسم الكامل',
         phone_number: 'رقم الهاتف',
         role: 'الدور',
+        academic_years: 'السنة الدراسية',
       },
       actions: {
         create: 'إنشاء مستخدم',

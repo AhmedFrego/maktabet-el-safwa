@@ -17,7 +17,4 @@ const StyledRALayout = styled(RALayout)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const StyledContent = styled(Paper)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  padding: theme.spacing(1),
-}));
+const StyledContent = styled(Paper)({ marginTop: 16, padding: 8 });

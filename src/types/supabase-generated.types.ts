@@ -287,6 +287,7 @@ export type Database = {
       };
       users: {
         Row: {
+          academic_years: Database['public']['Enums']['academic_years'][] | null;
           avatar_url: string | null;
           created_at: string;
           email: string | null;
@@ -296,6 +297,7 @@ export type Database = {
           role: Database['public']['Enums']['user_role'];
         };
         Insert: {
+          academic_years?: Database['public']['Enums']['academic_years'][] | null;
           avatar_url?: string | null;
           created_at?: string;
           email?: string | null;
@@ -305,6 +307,7 @@ export type Database = {
           role?: Database['public']['Enums']['user_role'];
         };
         Update: {
+          academic_years?: Database['public']['Enums']['academic_years'][] | null;
           avatar_url?: string | null;
           created_at?: string;
           email?: string | null;
