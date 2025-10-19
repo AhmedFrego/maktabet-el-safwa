@@ -1,5 +1,5 @@
-import { Edit, DoneAll } from '@mui/icons-material';
-import { ButtonGroup, styled, Typography } from '@mui/material';
+import { Edit, DoneAll, Visibility, Delete } from '@mui/icons-material';
+import { Box, ButtonGroup, styled, Typography } from '@mui/material';
 import { Button, useDelete, useRedirect, useRefresh, useTranslate } from 'react-admin';
 
 import { NestedModal } from 'components/UI';
@@ -38,9 +38,13 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
   return (
     <ButtonGroup variant="outlined" size="medium" sx={{ mt: 2 }}>
       <DeletelModal id={id} />
-      <StyledButton color="info" onClick={handleEdit}>
+      <StyledButton color="warning" onClick={handleEdit}>
         <Edit />
         <Typography>{translate('resources.reservations.actions.update')}</Typography>
+      </StyledButton>
+      <StyledButton color="info" onClick={redirect(`/reservations/${id}/show`)}>
+        <Visibility />
+        <Typography>{translate('resources.reservations.actions.show')}</Typography>
       </StyledButton>
       <StyledButton color="success" onClick={handleDeliver}>
         <DoneAll />
@@ -60,8 +64,13 @@ export const DeletelModal = ({ id }: { id: string }) => {
     <NestedModal
       confirmFn={handleDelete}
       title={translate('resources.reservations.actions.cancel')}
-      buttonText={translate('resources.reservations.actions.cancel')}
-      buttonSize="large"
+      buttonText={
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
+          <Delete />
+          {translate('resources.reservations.actions.cancel')}
+        </Box>
+      }
+      buttonSize="medium"
     />
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Box, Modal, Typography } from '@mui/material';
 import { Button, useTranslate } from 'react-admin';
 
@@ -69,7 +69,7 @@ export const NestedModal = ({
 };
 
 interface NestedModalProps {
-  buttonText?: string;
+  buttonText?: string | ReactNode;
   confirmFn: () => void;
   title: string;
   color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';

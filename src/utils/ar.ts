@@ -324,8 +324,8 @@ export const arabicMessages: TranslationMessages = {
       fields: {
         id: 'الرمز التعريفي',
         client_id: 'العميل',
-        created_at: 'تاريخ الإنشاء',
-        created_by: 'أنشأه',
+        created_at: 'تاريخ الحجز',
+        created_by: 'حجزه',
         dead_line: 'موعد التسليم',
         paid_amount: 'المبلغ المدفوع',
         remain_amount: 'المبلغ المتبقي',
@@ -339,6 +339,7 @@ export const arabicMessages: TranslationMessages = {
         update: 'تعديل الحجز',
         cancel: 'إلغاء الحجز',
         confirm: 'تأكيد الحجز',
+        show: 'تفاصيل الحجز',
         pay: 'دفع المبلغ',
       },
       status: {

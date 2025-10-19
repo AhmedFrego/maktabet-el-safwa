@@ -1,3 +1,4 @@
+export * from './DividedContainer';
 export * from './ListActions';
 export * from './Loading';
 export * from './Modal';

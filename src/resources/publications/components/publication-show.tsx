@@ -1,5 +1,5 @@
-import { Box, Container, Divider, Grid, Switch, Typography } from '@mui/material';
-import { PropsWithChildren, useState } from 'react';
+import { Box, Grid, Switch, Typography } from '@mui/material';
+import { useState } from 'react';
 import {
   Show,
   TextField,
@@ -11,6 +11,7 @@ import {
   SimpleShowLayout,
 } from 'react-admin';
 
+import { DividedContainer } from 'components/UI';
 import { useCalcPrice } from 'hooks';
 import { DEFAULT_COVER_URL, Tables } from 'types';
 import { formatToYYYYMMDD, toArabicNumerals } from 'utils';
@@ -184,10 +185,3 @@ const CoverImageField = ({ source, defaultSrc }: { source: string; defaultSrc: s
     />
   ) : null;
 };
-
-const DividedContainer = ({ children }: PropsWithChildren) => (
-  <Container>
-    {children}
-    <Divider />
-  </Container>
-);
