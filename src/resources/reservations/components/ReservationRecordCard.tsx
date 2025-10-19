@@ -23,6 +23,7 @@ import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
 import { Reservation } from '..';
 import { ReservationItemCta } from '.';
 import { Enums, TablesUpdate } from 'types/supabase-generated.types';
+import { supabase } from 'lib/supabase';
 
 export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
@@ -43,7 +44,9 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     Omit<TablesUpdate<'reservations'>, 'id'> & { id: Identifier }
   >();
 
-  const handleStatusChange = (itemId: string) => {
+  const handleStatusChange = async (itemId: string) => {
+    const { data: session } = await supabase.auth.getSession();
+
     const updatedItems = reserved_items.map((item) =>
       item.id === itemId
         ? {
@@ -56,20 +59,29 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
                   : item?.status === 'delivered'
                     ? ('in-progress' as Enums<'reservation_state'>)
                     : item.status,
+            deliveredAt: item?.status === 'ready' ? new Date().toISOString() : null,
+            deliveredBy: item?.status === 'ready' ? session.session?.user.id : null,
           }
         : item
     );
-    const allReady = updatedItems.every((item) => item.status === 'ready');
+    const allReady =
+      updatedItems.every((item) => item.status === 'ready') ||
+      updatedItems.every((item) => item.status !== 'in-progress');
     const allDelivered = updatedItems.every((item) => item.status === 'delivered');
     const newReservationStatus = allDelivered
       ? ('delivered' as Enums<'reservation_state'>)
       : allReady
         ? ('ready' as Enums<'reservation_state'>)
-        : reservation_status;
+        : ('in-progress' as Enums<'reservation_state'>);
 
     update('reservations', {
       id,
-      data: { reserved_items: updatedItems, reservation_status: newReservationStatus },
+      data: {
+        reserved_items: updatedItems,
+        reservation_status: newReservationStatus,
+        delivered_at: allDelivered ? new Date().toISOString() : null,
+        delivered_by: allDelivered ? session.session?.user.id : null,
+      },
       previousData: reservation,
     });
   };

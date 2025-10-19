@@ -7,6 +7,8 @@ export interface ReservationBase {
   quantity: number;
   totalPrice: number;
   status: ReservationStatus;
+  deliveredAt?: string | null;
+  deliveredBy?: string | null;
   isDublix: boolean;
 }
 
@@ -48,6 +50,8 @@ export const reservationSlice = createSlice({
           status: 'in-progress',
           totalPrice: action.payload.price || 10000,
           isDublix: true,
+          deliveredAt: null,
+          deliveredBy: null,
         });
       }
     },

@@ -371,7 +371,7 @@ export const arabicMessages: TranslationMessages = {
       phone_number: 'رقم التليفون',
       deliver_after: 'التسليم بعد __ ساعة',
       academic_years: {
-        KG0: { name: 'تأسيس', short_name: 'قبل الحضانة' },
+        KG0: { name: 'قبل الحضانة', short_name: 'تأسيس' },
         KG1: { name: 'كي جي ون', short_name: 'KG1' },
         KG2: { name: 'كي جي تو', short_name: 'KG2' },
         '1st_primary': { name: 'أولى إبتدائي', short_name: '1ب' },
@@ -388,8 +388,8 @@ export const arabicMessages: TranslationMessages = {
         '3rd_secondary': { name: ' تالته ثانوي', short_name: '3ث' },
       },
       terms: {
-        ['1st' as Enums<'term'>]: { short_name: 'الأول', name: 'الترم الأول' },
-        ['2nd' as Enums<'term'>]: { short_name: 'الثاني', name: 'الترم الثاني' },
+        ['1st' as Enums<'term'>]: { short_name: 'الأول', name: 'ترم أول' },
+        ['2nd' as Enums<'term'>]: { short_name: 'الثاني', name: 'ترم ثاني' },
         ['full_year' as Enums<'term'>]: { short_name: 'مدمج (سنة كاملة)', name: 'سنة كاملة' },
       },
     },
