@@ -22,7 +22,7 @@ import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
 
 import { Reservation } from '..';
 import { ReservationItemCta } from '.';
-import { TablesInsert } from 'types/supabase-generated.types';
+import { Enums, TablesUpdate } from 'types/supabase-generated.types';
 
 export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
@@ -39,24 +39,39 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
   } = reservation;
   const { day, dayOfWeek, month, time } = formatDateTime(dead_line);
 
-  const [update] = useUpdate<
-    Omit<TablesInsert<'reservations'>['reserved_items'], 'id'> & { id: Identifier }
+  const [update, { isLoading }] = useUpdate<
+    Omit<TablesUpdate<'reservations'>, 'id'> & { id: Identifier }
   >();
 
-  const handleStatusChange = (itemId: string, newStatus: string) => {
-
-    update(
-      'reservations',
-      { id, data: { status: newStatus }, previousData: reservedItems },
-      {
-        onSuccess: () => {
-          // Handle success (e.g., show a notification)
-        },
-        onError: () => {
-          // Handle error (e.g., show an error message)
-        },
-      }
+  const handleStatusChange = (itemId: string) => {
+    const updatedItems = reserved_items.map((item) =>
+      item.id === itemId
+        ? {
+            ...item,
+            status:
+              item?.status === 'in-progress'
+                ? ('ready' as Enums<'reservation_state'>)
+                : item?.status === 'ready'
+                  ? ('delivered' as Enums<'reservation_state'>)
+                  : item?.status === 'delivered'
+                    ? ('in-progress' as Enums<'reservation_state'>)
+                    : item.status,
+          }
+        : item
     );
+    const allReady = updatedItems.every((item) => item.status === 'ready');
+    const allDelivered = updatedItems.every((item) => item.status === 'delivered');
+    const newReservationStatus = allDelivered
+      ? ('delivered' as Enums<'reservation_state'>)
+      : allReady
+        ? ('ready' as Enums<'reservation_state'>)
+        : reservation_status;
+
+    update('reservations', {
+      id,
+      data: { reserved_items: updatedItems, reservation_status: newReservationStatus },
+      previousData: reservation,
+    });
   };
 
   return (
@@ -67,7 +82,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
           sx={(theme) => ({
             backgroundColor:
               reservation_status === 'ready'
-                ? theme.palette.info.dark
+                ? theme.palette.info.main
                 : reservation_status === 'delivered'
                   ? theme.palette.success.light
                   : theme.palette.warning.main,
@@ -98,15 +113,19 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
         </AccordionDetails>
       </Accordion>
       <Box>
-        <ReservedItems reservedItems={reserved_items} />
+        <ReservedItems
+          reservedItems={reserved_items}
+          changeItemStatus={handleStatusChange}
+          loading={isLoading}
+        />
       </Box>
     </StyledReservationItem>
   );
 };
 
-const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
+const ReservedItems = ({ reservedItems, loading, changeItemStatus }: ReservedItemsProps) => {
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 195, borderRadius: 0 }}>
+    <TableContainer component={Paper} sx={{ maxHeight: 196, borderRadius: 0 }}>
       <Table
         aria-label="simple table"
         stickyHeader
@@ -151,7 +170,12 @@ const ReservedItems = ({ reservedItems }: ReservedItemsProps) => {
               })}
             >
               <StyledTableCell align="center">
-                <Button variant="text" size="small">
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => changeItemStatus(item.id)}
+                  loading={loading}
+                >
                   {item.status === 'in-progress' ? (
                     <RotateRight />
                   ) : item.status === 'ready' ? (
@@ -193,6 +217,8 @@ interface ReservationItemProps {
 }
 interface ReservedItemsProps {
   reservedItems: ReservationRecord[];
+  changeItemStatus: (itemId: string) => void;
+  loading?: boolean;
 }
 
 const StyledReservationItem = styled(Box)({});
