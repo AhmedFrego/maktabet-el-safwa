@@ -1,8 +1,9 @@
 import { Box, Button, Chip, Typography } from '@mui/material';
 import {
   Identifier,
-  NumberInput,
+  number,
   required,
+  TextInput,
   useDelete,
   useGetList,
   useStore,
@@ -64,19 +65,21 @@ export const CoversPrices = () => {
             <PaperBox key={cover_type.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
                 <Typography>{cover_type.name}</Typography>
-                <NumberInput
+                <TextInput
                   source={`covers_prices.${cover_type.id}.oneFacePrice`}
                   label="سعر الوجه الواحد بالجنيه"
                   helperText={false}
-                  validate={[required()]}
+                  validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.oneFacePrice}
+                  size="small"
                 />
-                <NumberInput
+                <TextInput
                   source={`covers_prices.${cover_type.id}.twoFacesPrice`}
                   label="سعر الوجهين بالجنيه"
                   helperText={false}
-                  validate={[required()]}
+                  validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.twoFacesPrice}
+                  size="small"
                 />
                 <NestedModal
                   title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"

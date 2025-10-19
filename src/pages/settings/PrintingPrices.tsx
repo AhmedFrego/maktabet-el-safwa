@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   Form,
   Identifier,
-  NumberInput,
+  number,
   required,
   SaveHandler,
   TextInput,
@@ -54,18 +54,20 @@ export const PrintingPrices = () => {
             <PaperBox key={size.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1 }}>
                 <Typography>{size.name}</Typography>
-                <NumberInput
+                <TextInput
                   source={`paper_prices.${size.id}.oneFacePrice`}
                   label="سعر الوجه الواحد بالقروش"
                   helperText={false}
-                  validate={[required()]}
+                  validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.oneFacePrice}
+                  size="small"
                 />
-                <NumberInput
+                <TextInput
                   source={`paper_prices.${size.id}.twoFacesPrice`}
                   label="سعر الوجهين بالقروش"
                   helperText={false}
-                  validate={[required()]}
+                  validate={[required(), number()]}
+                  size="small"
                   defaultValue={oldPaperPrices?.twoFacesPrice}
                 />
                 <NestedModal
