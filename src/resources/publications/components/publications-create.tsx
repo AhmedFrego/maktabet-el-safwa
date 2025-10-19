@@ -5,6 +5,7 @@ import { ControlPoint } from '@mui/icons-material';
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
 import { STOREGE_URL, Tables, TablesInsert } from 'types';
+import { resizeToA4 } from 'utils';
 
 import { Publication, PublicationWithFileCover, PublicationForm } from '..';
 
@@ -20,9 +21,10 @@ export const PublicationCreate = () => {
     if (!session.session) return Promise.reject('no logged in user');
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
     if (file) {
+      const resizedBlob = await resizeToA4(file);
       const { data: cover, error } = await supabase.storage
         .from('covers')
-        .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, file);
+        .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, resizedBlob);
       if (error) throw error;
       else {
         const fullPath = `${STOREGE_URL}${cover?.fullPath}`;
