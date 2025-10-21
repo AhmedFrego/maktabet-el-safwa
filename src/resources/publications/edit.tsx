@@ -7,8 +7,7 @@ import { supabase } from 'lib';
 import { TablesUpdate, STOREGE_URL } from 'types';
 import { extractFileName } from 'utils';
 
-import { PublicationForm } from '.';
-import { Publication, PublicationWithFileCover } from '..';
+import { Publication, PublicationForm, PublicationWithFileCover } from '.';
 
 export const PublicationEdit = () => {
   const translate = useTranslate();

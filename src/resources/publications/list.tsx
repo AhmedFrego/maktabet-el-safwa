@@ -4,7 +4,9 @@ import { Box, Typography } from '@mui/material';
 
 import { StyledContainer, ListActions, Loading } from 'components/UI';
 import { useAppSelector } from 'store';
-import { CustomFilterSidebar, Publication, PublicationCard, publicationsColumns } from '..';
+
+import { CustomFilterSidebar, PublicationCard } from './components';
+import { Publication, publicationsColumns } from '.';
 
 export const PublicationsList = () => {
   const isReserving = useAppSelector((state) => state.reservation.isReserving);

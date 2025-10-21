@@ -7,7 +7,8 @@ import { supabase } from 'lib';
 import { STOREGE_URL, Tables, TablesInsert } from 'types';
 import { resizeToA4 } from 'utils';
 
-import { Publication, PublicationWithFileCover, PublicationForm } from '..';
+import { PublicationForm } from './components';
+import { Publication, PublicationWithFileCover } from './types';
 
 export const PublicationCreate = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');

@@ -1,10 +1,5 @@
 import { DocumentScanner } from '@mui/icons-material';
-import {
-  PublicationCreate,
-  PublicationEdit,
-  PublicationShow,
-  PublicationsList,
-} from './components';
+import { PublicationCreate, PublicationsList, PublicationEdit, PublicationShow } from '.';
 
 export const PublicationResource = {
   icon: DocumentScanner,
