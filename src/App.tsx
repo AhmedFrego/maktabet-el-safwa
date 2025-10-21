@@ -16,8 +16,8 @@ import { arabicMessages } from 'utils';
 
 import { PublicationResource } from 'resources/publications';
 import { reservationsResource } from 'resources/reservations';
-import { ReservationCreate } from 'resources/reservations/reaservation-create';
 import { clientsResource } from 'resources/users';
+import { ReservationCreate } from 'resources/reservations/create';
 
 const i18nProvider = polyglotI18nProvider(() => arabicMessages, 'ar');
 

@@ -5,9 +5,9 @@ import { Button, useDelete, useRedirect, useRefresh, useTranslate } from 'react-
 import { NestedModal } from 'components/UI';
 import { myProvider, supabase } from 'lib';
 import { ReservationRecord } from 'store';
+import { TablesUpdate } from 'types';
 
 import { Reservation } from '..';
-import { TablesUpdate } from 'types/supabase-generated.types';
 
 export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => {
   const { id, total_price, reserved_items } = reservation;
@@ -42,7 +42,7 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
         <Edit />
         <Typography>{translate('resources.reservations.actions.update')}</Typography>
       </StyledButton>
-      <StyledButton color="info" onClick={redirect(`/reservations/${id}/show`)}>
+      <StyledButton color="info" onClick={() => redirect(`/reservations/${id}/show`)}>
         <Visibility />
         <Typography>{translate('resources.reservations.actions.show')}</Typography>
       </StyledButton>

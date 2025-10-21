@@ -23,7 +23,7 @@ import { clearItems, setIsReserving, useAppDispatch, useAppSelector } from 'stor
 import { Tables, TablesInsert } from 'types';
 import { toArabicNumerals } from 'utils';
 
-import { ReservedItem } from '../components';
+import { ReservedItem } from './components';
 import { ClientInput } from 'components/form';
 import { useState } from 'react';
 import { PickerValue } from '@mui/x-date-pickers/internals';

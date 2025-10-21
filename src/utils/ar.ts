@@ -332,6 +332,8 @@ export const arabicMessages: TranslationMessages = {
         reservation_status: 'حالة الحجز',
         reserved_items: 'العناصر المحجوزة',
         total_price: 'السعر الإجمالي',
+        delivered_at: 'تاريخ التسليم',
+        delivered_by: 'تم التسليم بواسطة',
       },
       actions: {
         create: 'إنشاء حجز',

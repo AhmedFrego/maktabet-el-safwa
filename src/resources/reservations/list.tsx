@@ -7,8 +7,8 @@ import {
 } from 'react-admin';
 import { useTranslate } from 'react-admin'; // make sure you have this
 import { Loading, StyledContainer } from 'components/UI';
-import { Reservation } from '..';
-import { ReservationRecordCard } from '../components';
+import { Reservation } from '.';
+import { ReservationRecordCard } from './components';
 import { Enums } from 'types/supabase-generated.types';
 import { Box } from '@mui/material';
 

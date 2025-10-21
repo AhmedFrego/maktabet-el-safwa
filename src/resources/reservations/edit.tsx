@@ -13,7 +13,7 @@ import { Divider } from '@mui/material';
 import { ReservationRecord } from 'store';
 import { ClientInput } from 'components/form';
 
-import { ReservedItem } from '../components';
+import { ReservedItem } from './components';
 
 export const ReservationEdit = () => {
   return (
@@ -37,11 +37,7 @@ const EditForm = () => {
         <SimpleFormIterator>
           <FormDataConsumer>
             {({ scopedFormData }) => (
-              <>
-                {scopedFormData && (
-                  <ReservedItem item={scopedFormData as ReservationRecord<unknown>} />
-                )}
-              </>
+              <>{scopedFormData && <ReservedItem item={scopedFormData as ReservationRecord} />}</>
             )}
           </FormDataConsumer>
         </SimpleFormIterator>
