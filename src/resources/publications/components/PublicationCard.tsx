@@ -1,8 +1,15 @@
-import { Typography, CardProps } from '@mui/material';
+import { Typography, CardProps, Checkbox } from '@mui/material';
 import { Remove, Add, DeleteForever } from '@mui/icons-material';
 
 import { DEFAULT_COVER_URL } from 'types';
-import { useAppSelector, useAppDispatch, addOrIncreaseItem, decreaseItemQuantity } from 'store';
+import {
+  useAppSelector,
+  useAppDispatch,
+  addOrIncreaseItem,
+  decreaseItemQuantity,
+  addItemToDelete,
+  removeItemFromDelete,
+} from 'store';
 import { toArabicNumerals } from 'utils';
 import {
   CoverImage,
@@ -32,7 +39,17 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
     `custom.labels.terms.${term}.name`
   )}`;
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
+  const { isDeletingMode, itemsToDelete } = useAppSelector((state) => state.deletion);
   const isReserved = reservedItems.find((item) => item.id === record.id);
+  const isSelectedForDelete = itemsToDelete.includes(record.id);
+
+  const handleDeleteToggle = () => {
+    if (isSelectedForDelete) {
+      dispatch(removeItemFromDelete(record.id));
+    } else {
+      dispatch(addItemToDelete(record.id));
+    }
+  };
 
   return (
     <StyledCard {...props}>
@@ -72,6 +89,26 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
               </>
             )}
           </StyledReserveQuantity>
+        </StyledSelector>
+      )}
+      {isDeletingMode && (
+        <StyledSelector
+          sx={(theme) => ({
+            backgroundColor: isSelectedForDelete
+              ? theme.palette.error.light
+              : 'rgba(211, 47, 47, 0.08)',
+          })}
+        >
+          <Checkbox
+            checked={isSelectedForDelete}
+            onChange={handleDeleteToggle}
+            sx={(theme) => ({
+              color: theme.palette.error.main,
+              '&.Mui-checked': {
+                color: theme.palette.error.main,
+              },
+            })}
+          />
         </StyledSelector>
       )}
       <StyledCardContent>

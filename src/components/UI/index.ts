@@ -1,3 +1,4 @@
+export * from './DeleteConfirmationModal';
 export * from './DividedContainer';
 export * from './ListActions';
 export * from './Loading';

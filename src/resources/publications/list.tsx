@@ -24,6 +24,7 @@ export const PublicationsList = () => {
 const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
   const state = useAppSelector((state) => state.reservation);
+  const isDeletingMode = useAppSelector((state) => state.deletion.isDeletingMode);
   const navigate = useNavigate();
   const translate = useTranslate();
 
@@ -56,7 +57,7 @@ const PublicationsContainer = () => {
           <PublicationCard
             key={record.id}
             record={record}
-            onClick={() => !state.isReserving && navigate(`${record.id}/show`)}
+            onClick={() => !state.isReserving && !isDeletingMode && navigate(`${record.id}/show`)}
           />
         ))
       )}

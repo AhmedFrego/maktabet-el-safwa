@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { reservationSlice } from './slices';
+import { reservationSlice, deletionSlice } from './slices';
 import { useDispatch, useSelector } from 'react-redux';
 
 export const store = configureStore({
-  reducer: { reservation: reservationSlice },
+  reducer: { reservation: reservationSlice, deletion: deletionSlice },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
