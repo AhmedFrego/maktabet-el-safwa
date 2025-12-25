@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Create, useStore, useTranslate } from 'react-admin';
 import { Fab } from '@mui/material';
 import { ControlPoint } from '@mui/icons-material';
@@ -7,12 +8,14 @@ import { supabase } from 'lib';
 import { STOREGE_URL, Tables, TablesInsert } from 'types';
 import { resizeToA4 } from 'utils';
 
-import { PublicationForm } from './components';
+import { PublicationForm, PublicationDataModal } from './components';
 import { Publication, PublicationWithFileCover } from './types';
 
 export const PublicationCreate = () => {
   const [setting] = useStore<Tables<'settings'>>('settings');
   const translate = useTranslate();
+  const [showModal, setShowModal] = useState(false);
+  const [createdPublication, setCreatedPublication] = useState<Tables<'publications'> | null>(null);
 
   const transform = async (
     data: PublicationWithFileCover | TablesInsert<'publications'>
@@ -40,27 +43,39 @@ export const PublicationCreate = () => {
   };
 
   return (
-    <Create transform={transform} sx={{ position: 'relative' }}>
-      <StyledForm
-        defaultValues={{
-          year: setting?.current_year,
-          term: setting?.current_term,
-          paper_type_id: setting?.default_paper_size,
-        }}
-        toolbar={
-          <Fab
-            variant="extended"
-            color="info"
-            sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
-            type="submit"
-          >
-            <ControlPoint sx={{ mr: 1 }} />
-            {translate('ra.action.create')}
-          </Fab>
-        }
-      >
-        <PublicationForm />
-      </StyledForm>
-    </Create>
+    <>
+      <Create transform={transform} sx={{ position: 'relative' }}>
+        <StyledForm
+          defaultValues={{
+            year: setting?.current_year,
+            term: setting?.current_term,
+            paper_type_id: setting?.default_paper_size,
+          }}
+          toolbar={
+            <Fab
+              variant="extended"
+              color="info"
+              sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
+              type="submit"
+            >
+              <ControlPoint sx={{ mr: 1 }} />
+              {translate('ra.action.create')}
+            </Fab>
+          }
+        >
+          <PublicationForm
+            onRelatedPublicationSuccess={(data) => {
+              setCreatedPublication(data as unknown as Tables<'publications'>);
+              setShowModal(true);
+            }}
+          />
+        </StyledForm>
+      </Create>
+      <PublicationDataModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        publicationData={createdPublication}
+      />
+    </>
   );
 };

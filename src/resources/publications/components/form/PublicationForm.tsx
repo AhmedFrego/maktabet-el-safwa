@@ -6,7 +6,11 @@ import { number, required, TextInput } from 'react-admin';
 import { CoverInput } from './CoverInput';
 import { ExtrasAccordion } from './ExtrasAccordion';
 
-export const PublicationForm = () => {
+interface PublicationFormProps {
+  onRelatedPublicationSuccess?: (data: unknown) => void;
+}
+
+export const PublicationForm = ({ onRelatedPublicationSuccess }: PublicationFormProps) => {
   return (
     <>
       <PublicationTypesInput source="publication_type" validate={[required()]} />
@@ -15,7 +19,7 @@ export const PublicationForm = () => {
       <AcademicYearsInput validate={[required()]} />
       <TextInput fullWidth source="pages" helperText={false} validate={[required(), number()]} />
       <CoverInput />
-      <ExtrasAccordion />
+      <ExtrasAccordion onRelatedPublicationSuccess={onRelatedPublicationSuccess} />
     </>
   );
 };

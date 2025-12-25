@@ -17,6 +17,7 @@ import {
   useRecordContext,
   SimpleShowLayout,
   useDataProvider,
+  useRedirect,
 } from 'react-admin';
 
 import { DividedContainer } from 'components/UI';
@@ -111,7 +112,10 @@ export const PublicationShow = () => {
 
             <DividedContainer>
               {translate('resources.publications.fields.related_publications')} :
-              <TextField source="related_publications" />
+              <FunctionField
+                source="related_publications"
+                render={(record) => <RelatedPublicationsField record={record} />}
+              />
             </DividedContainer>
 
             <FunctionField
@@ -202,7 +206,7 @@ const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
         </Typography>
         <Autocomplete
           size="small"
-          key={paperTypeId} 
+          key={paperTypeId}
           options={getCovers(paperTypeId).covers || []}
           value={selectedCover || cover?.name ? cover : null}
           onChange={(_, newValue) => {
@@ -236,4 +240,58 @@ const CoverImageField = ({ source, defaultSrc }: { source: string; defaultSrc: s
       style={{ width: '100%', height: 'auto', maxHeight: '35em', objectFit: 'contain' }}
     />
   ) : null;
+};
+
+const RelatedPublicationsField = ({ record }: { record: Tables<'publications'> }) => {
+  const dataProvider = useDataProvider();
+  const translate = useTranslate();
+  const redirect = useRedirect();
+  const [relatedData, setRelatedData] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchRelatedPublications = async () => {
+      if (!record.related_publications || record.related_publications.length === 0) {
+        return;
+      }
+
+      try {
+        const promises = record.related_publications.map((id) =>
+          dataProvider.getOne('publications', { id })
+        );
+        const results = await Promise.all(promises);
+        const additionalDataList = results.map((result) => ({
+          id: result.data?.id || '',
+          name: result.data?.additional_data || 'لا يوجد اسم',
+        }));
+        setRelatedData(additionalDataList);
+      } catch (error) {
+        console.error('Error fetching related publications:', error);
+      }
+    };
+
+    fetchRelatedPublications();
+  }, [record.related_publications, dataProvider, translate]);
+
+  if (!record.related_publications || record.related_publications.length === 0) {
+    return <>{translate('resources.publications.messages.no_related_publications')}</>;
+  }
+
+  return (
+    <Box>
+      {relatedData.map((data, index) => (
+        <Typography
+          key={index}
+          sx={{
+            fontFamily: 'inherit',
+            cursor: 'pointer',
+            color: 'primary.main',
+            '&:hover': { textDecoration: 'underline' },
+          }}
+          onClick={() => redirect('show', 'publications', data.id)}
+        >
+          {index + 1}. {data.name}
+        </Typography>
+      ))}
+    </Box>
+  );
 };
