@@ -18,7 +18,7 @@ export const useCalcPrice = () => {
     const chosenCover = cover ? covers?.find((c) => c.id === cover) : covers?.[0];
 
     const coverPrice =
-      (record.two_faces_cover ? chosenCover?.twoFacesPrice : chosenCover?.oneFacePrice) || 0;
+      Number(record.two_faces_cover ? chosenCover?.twoFacesPrice : chosenCover?.oneFacePrice) || 0;
 
     const round_to = record.do_round ? setting?.price_ceil_to || 1 : 1;
 

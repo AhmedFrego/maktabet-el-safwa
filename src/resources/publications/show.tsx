@@ -1,5 +1,12 @@
-import { Box, Grid, Switch, Typography } from '@mui/material';
-import { useState } from 'react';
+import {
+  Box,
+  Grid,
+  Switch,
+  Typography,
+  Autocomplete,
+  TextField as MuiTextField,
+} from '@mui/material';
+import { useState, useEffect } from 'react';
 import {
   Show,
   TextField,
@@ -9,10 +16,11 @@ import {
   ReferenceField,
   useRecordContext,
   SimpleShowLayout,
+  useDataProvider,
 } from 'react-admin';
 
 import { DividedContainer } from 'components/UI';
-import { useCalcPrice } from 'hooks';
+import { useCalcPrice, useGetCovers } from 'hooks';
 import { DEFAULT_COVER_URL, Tables } from 'types';
 import { formatToYYYYMMDD, toArabicNumerals } from 'utils';
 
@@ -88,11 +96,6 @@ export const PublicationShow = () => {
             </DividedContainer>
 
             <DividedContainer>
-              {translate('resources.publications.fields.paper_type')} :
-              <ReferenceField source="paper_type_id" reference="paper_types" />
-            </DividedContainer>
-
-            <DividedContainer>
               <FunctionField render={(record) => <CustomPriceField record={record} />} />
             </DividedContainer>
 
@@ -153,14 +156,63 @@ export const PublicationShow = () => {
 
 const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
   const { calcPrice } = useCalcPrice();
+  const { getCovers } = useGetCovers();
   const translate = useTranslate();
+  const dataProvider = useDataProvider();
   const [dublix, setDublix] = useState(true);
+  const [paperTypeId, setPaperTypeId] = useState(record?.paper_type_id);
+  const [selectedCover, setSelectedCover] = useState<Tables<'cover_types'> | null>(null);
+  const [paperTypes, setPaperTypes] = useState<Tables<'paper_types'>[]>([]);
+
+  useEffect(() => {
+    dataProvider
+      .getList('paper_types', {
+        pagination: { page: 1, perPage: 100 },
+        sort: { field: 'name', order: 'ASC' },
+        filter: {},
+      })
+      .then(({ data }) => setPaperTypes(data));
+  }, [dataProvider]);
+
   if (!record) return null;
 
-  const { cover, price } = calcPrice({ record });
+  const modifiedRecord = { ...record, paper_type_id: paperTypeId };
+  const { cover, price } = calcPrice({ record: modifiedRecord, coverId: selectedCover?.id });
+  const selectedPaperType = paperTypes.find((pt) => pt.id === paperTypeId);
+
   return (
     <Box>
-      <Typography>{`نوع الغلاف : ${cover?.name || 'لا يوجد مقاس مناسب'}`}</Typography>
+      <Box sx={{ mb: 2 }}>
+        <Typography gutterBottom>
+          {translate('resources.publications.fields.paper_type')}
+        </Typography>
+        <Autocomplete
+          size="small"
+          options={paperTypes}
+          value={selectedPaperType || null}
+          onChange={(_, newValue) => setPaperTypeId(newValue?.id || '')}
+          getOptionLabel={(option) => option.name || ''}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => <MuiTextField {...params} />}
+        />
+      </Box>
+      <Box sx={{ mb: 2 }}>
+        <Typography gutterBottom>
+          {translate('resources.publications.fields.cover_type')}
+        </Typography>
+        <Autocomplete
+          size="small"
+          key={paperTypeId} 
+          options={getCovers(paperTypeId).covers || []}
+          value={selectedCover || cover?.name ? cover : null}
+          onChange={(_, newValue) => {
+            setSelectedCover(newValue ?? null);
+          }}
+          getOptionLabel={(option) => option.name || ''}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => <MuiTextField {...params} />}
+        />
+      </Box>
       <Typography>
         طباعة على الوجهين :
         <Switch

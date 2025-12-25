@@ -33,10 +33,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
           </IconButton>
         </Typography>
       </Box>
-      {/* <Box sx={{ display: 'flex', gap: 2 }}>
-        <Typography>{`${translate('resources.publications.fields.paper_type')}: ${item.paper_type.name}`}</Typography>
-        <Typography>{`${translate('resources.publications.fields.cover_type')}: ${item.cover_type?.name}`}</Typography>
-      </Box> */}
+
       {editing && (
         <Box>
           <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
