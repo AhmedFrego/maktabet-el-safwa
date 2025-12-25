@@ -51,8 +51,9 @@ const ReservationButton = () => {
         if (!isReserving) {
           dispatch(setIsReserving(true));
           redirect('/publications');
-        } else if (!reservedItems.length) dispatch(setIsReserving(false));
-        else dispatch(setIsReserving('confirming'));
+        } else {
+          dispatch(setIsReserving('confirming'));
+        }
       }}
     >
       <Badge
@@ -69,9 +70,7 @@ const ReservationButton = () => {
       {translate(
         !isReserving
           ? 'resources.reservations.actions.create'
-          : reservedItems.length === 0
-            ? 'resources.reservations.actions.cancel'
-            : 'resources.reservations.actions.confirm'
+          : 'resources.reservations.actions.confirm'
       )}
     </StyledReservationButton>
   );

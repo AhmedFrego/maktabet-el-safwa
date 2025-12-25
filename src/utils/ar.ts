@@ -358,6 +358,7 @@ export const arabicMessages: TranslationMessages = {
         confirm: 'تأكيد الحجز',
         show: 'تفاصيل الحجز',
         pay: 'دفع المبلغ',
+        add_custom: 'إضافة منشور مخصص',
       },
       status: {
         'in-progress': 'قيد العمل',
@@ -388,6 +389,9 @@ export const arabicMessages: TranslationMessages = {
       branch_phone_numbers: 'أرقام تليفونات الفرع',
       phone_number: 'رقم التليفون',
       deliver_after: 'التسليم بعد __ ساعة',
+      price: 'السعر',
+      quantity: 'الكمية',
+      title: 'العنوان',
       academic_years: {
         KG0: { name: 'قبل الحضانة', short_name: 'تأسيس' },
         KG1: { name: 'كي جي ون', short_name: 'KG1' },

@@ -10,6 +10,7 @@ export const NestedModal = ({
   title,
   color = 'error',
   buttonSize = 'medium',
+  maxWidth = 500,
 }: NestedModalProps) => {
   const translate = useTranslate();
 
@@ -40,6 +41,8 @@ export const NestedModal = ({
               p: 2,
               backgroundColor: theme.palette.grey[100],
               border: `2px solid ${theme.palette[color].main}`,
+              maxWidth,
+              gap: 2.5,
             })}
           >
             <Typography>{title}</Typography>
@@ -74,4 +77,5 @@ interface NestedModalProps {
   title: string;
   color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
   buttonSize?: 'small' | 'medium' | 'large';
+  maxWidth?: number;
 }
