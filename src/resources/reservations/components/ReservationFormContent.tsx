@@ -1,8 +1,10 @@
-import { Typography } from '@mui/material';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import { FormDataConsumer, NumberInput, maxValue, required, useTranslate } from 'react-admin';
+import { useFormContext } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import { Schedule } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
@@ -21,6 +23,7 @@ interface ReservationFormContentProps {
   total_price: number;
   deadLine: PickerValue;
   setDeadLine: (value: PickerValue) => void;
+  onSetNow: () => void;
 }
 
 export const ReservationFormContent = ({
@@ -28,8 +31,15 @@ export const ReservationFormContent = ({
   total_price,
   deadLine,
   setDeadLine,
+  onSetNow,
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
+  const { setValue } = useFormContext();
+
+  const handleSetNow = () => {
+    setValue('paid_amount', total_price);
+    onSetNow();
+  };
 
   return (
     <ModalContent sx={{ gap: 1.5 }}>
@@ -68,17 +78,25 @@ export const ReservationFormContent = ({
         helperText={false}
       />
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
-        <MobileDateTimePicker
-          label={translate('resources.reservations.fields.dead_line')}
-          defaultValue={dayjs(deadLine)}
-          viewRenderers={{
-            minutes: null,
-            seconds: null,
-          }}
-          orientation="landscape"
-          onChange={(v) => setDeadLine(v)}
-          disablePast
-        />
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+          <MobileDateTimePicker
+            label={translate('resources.reservations.fields.dead_line')}
+            value={deadLine || dayjs()}
+            viewRenderers={{
+              minutes: null,
+              seconds: null,
+            }}
+            orientation="landscape"
+            onChange={(v) => setDeadLine(v)}
+            disablePast
+            sx={{ flex: 1 }}
+          />
+          <Tooltip title={translate('custom.labels.set_now')} arrow>
+            <IconButton color="primary" onClick={handleSetNow} sx={{ mt: 1 }}>
+              <Schedule />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </LocalizationProvider>
       <ReservationCTA hasItems={reserved_items.length > 0} />
     </ModalContent>

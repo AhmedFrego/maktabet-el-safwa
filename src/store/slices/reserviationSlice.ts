@@ -83,10 +83,18 @@ export const reservationSlice = createSlice({
     setIsReserving(state, action: PayloadAction<boolean | 'confirming'>) {
       state.isReserving = action.payload;
     },
+    markAllAsDelivered(state) {
+      const now = new Date().toISOString();
+      state.reservedItems = state.reservedItems.map((item) => ({
+        ...item,
+        status: 'delivered' as ReservationStatus,
+        deliveredAt: now,
+      }));
+    },
   },
 });
 
-export const { addOrIncreaseItem, clearItems, decreaseItemQuantity, setIsReserving, modifyItem } =
+export const { addOrIncreaseItem, clearItems, decreaseItemQuantity, setIsReserving, modifyItem, markAllAsDelivered } =
   reservationSlice.actions;
 
 export default reservationSlice.reducer;

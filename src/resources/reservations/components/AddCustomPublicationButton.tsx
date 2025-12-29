@@ -111,7 +111,7 @@ export const AddCustomPublicationButton = () => {
               gap: 1,
             })}
           >
-            <Typography variant="h6">
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: 'inherit' }}>
               {translate('resources.reservations.actions.add_custom')}
             </Typography>
             {open && (

@@ -396,6 +396,7 @@ export const arabicMessages: TranslationMessages = {
       price: 'السعر',
       quantity: 'الكمية',
       title: 'العنوان',
+      set_now: 'الآن',
       academic_years: {
         KG0: { name: 'قبل الحضانة', short_name: 'تأسيس' },
         KG1: { name: 'كي جي ون', short_name: 'KG1' },

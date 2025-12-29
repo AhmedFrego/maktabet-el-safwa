@@ -6,7 +6,7 @@ import 'dayjs/locale/ar';
 
 import { ModalWrapper } from 'components/UI';
 import { supabase } from 'lib';
-import { clearItems, useAppDispatch, useAppSelector } from 'store';
+import { clearItems, markAllAsDelivered, useAppDispatch, useAppSelector } from 'store';
 import { Tables, TablesInsert } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 
@@ -22,6 +22,13 @@ export const ReservationCreate = () => {
   const total_price = reserved_items.reduce((acc, curr) => acc + curr.totalPrice, 0);
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
+  const [isDeliveredNow, setIsDeliveredNow] = useState(false);
+
+  const handleSetNow = () => {
+    setDeadLine(dayjs());
+    dispatch(markAllAsDelivered());
+    setIsDeliveredNow(true);
+  };
 
   const confirmReserve = async ({
     paid_amount,
@@ -41,6 +48,7 @@ export const ReservationCreate = () => {
       remain_amount: total_price - paid_amount,
       dead_line: `${deadLine?.toISOString()}`,
       branch: setting?.branch,
+      reservation_status: isDeliveredNow ? 'delivered' : 'in-progress',
     };
 
     return data;
@@ -72,6 +80,7 @@ export const ReservationCreate = () => {
               total_price={total_price}
               deadLine={deadLine}
               setDeadLine={setDeadLine}
+              onSetNow={handleSetNow}
             />
           </SimpleForm>
         </Create>
