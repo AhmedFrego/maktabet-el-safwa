@@ -19,7 +19,7 @@ import {
   useTranslate,
   FormDataConsumer,
 } from 'react-admin';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useFormState } from 'react-hook-form';
 
 import { toArabicNumerals } from 'utils';
 
@@ -86,18 +86,32 @@ export const ExtrasAccordion = ({
 
         <TextInput fullWidth source="additional_data" helperText={false} />
 
-        <Button
-          type="button"
-          variant="contained"
-          color="primary"
-          size="large"
-          fullWidth
-          startIcon={<LinkIcon />}
-          onClick={handleRelatedPublicationClick}
-          sx={{ fontFamily: 'inherit', py: 1.5 }}
-        >
-          {translate('resources.publications.messages.save_and_manage_related')}
-        </Button>
+        <FormDataConsumer>
+          {({ formData }) => {
+            const RelatedPublicationButton = () => {
+              const { isValid } = useFormState();
+              const isDisabled = !isValid || !formData.additional_data;
+
+              return (
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  startIcon={<LinkIcon />}
+                  onClick={handleRelatedPublicationClick}
+                  disabled={isDisabled}
+                  sx={{ fontFamily: 'inherit', py: 1.5 }}
+                >
+                  {translate('resources.publications.messages.save_and_manage_related')}
+                </Button>
+              );
+            };
+
+            return <RelatedPublicationButton />;
+          }}
+        </FormDataConsumer>
 
         <BooleanInput source="do_round" defaultValue={true} helperText={false} />
 

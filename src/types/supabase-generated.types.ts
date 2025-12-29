@@ -1,3 +1,5 @@
+import { MergedDatabase } from './supabase-overrides.types';
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -356,9 +358,9 @@ export type Database = {
   };
 };
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
+type DatabaseWithoutInternals = Omit<MergedDatabase, '__InternalSupabase'>;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof MergedDatabase, 'public'>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends

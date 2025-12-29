@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { FormDataConsumer, useTranslate } from 'react-admin';
 import { useCalcPrice } from 'hooks';
 import { toArabicNumerals } from 'utils';
+import { PriceCalculationRecord } from 'types';
 
 export const PriceDisplay = () => {
   const translate = useTranslate();
@@ -16,14 +17,14 @@ export const PriceDisplay = () => {
         }
 
         // Create a record object that matches the expected structure
-        const record = {
+        const record: PriceCalculationRecord = {
           pages: Number(formData.pages) || 0,
           paper_type_id: formData.paper_type_id,
           coverless: formData.coverless || false,
           two_faces_cover: formData.two_faces_cover || false,
           do_round: formData.do_round ?? true,
           change_price: formData.change_price || { oneFacePrice: 0, twoFacesPrice: 0 },
-        } as any;
+        };
 
         const { price } = calcPrice({ record });
 
@@ -35,9 +36,6 @@ export const PriceDisplay = () => {
               left: 280,
               transform: 'translateX(-50%)',
               zIndex: 999,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1,
             }}
           >
             <Box
@@ -47,29 +45,21 @@ export const PriceDisplay = () => {
                 px: 1.5,
                 py: 0.75,
                 borderRadius: 2,
-                boxShadow: 3,
-                textAlign: 'center',
-                minWidth: 120,
+                // boxShadow: 3,
+                // textAlign: 'center',
+                // minWidth: 120,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5,
               }}
             >
               <Typography variant="body2" sx={{ fontFamily: 'inherit', fontWeight: 300 }}>
-                وجه واحد: {toArabicNumerals(price.oneFacePrice)} ج.م
+                {translate('resources.publications.fields.change_price.oneFacePrice')}:{' '}
+                {toArabicNumerals(price.oneFacePrice)} {translate('custom.currency.short')}
               </Typography>
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: 'primary.main',
-                color: 'primary.contrastText',
-                px: 1.5,
-                py: 0.75,
-                borderRadius: 2,
-                boxShadow: 3,
-                textAlign: 'center',
-                minWidth: 120,
-              }}
-            >
               <Typography variant="body2" sx={{ fontFamily: 'inherit', fontWeight: 300 }}>
-                وجهين: {toArabicNumerals(price.twoFacesPrice)} ج.م
+                {translate('resources.publications.fields.change_price.twoFacesPrice')}:{' '}
+                {toArabicNumerals(price.twoFacesPrice)} {translate('custom.currency.short')}
               </Typography>
             </Box>
           </Box>
