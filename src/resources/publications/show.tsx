@@ -106,6 +106,11 @@ export const PublicationShow = () => {
             </DividedContainer>
 
             <DividedContainer>
+              {translate('resources.publications.fields.coverless')} :
+              <BooleanField source="coverless" />
+            </DividedContainer>
+
+            <DividedContainer>
               {translate('resources.publications.fields.additional_data')} :
               <TextField source="additional_data" />
             </DividedContainer>

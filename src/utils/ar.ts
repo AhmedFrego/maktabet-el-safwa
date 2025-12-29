@@ -281,6 +281,7 @@ export const arabicMessages: TranslationMessages = {
         do_round: 'تدوير السعر',
         change_price: { oneFacePrice: 'للوجه الواحد', twoFacesPrice: 'للوجهين' },
         two_faces_cover: 'غلاف مطبوع على الوجهين',
+        coverless: 'بدون غلاف',
         dublix: 'طباعة على الوجهين',
       },
       actions: {

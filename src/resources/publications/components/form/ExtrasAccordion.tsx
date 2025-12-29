@@ -17,11 +17,14 @@ import {
   TextInput,
   useSaveContext,
   useTranslate,
+  FormDataConsumer,
 } from 'react-admin';
+import { useFormContext } from 'react-hook-form';
 
 import { toArabicNumerals } from 'utils';
 
 import { TermInput, YearInput } from '.';
+import { useEffect } from 'react';
 
 interface ExtrasAccordionProps extends PropsWithChildren {
   onRelatedPublicationSuccess?: (data: unknown) => void;
@@ -98,7 +101,34 @@ export const ExtrasAccordion = ({
 
         <BooleanInput source="do_round" defaultValue={true} helperText={false} />
 
-        <BooleanInput source="two_faces_cover" defaultValue={false} helperText={false} />
+        <BooleanInput source="coverless" defaultValue={false} helperText={false} />
+
+        <FormDataConsumer>
+          {({ formData }) => {
+            // Component to handle side effect of resetting two_faces_cover
+            const TwoFacesCoverController = () => {
+              const { setValue, watch } = useFormContext();
+              const coverless = watch('coverless');
+
+              useEffect(() => {
+                if (coverless) {
+                  setValue('two_faces_cover', false);
+                }
+              }, [coverless, setValue]);
+
+              return (
+                <BooleanInput
+                  source="two_faces_cover"
+                  defaultValue={false}
+                  helperText={false}
+                  disabled={formData.coverless}
+                />
+              );
+            };
+
+            return <TwoFacesCoverController />;
+          }}
+        </FormDataConsumer>
 
         <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
           <Typography>

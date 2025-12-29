@@ -14,11 +14,17 @@ export const useCalcPrice = () => {
       twoFacesPrice: ((paperPrice?.twoFacesPrice || 0) * record.pages) / 100,
     };
 
-    const { covers } = getCovers(paperType);
-    const chosenCover = cover ? covers?.find((c) => c.id === cover) : covers?.[0];
+    // Skip cover price if coverless
+    let coverPrice = 0;
+    let chosenCover = null;
 
-    const coverPrice =
-      Number(record.two_faces_cover ? chosenCover?.twoFacesPrice : chosenCover?.oneFacePrice) || 0;
+    if (!record.coverless) {
+      const { covers } = getCovers(paperType);
+      chosenCover = cover ? covers?.find((c) => c.id === cover) : covers?.[0];
+      coverPrice =
+        Number(record.two_faces_cover ? chosenCover?.twoFacesPrice : chosenCover?.oneFacePrice) ||
+        0;
+    }
 
     const round_to = record.do_round ? setting?.price_ceil_to || 1 : 1;
 

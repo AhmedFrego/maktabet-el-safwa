@@ -34,7 +34,7 @@ import { toArabicNumerals } from 'utils';
 
 import { ReservedItem } from './components';
 import { ClientInput } from 'components/form';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { ReservationMustKeys } from 'store/slices/reserviationSlice';
 import { useGetCovers } from 'hooks';
@@ -162,6 +162,7 @@ const AddCustomPublicationButton = () => {
       quantity: 1,
       paper_type_id: defaultPaperTypeId,
       cover_type_id: defaultCoverId,
+      coverless: false,
     };
   };
 
@@ -169,7 +170,12 @@ const AddCustomPublicationButton = () => {
   const availableCovers = formData.paper_type_id ? getCovers(formData.paper_type_id).covers : [];
 
   const handleSubmit = () => {
-    if (formData.title && formData.price > 0 && formData.paper_type_id && formData.cover_type_id) {
+    if (
+      formData.title &&
+      formData.price > 0 &&
+      formData.paper_type_id &&
+      (formData.coverless || formData.cover_type_id)
+    ) {
       const selectedPaperType = paperTypes?.find((pt) => pt.id === formData.paper_type_id);
       const selectedCoverType = availableCovers?.find((ct) => ct.id === formData.cover_type_id);
 
@@ -177,12 +183,13 @@ const AddCustomPublicationButton = () => {
         id: `custom-${Date.now()}`,
         title: formData.title,
         price: formData.price,
-        cover_type_id: formData.cover_type_id,
-        cover_type: { name: selectedCoverType?.name },
+        cover_type_id: formData.coverless ? null : formData.cover_type_id,
+        cover_type: formData.coverless ? null : { name: selectedCoverType?.name },
         publisher: { name: '' },
         subject: { name: '' },
         paper_type: { name: selectedPaperType?.name },
         paper_type_id: formData.paper_type_id,
+        coverless: formData.coverless,
       } as ReservationMustKeys;
 
       for (let i = 0; i < formData.quantity; i++) {
@@ -263,16 +270,35 @@ const AddCustomPublicationButton = () => {
                   helperText={false}
                   fullWidth
                 />
-                <AutocompleteInput
-                  source="custom_cover_type"
-                  label={translate('resources.publications.fields.cover_type')}
-                  value={formData.cover_type_id}
-                  onChange={(value) => setFormData({ ...formData, cover_type_id: value as string })}
-                  choices={availableCovers?.map((ct) => ({ id: ct.id, name: ct.name })) || []}
-                  size="small"
-                  helperText={false}
-                  fullWidth
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <input
+                    type="checkbox"
+                    id="custom_coverless"
+                    checked={formData.coverless}
+                    onChange={(e) => setFormData({ ...formData, coverless: e.target.checked })}
+                  />
+                  <Typography
+                    component="label"
+                    htmlFor="custom_coverless"
+                    sx={{ cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    {translate('resources.publications.fields.coverless')}
+                  </Typography>
+                </Box>
+                {!formData.coverless && (
+                  <AutocompleteInput
+                    source="custom_cover_type"
+                    label={translate('resources.publications.fields.cover_type')}
+                    value={formData.cover_type_id}
+                    onChange={(value) =>
+                      setFormData({ ...formData, cover_type_id: value as string })
+                    }
+                    choices={availableCovers?.map((ct) => ({ id: ct.id, name: ct.name })) || []}
+                    size="small"
+                    helperText={false}
+                    fullWidth
+                  />
+                )}
                 <NumberInput
                   source="custom_price"
                   label={translate('custom.labels.price')}
