@@ -5,6 +5,7 @@ import { AcademicYearsInput } from './AcademicYearsInput';
 import { number, required, TextInput } from 'react-admin';
 import { CoverInput } from './CoverInput';
 import { ExtrasAccordion } from './ExtrasAccordion';
+import { PriceDisplay } from './PriceDisplay';
 
 interface PublicationFormProps {
   onRelatedPublicationSuccess?: (data: unknown) => void;
@@ -20,6 +21,7 @@ export const PublicationForm = ({ onRelatedPublicationSuccess }: PublicationForm
       <TextInput fullWidth source="pages" helperText={false} validate={[required(), number()]} />
       <CoverInput />
       <ExtrasAccordion onRelatedPublicationSuccess={onRelatedPublicationSuccess} />
+      <PriceDisplay />
     </>
   );
 };
