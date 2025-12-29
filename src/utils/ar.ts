@@ -361,6 +361,9 @@ export const arabicMessages: TranslationMessages = {
         pay: 'دفع المبلغ',
         add_custom: 'إضافة منشور مخصص',
       },
+      messages: {
+        no_items: 'لا توجد منشورات محجوزة بعد',
+      },
       status: {
         'in-progress': 'قيد العمل',
         ready: 'جاهز للتسليم',
