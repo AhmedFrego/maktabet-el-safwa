@@ -34,10 +34,7 @@ export const reservationSlice = createSlice({
   name: 'reservation',
   initialState,
   reducers: {
-    addOrIncreaseItem: <T extends ReservationMustKeys>(
-      state: ReservationState,
-      action: PayloadAction<T>
-    ) => {
+    addOrIncreaseItem: (state, action: PayloadAction<ReservationMustKeys>) => {
       const existingItem = state.reservedItems.find((i) => i.id === action.payload.id);
 
       if (existingItem) {
@@ -55,10 +52,7 @@ export const reservationSlice = createSlice({
         });
       }
     },
-    modifyItem: <T extends Partial<ReservationRecord> & { id: string }>(
-      state: ReservationState,
-      action: PayloadAction<T>
-    ) => {
+    modifyItem: (state, action: PayloadAction<Partial<ReservationRecord> & { id: string }>) => {
       const index = state.reservedItems.findIndex((item) => item.id === action.payload.id);
 
       if (index !== -1) {
@@ -94,7 +88,13 @@ export const reservationSlice = createSlice({
   },
 });
 
-export const { addOrIncreaseItem, clearItems, decreaseItemQuantity, setIsReserving, modifyItem, markAllAsDelivered } =
-  reservationSlice.actions;
+export const {
+  addOrIncreaseItem,
+  clearItems,
+  decreaseItemQuantity,
+  setIsReserving,
+  modifyItem,
+  markAllAsDelivered,
+} = reservationSlice.actions;
 
 export default reservationSlice.reducer;
