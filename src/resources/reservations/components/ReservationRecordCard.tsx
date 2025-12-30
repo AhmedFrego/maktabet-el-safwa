@@ -37,8 +37,14 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     paid_amount,
     remain_amount,
     id,
+    delivered_at,
   } = reservation;
-  const { day, dayOfWeek, month, time } = formatDateTime(dead_line);
+  
+  const displayTime = reservation_status === 'delivered' && delivered_at ? delivered_at : dead_line;
+  const { day, dayOfWeek, month, time } = formatDateTime(displayTime);
+  const timeLabel = reservation_status === 'delivered' 
+    ? translate('resources.reservations.fields.delivered_at')
+    : translate('resources.reservations.fields.dead_line');
 
   const [update, { isLoading }] = useUpdate<
     Omit<TablesUpdate<'reservations'>, 'id'> & { id: Identifier }
@@ -120,7 +126,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
           <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${translate(
             `resources.reservations.status.${reservation_status}`
           )}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.dead_line')}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}</Typography>
+          <Typography>{`${timeLabel}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}</Typography>
           <ReservationItemCta reservation={reservation} />
         </AccordionDetails>
       </Accordion>
@@ -129,13 +135,16 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
           reservedItems={reserved_items}
           changeItemStatus={handleStatusChange}
           loading={isLoading}
+          reservationStatus={reservation_status}
         />
       </Box>
     </StyledReservationItem>
   );
 };
 
-const ReservedItems = ({ reservedItems, loading, changeItemStatus }: ReservedItemsProps) => {
+const ReservedItems = ({ reservedItems, loading, changeItemStatus, reservationStatus }: ReservedItemsProps) => {
+  const isDelivered = reservationStatus === 'delivered';
+  
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 196, borderRadius: 0 }}>
       <Table
@@ -187,6 +196,7 @@ const ReservedItems = ({ reservedItems, loading, changeItemStatus }: ReservedIte
                   size="small"
                   onClick={() => changeItemStatus(item.id)}
                   loading={loading}
+                  disabled={isDelivered}
                 >
                   {item.status === 'in-progress' ? (
                     <RotateRight />
@@ -231,6 +241,7 @@ interface ReservedItemsProps {
   reservedItems: ReservationRecord[];
   changeItemStatus: (itemId: string) => void;
   loading?: boolean;
+  reservationStatus: Enums<'reservation_state'>;
 }
 
 const StyledReservationItem = styled(Box)({});

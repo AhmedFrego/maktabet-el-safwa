@@ -3,10 +3,13 @@ export const formatDateTime = (input: Date | string) => {
 
   const today = new Date();
   const inputDate = new Date(date);
-  inputDate.setMinutes(0, 0, 0);
 
   const msPerDay = 1000 * 60 * 60 * 24;
-  const after = Math.round((inputDate.getTime() - today.getTime()) / msPerDay);
+  const todayStart = new Date(today);
+  todayStart.setHours(0, 0, 0, 0);
+  const inputDateStart = new Date(inputDate);
+  inputDateStart.setHours(0, 0, 0, 0);
+  const after = Math.round((inputDateStart.getTime() - todayStart.getTime()) / msPerDay);
 
   const dayName = inputDate.toLocaleDateString('en-US', { weekday: 'long' });
 

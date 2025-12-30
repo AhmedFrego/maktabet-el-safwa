@@ -50,7 +50,7 @@ export const App = () => (
         >
           <Resource {...PublicationResource} />
           <Resource {...reservationsResource} />
-          <Resource {...clientsResource} options={{ route: 'clients' }} />
+          <Resource {...clientsResource} />
 
           <CustomRoutes noLayout>
             <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />

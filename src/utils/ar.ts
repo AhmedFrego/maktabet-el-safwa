@@ -397,6 +397,9 @@ export const arabicMessages: TranslationMessages = {
       quantity: 'الكمية',
       title: 'العنوان',
       set_now: 'الآن',
+      instant_delivery: 'تسليم فوري',
+      instant_delivery_confirmation: 'تأكيد التسليم الفوري',
+      reserved_items: 'العناصر المحجوزة',
       academic_years: {
         KG0: { name: 'قبل الحضانة', short_name: 'تأسيس' },
         KG1: { name: 'كي جي ون', short_name: 'KG1' },
@@ -419,6 +422,9 @@ export const arabicMessages: TranslationMessages = {
         ['2nd' as Enums<'term'>]: { short_name: 'الثاني', name: 'ترم ثاني' },
         ['full_year' as Enums<'term'>]: { short_name: 'مدمج (سنة كاملة)', name: 'سنة كاملة' },
       },
+    },
+    messages: {
+      instant_delivery_warning: 'تأكد من تسليم جميع العناصر المحجوزة وتحصيل المبلغ الكامل',
     },
   },
 };

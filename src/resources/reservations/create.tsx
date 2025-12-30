@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Modal } from '@mui/material';
 import { Create, SimpleForm, useStore } from 'react-admin';
 import dayjs from 'dayjs';
@@ -15,6 +15,7 @@ import { ReservationFormContent } from './components';
 export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
   const [setting] = useStore<Tables<'settings'>>('settings');
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
 
   const { isReserving, reservedItems: reserved_items } = useAppSelector(
     (state) => state.reservation
@@ -22,12 +23,12 @@ export const ReservationCreate = () => {
   const total_price = reserved_items.reduce((acc, curr) => acc + curr.totalPrice, 0);
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
-  const [isDeliveredNow, setIsDeliveredNow] = useState(false);
+  const [instantDelivery, setInstantDelivery] = useState(false);
 
-  const handleSetNow = () => {
+  const handleInstantDelivery = () => {
     setDeadLine(dayjs());
     dispatch(markAllAsDelivered());
-    setIsDeliveredNow(true);
+    setInstantDelivery(true);
   };
 
   const confirmReserve = async ({
@@ -48,7 +49,9 @@ export const ReservationCreate = () => {
       remain_amount: total_price - paid_amount,
       dead_line: `${deadLine?.toISOString()}`,
       branch: setting?.branch,
-      reservation_status: isDeliveredNow ? 'delivered' : 'in-progress',
+      reservation_status: instantDelivery ? 'delivered' : 'in-progress',
+      delivered_by: instantDelivery ? session.session.user.id : null,
+      delivered_at: instantDelivery ? new Date().toISOString() : null,
     };
 
     return data;
@@ -80,7 +83,8 @@ export const ReservationCreate = () => {
               total_price={total_price}
               deadLine={deadLine}
               setDeadLine={setDeadLine}
-              onSetNow={handleSetNow}
+              onInstantDelivery={handleInstantDelivery}
+              submitButtonRef={submitButtonRef}
             />
           </SimpleForm>
         </Create>

@@ -1,12 +1,12 @@
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { FormDataConsumer, NumberInput, maxValue, required, useTranslate } from 'react-admin';
 import { useFormContext } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import { Schedule } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
+import { RefObject } from 'react';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -23,7 +23,8 @@ interface ReservationFormContentProps {
   total_price: number;
   deadLine: PickerValue;
   setDeadLine: (value: PickerValue) => void;
-  onSetNow: () => void;
+  onInstantDelivery: () => void;
+  submitButtonRef: RefObject<HTMLButtonElement>;
 }
 
 export const ReservationFormContent = ({
@@ -31,19 +32,22 @@ export const ReservationFormContent = ({
   total_price,
   deadLine,
   setDeadLine,
-  onSetNow,
+  onInstantDelivery,
+  submitButtonRef,
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
   const { setValue } = useFormContext();
 
-  const handleSetNow = () => {
+  const handleInstantDelivery = () => {
     setValue('paid_amount', total_price);
-    onSetNow();
+    onInstantDelivery();
   };
 
   return (
     <ModalContent sx={{ gap: 1.5 }}>
       <ClientInput />
+      {/* Hidden submit button for programmatic submission */}
+      <button type="submit" ref={submitButtonRef} style={{ display: 'none' }} />
       {reserved_items.length === 0 ? (
         <Typography
           variant="body1"
@@ -78,27 +82,26 @@ export const ReservationFormContent = ({
         helperText={false}
       />
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-          <MobileDateTimePicker
-            label={translate('resources.reservations.fields.dead_line')}
-            value={deadLine || dayjs()}
-            viewRenderers={{
-              minutes: null,
-              seconds: null,
-            }}
-            orientation="landscape"
-            onChange={(v) => setDeadLine(v)}
-            disablePast
-            sx={{ flex: 1 }}
-          />
-          <Tooltip title={translate('custom.labels.set_now')} arrow>
-            <IconButton color="primary" onClick={handleSetNow} sx={{ mt: 1 }}>
-              <Schedule />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <MobileDateTimePicker
+          label={translate('resources.reservations.fields.dead_line')}
+          value={deadLine || dayjs()}
+          orientation="landscape"
+          onChange={(v) => setDeadLine(v)}
+          disablePast
+        />
       </LocalizationProvider>
-      <ReservationCTA hasItems={reserved_items.length > 0} />
+      <FormDataConsumer>
+        {({ formData }) => (
+          <ReservationCTA
+            hasItems={reserved_items.length > 0}
+            onInstantDelivery={handleInstantDelivery}
+            total_price={total_price}
+            reserved_items={reserved_items}
+            client_id={formData.client_id}
+            submitButtonRef={submitButtonRef}
+          />
+        )}
+      </FormDataConsumer>
     </ModalContent>
   );
 };
