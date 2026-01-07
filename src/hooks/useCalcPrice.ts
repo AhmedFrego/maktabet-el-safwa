@@ -35,7 +35,7 @@ export const useCalcPrice = () => {
         (+record.change_price?.oneFacePrice || 0),
       twoFacesPrice:
         Math.ceil((printPrices.twoFacesPrice + coverPrice) / round_to) * round_to +
-        (record.change_price?.twoFacesPrice || 0),
+        (+record.change_price?.twoFacesPrice || 0),
     };
     return { price: roundedPriceWithCover, cover: chosenCover };
   };

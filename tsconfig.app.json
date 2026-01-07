@@ -6,7 +6,8 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "skipLibCheck": true,"ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
+    "ignoreDeprecations": "5.0",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -33,9 +34,7 @@
       "styles/*": ["styles/*"],
       "types/*": ["types/*"],
       "utils/*": ["utils/*"]
-    
-  },  
-
+    }
   },
   "include": ["src"]
 }

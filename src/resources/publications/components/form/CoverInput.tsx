@@ -42,7 +42,7 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
   }, [field]);
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <ImageInput
         source={source}
         accept={{ 'image/*': ['.png', '.jpg'] }}
@@ -57,19 +57,27 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
           '& .RaFileInput-removeButton': {
             display: 'inline-flex',
           },
+          '& .RaFileInput-preview': {
+            width: '210px !important',
+            height: '297px !important',
+          },
         })}
       >
         <ImageField
           source="src"
           title="title"
           sx={{
+            display: 'block',
+            width: '210px',
+            height: '297px',
             '& img': {
-              maxWidth: '300px',
-              maxHeight: '400px',
-              objectFit: 'contain',
+              width: '210px !important',
+              height: '297px !important',
+              objectFit: 'cover',
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 1,
+              display: 'block',
             },
           }}
         />
@@ -89,12 +97,13 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
             src={currentValue}
             alt="Current cover"
             sx={{
-              maxWidth: '300px',
-              maxHeight: '400px',
-              objectFit: 'contain',
+              width: '210px !important',
+              height: '297px !important',
+              objectFit: 'cover',
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 1,
+              display: 'block',
             }}
           />
         </Box>

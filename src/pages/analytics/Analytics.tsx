@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
+  Box,
   Card,
   CardContent,
   Typography,
   Grid,
-  Box,
   CircularProgress,
+  Alert,
   Paper,
   Tabs,
   Tab,
@@ -16,13 +17,13 @@ import {
   TableHead,
   TableRow,
   Chip,
-  Alert,
 } from '@mui/material';
-import { TrendingUp, Assignment, People, Payments } from '@mui/icons-material';
-import { Title } from 'react-admin';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/ar';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -35,17 +36,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/ar';
-import { supabase } from 'lib/supabase';
+import { Title } from 'react-admin';
+import { useAnalytics } from 'hooks';
 import { toArabicNumerals } from 'utils';
-import { useFinancialStats, useAnalytics } from 'hooks';
 
-const COLORS = ['#4caf50', '#ff9800', '#f44336'];
-const ANALYTICS_COLORS = [
+const COLORS = [
   '#2196f3',
   '#4caf50',
   '#ff9800',
@@ -55,15 +50,6 @@ const ANALYTICS_COLORS = [
   '#ff5722',
   '#3f51b5',
 ];
-
-interface DashboardStats {
-  todayRevenue: number;
-  pendingOrders: number;
-  totalReservations: number;
-  activeClients: number;
-  weeklyData: { day: string; revenue: number }[];
-  loading: boolean;
-}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -78,8 +64,8 @@ const TabPanel = (props: TabPanelProps) => {
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`dashboard-tabpanel-${index}`}
-      aria-labelledby={`dashboard-tab-${index}`}
+      id={`analytics-tabpanel-${index}`}
+      aria-labelledby={`analytics-tab-${index}`}
       {...other}
     >
       {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
@@ -87,174 +73,26 @@ const TabPanel = (props: TabPanelProps) => {
   );
 };
 
-export const Dashboard = () => {
+export const Analytics = () => {
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
   const [currentTab, setCurrentTab] = useState(0);
 
-  const financialStats = useFinancialStats({ startDate, endDate });
   const analytics = useAnalytics({ startDate, endDate });
-
-  const [stats, setStats] = useState<DashboardStats>({
-    todayRevenue: 0,
-    pendingOrders: 0,
-    totalReservations: 0,
-    activeClients: 0,
-    weeklyData: [],
-    loading: true,
-  });
-
-  useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        const today = dayjs().startOf('day').toISOString();
-        const weekAgo = dayjs().subtract(7, 'day').startOf('day').toISOString();
-
-        // Fetch today's revenue
-        const { data: todayReservations } = await supabase
-          .from('reservations')
-          .select('paid_amount')
-          .gte('created_at', today)
-          .neq('reservation_status', 'canceled');
-
-        const todayRevenue =
-          todayReservations?.reduce((sum, r) => sum + (r.paid_amount || 0), 0) || 0;
-
-        // Fetch pending orders
-        const { data: pending } = await supabase
-          .from('reservations')
-          .select('id')
-          .in('reservation_status', ['in-progress', 'ready']);
-
-        const pendingOrders = pending?.length || 0;
-
-        // Fetch total reservations (last 30 days)
-        const thirtyDaysAgo = dayjs().subtract(30, 'day').startOf('day').toISOString();
-        const { data: recentReservations } = await supabase
-          .from('reservations')
-          .select('id')
-          .gte('created_at', thirtyDaysAgo);
-
-        const totalReservations = recentReservations?.length || 0;
-
-        // Fetch active clients (last 30 days)
-        const { data: activeClientsData } = await supabase
-          .from('reservations')
-          .select('client_id')
-          .gte('created_at', thirtyDaysAgo);
-
-        const uniqueClients = new Set(activeClientsData?.map((r) => r.client_id) || []);
-        const activeClients = uniqueClients.size;
-
-        // Fetch weekly data
-        const { data: weeklyReservations } = await supabase
-          .from('reservations')
-          .select('created_at, paid_amount')
-          .gte('created_at', weekAgo)
-          .neq('reservation_status', 'canceled');
-
-        const dailyRevenueMap = new Map<string, number>();
-        weeklyReservations?.forEach((r) => {
-          const day = dayjs(r.created_at).format('DD/MM');
-          const existing = dailyRevenueMap.get(day) || 0;
-          dailyRevenueMap.set(day, existing + (r.paid_amount || 0));
-        });
-
-        const weeklyData = Array.from(dailyRevenueMap.entries()).map(([day, revenue]) => ({
-          day,
-          revenue,
-        }));
-
-        setStats({
-          todayRevenue,
-          pendingOrders,
-          totalReservations,
-          activeClients,
-          weeklyData,
-          loading: false,
-        });
-      } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-        setStats((prev) => ({ ...prev, loading: false }));
-      }
-    };
-
-    fetchDashboardStats();
-  }, []);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
-  const paymentStatusData = [
-    { name: 'مدفوع بالكامل', value: financialStats.paymentStatus.paid, color: COLORS[0] },
-    {
-      name: 'مدفوع جزئياً',
-      value: financialStats.paymentStatus.partiallyPaid,
-      color: COLORS[1],
-    },
-    { name: 'غير مدفوع', value: financialStats.paymentStatus.unpaid, color: COLORS[2] },
-  ];
-
   const formatCurrency = (value: number) => {
     return `${toArabicNumerals(value.toFixed(2))} ج.م`;
   };
 
-  const formatDate = (dateStr: string) => {
-    return dayjs(dateStr).format('DD/MM');
-  };
-
-  const StatCard = ({
-    title,
-    value,
-    icon,
-    color,
-    suffix = '',
-  }: {
-    title: string;
-    value: number | string;
-    icon: React.ReactNode;
-    color: string;
-    suffix?: string;
-  }) => (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography color="text.secondary" variant="body2" gutterBottom>
-              {title}
-            </Typography>
-            <Typography variant="h4" component="div">
-              {typeof value === 'number' ? toArabicNumerals(value) : value}
-              {suffix && (
-                <Typography component="span" variant="body1" sx={{ mr: 1 }}>
-                  {suffix}
-                </Typography>
-              )}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              bgcolor: `${color}.light`,
-              color: `${color}.main`,
-              p: 1.5,
-              borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {icon}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-
-  if (stats.loading) {
+  if (analytics.error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <Title title="التحليلات والإحصائيات" />
+        <Alert severity="error">{analytics.error}</Alert>
       </Box>
     );
   }
@@ -262,10 +100,10 @@ export const Dashboard = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
       <Box sx={{ p: 3 }}>
-        <Title title="مرحباً بالصفوة" />
+        <Title title="التحليلات والإحصائيات" />
 
         <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-          لوحة التحكم
+          التحليلات والإحصائيات
         </Typography>
 
         {/* Date Range Filter */}
@@ -287,221 +125,16 @@ export const Dashboard = () => {
                 textField: { size: 'small' },
               }}
             />
-            <Typography variant="body2" color="text.secondary">
-              {toArabicNumerals(financialStats.totalOrders)} طلب إجمالي
-            </Typography>
           </Box>
         </Paper>
 
-        {/* Quick Stats */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="إيرادات اليوم"
-              value={stats.todayRevenue.toFixed(2)}
-              icon={<TrendingUp />}
-              color="success"
-              suffix="ج.م"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="طلبات قيد التنفيذ"
-              value={stats.pendingOrders}
-              icon={<Assignment />}
-              color="warning"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="إجمالي الطلبات (٣٠ يوم)"
-              value={stats.totalReservations}
-              icon={<Payments />}
-              color="info"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="العملاء النشطين"
-              value={stats.activeClients}
-              icon={<People />}
-              color="primary"
-            />
-          </Grid>
-        </Grid>
-
-        {/* Financial Summary Cards */}
-        {financialStats.loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-            <CircularProgress />
-          </Box>
-        ) : financialStats.error ? (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {financialStats.error}
-          </Alert>
-        ) : (
-          <>
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Card sx={{ bgcolor: 'success.light', color: 'success.contrastText' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      إجمالي الإيرادات
-                    </Typography>
-                    <Typography variant="h4">{formatCurrency(financialStats.totalRevenue)}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      من {toArabicNumerals(financialStats.totalOrders)} طلب
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <Card sx={{ bgcolor: 'warning.light', color: 'warning.contrastText' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      المبالغ المتبقية
-                    </Typography>
-                    <Typography variant="h4">{formatCurrency(financialStats.totalPending)}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      مستحقات غير مدفوعة
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <Card sx={{ bgcolor: 'info.light', color: 'info.contrastText' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      متوسط قيمة الطلب
-                    </Typography>
-                    <Typography variant="h4">
-                      {formatCurrency(financialStats.averageOrderValue)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      القيمة المتوسطة
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <Card sx={{ bgcolor: 'primary.light', color: 'primary.contrastText' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      الطلبات المكتملة
-                    </Typography>
-                    <Typography variant="h4">
-                      {toArabicNumerals(financialStats.completedOrders)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      من {toArabicNumerals(financialStats.totalOrders)} طلب
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-
-            {/* Daily Revenue Chart */}
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                الإيرادات اليومية
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={financialStats.dailyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={formatDate} reversed={true} />
-                  <YAxis />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} labelFormatter={formatDate} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#4caf50"
-                    strokeWidth={2}
-                    name="الإيرادات"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Paper>
-
-            {/* Orders per Day Chart */}
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                عدد الطلبات اليومية
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={financialStats.dailyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={formatDate} reversed={true} />
-                  <YAxis />
-                  <Tooltip labelFormatter={formatDate} />
-                  <Legend />
-                  <Bar dataKey="orders" fill="#2196f3" name="الطلبات" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-
-            {/* Payment Status Distribution */}
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                توزيع حالات الدفع
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={paymentStatusData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${toArabicNumerals(value)}`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {paymentStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2 }}>
-                {paymentStatusData.map((item, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        bgcolor: item.color,
-                        borderRadius: 1,
-                      }}
-                    />
-                    <Typography variant="body2">
-                      {item.name}: {toArabicNumerals(item.value)}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Paper>
-          </>
-        )}
-
-        {/* Analytics Section */}
         {analytics.loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : analytics.error ? (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {analytics.error}
-          </Alert>
         ) : (
           <>
-            {/* Delivery Metrics */}
+            {/* Summary Cards */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid item xs={12} sm={6} md={3}>
                 <Card sx={{ bgcolor: 'primary.light', color: 'primary.contrastText' }}>
@@ -571,7 +204,7 @@ export const Dashboard = () => {
               </Grid>
             </Grid>
 
-            {/* Tabs for Analytics */}
+            {/* Tabs */}
             <Paper sx={{ mb: 3 }}>
               <Tabs
                 value={currentTab}
@@ -612,10 +245,16 @@ export const Dashboard = () => {
                             <TableCell>{toArabicNumerals(index + 1)}</TableCell>
                             <TableCell>{item.title}</TableCell>
                             <TableCell align="center">
-                              <Chip label={toArabicNumerals(item.totalQuantity)} color="primary" size="small" />
+                              <Chip
+                                label={toArabicNumerals(item.totalQuantity)}
+                                color="primary"
+                                size="small"
+                              />
                             </TableCell>
                             <TableCell align="center">{toArabicNumerals(item.orderCount)}</TableCell>
-                            <TableCell align="center">{formatCurrency(item.totalRevenue)}</TableCell>
+                            <TableCell align="center">
+                              {formatCurrency(item.totalRevenue)}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -690,7 +329,7 @@ export const Dashboard = () => {
                             dataKey="count"
                           >
                             {analytics.termDistribution.map((_entry, index) => (
-                              <Cell key={`cell-${index}`} fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]} />
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
                           <Tooltip />
@@ -746,7 +385,7 @@ export const Dashboard = () => {
                             dataKey="count"
                           >
                             {analytics.publicationTypeDistribution.map((_entry, index) => (
-                              <Cell key={`cell-${index}`} fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]} />
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
                           <Tooltip />
@@ -803,9 +442,15 @@ export const Dashboard = () => {
                             <TableCell>{toArabicNumerals(index + 1)}</TableCell>
                             <TableCell>{client.clientName}</TableCell>
                             <TableCell align="center">
-                              <Chip label={toArabicNumerals(client.orderCount)} color="primary" size="small" />
+                              <Chip
+                                label={toArabicNumerals(client.orderCount)}
+                                color="primary"
+                                size="small"
+                              />
                             </TableCell>
-                            <TableCell align="center">{formatCurrency(client.totalSpent)}</TableCell>
+                            <TableCell align="center">
+                              {formatCurrency(client.totalSpent)}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

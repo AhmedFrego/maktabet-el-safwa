@@ -39,12 +39,13 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     id,
     delivered_at,
   } = reservation;
-  
+
   const displayTime = reservation_status === 'delivered' && delivered_at ? delivered_at : dead_line;
   const { day, dayOfWeek, month, time } = formatDateTime(displayTime);
-  const timeLabel = reservation_status === 'delivered' 
-    ? translate('resources.reservations.fields.delivered_at')
-    : translate('resources.reservations.fields.dead_line');
+  const timeLabel =
+    reservation_status === 'delivered'
+      ? translate('resources.reservations.fields.delivered_at')
+      : translate('resources.reservations.fields.dead_line');
 
   const [update, { isLoading }] = useUpdate<
     Omit<TablesUpdate<'reservations'>, 'id'> & { id: Identifier }
@@ -142,9 +143,14 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
   );
 };
 
-const ReservedItems = ({ reservedItems, loading, changeItemStatus, reservationStatus }: ReservedItemsProps) => {
+const ReservedItems = ({
+  reservedItems,
+  loading,
+  changeItemStatus,
+  reservationStatus,
+}: ReservedItemsProps) => {
   const isDelivered = reservationStatus === 'delivered';
-  
+
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 196, borderRadius: 0 }}>
       <Table

@@ -10,6 +10,8 @@ import { BranchSelector } from 'components';
 import { Layout } from 'components/layout';
 import { myProvider as dataProvider, authProvider } from 'lib';
 import { Dashboard, NotFound, Settings } from 'pages';
+import { FinancialReports } from 'pages/reports';
+import { Analytics } from 'pages/analytics';
 import { store } from 'store';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
 import { arabicMessages } from 'utils';
@@ -58,6 +60,8 @@ export const App = () => (
           </CustomRoutes>
           <CustomRoutes>
             <Route path={'settings'} element={<Settings />} />
+            <Route path={'reports'} element={<FinancialReports />} />
+            <Route path={'analytics'} element={<Analytics />} />
           </CustomRoutes>
         </Admin>
       </Provider>
