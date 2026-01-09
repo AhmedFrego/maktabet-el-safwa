@@ -1,5 +1,6 @@
-import { Card, CardContent } from '@mui/material';
-import { Identifier, useGetList, useListContext } from 'react-admin';
+import { Box, Button, Card, CardContent } from '@mui/material';
+import { FilterListOff } from '@mui/icons-material';
+import { Identifier, useGetList, useListContext, useTranslate } from 'react-admin';
 
 import {
   YearFilterAccordion,
@@ -18,7 +19,14 @@ interface FilterColumns {
 }
 
 export const CustomFilterSidebar = () => {
-  const { data: publications, isLoading } = useListContext();
+  const { data: publications, isLoading, filterValues, setFilters } = useListContext();
+  const translate = useTranslate();
+
+  const hasActiveFilters = Object.keys(filterValues || {}).length > 0;
+
+  const handleClearFilters = () => {
+    setFilters({}, []);
+  };
 
   const { data } = useGetList<FilterColumns>('publications', {
     meta: {
@@ -43,6 +51,21 @@ export const CustomFilterSidebar = () => {
   return (
     <Card sx={{ order: -1, width: 220 }}>
       <CardContent sx={{ p: 0 }}>
+        {hasActiveFilters && (
+          <Box sx={{ p: 1 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              fullWidth
+              sx={{ fontSize: 18, fontFamily: 'inherit' }}
+              startIcon={<FilterListOff />}
+              onClick={handleClearFilters}
+            >
+              {translate('ra.action.remove_all_filters')}
+            </Button>
+          </Box>
+        )}
         <PublicationsTypeFilter />
         <AcademicYearFilterAccordion uniqueAcademicYears={uniqueAcademicYears} />
         <SubjectFilterAccordion uniqueSubjects={uniqueSubjects} />
