@@ -9,3 +9,4 @@ export * from './YearInput';
 export * from './PriceDisplay';
 export * from './PublicationForm';
 export * from './RelatedPublicationButton';
+export * from './RelatedPublicationFields';

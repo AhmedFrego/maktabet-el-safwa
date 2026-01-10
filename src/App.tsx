@@ -16,7 +16,7 @@ import { store } from 'store';
 import { darkTheme, lightTheme, rtlCache } from 'theme';
 import { arabicMessages } from 'utils';
 
-import { PublicationResource } from 'resources/publications';
+import { PublicationResource, CreateRelatedPublication } from 'resources/publications';
 import { reservationsResource } from 'resources/reservations';
 import { clientsResource } from 'resources/users';
 import { ReservationCreate } from 'resources/reservations/create';
@@ -62,6 +62,10 @@ export const App = () => (
             <Route path={'settings'} element={<Settings />} />
             <Route path={'reports'} element={<FinancialReports />} />
             <Route path={'analytics'} element={<Analytics />} />
+            <Route
+              path={'publications/:id/create-related'}
+              element={<CreateRelatedPublication />}
+            />
           </CustomRoutes>
         </Admin>
       </Provider>

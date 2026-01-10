@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Edit, useEditController, useTranslate } from 'react-admin';
+import { Edit, useEditController, useTranslate, useRedirect } from 'react-admin';
 import { Fab } from '@mui/material';
 import { Save } from '@mui/icons-material';
 
@@ -8,14 +7,13 @@ import { supabase } from 'lib';
 import { TablesUpdate, STOREGE_URL, Tables } from 'types';
 import { extractFileName } from 'utils';
 
-import { Publication, PublicationForm, PublicationWithFileCover, PublicationDataModal } from '.';
+import { Publication, PublicationForm, PublicationWithFileCover } from '.';
 
 export const PublicationEdit = () => {
   const translate = useTranslate();
   const controller = useEditController<Publication>();
   const record = controller.record;
-  const [showModal, setShowModal] = useState(false);
-  const [editedPublication, setEditedPublication] = useState<Tables<'publications'> | null>(null);
+  const redirect = useRedirect();
 
   const transform = async (data: PublicationWithFileCover | TablesUpdate<'publications'>) => {
     const { data: session } = await supabase.auth.getSession();
@@ -41,34 +39,27 @@ export const PublicationEdit = () => {
     return data as unknown as Publication;
   };
   return (
-    <>
-      <Edit transform={transform} actions={false}>
-        <StyledForm
-          toolbar={
-            <Fab
-              variant="extended"
-              color="info"
-              sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
-              type="submit"
-            >
-              <Save sx={{ mr: 1 }} />
-              {translate('ra.action.save')}
-            </Fab>
-          }
-        >
-          <PublicationForm
-            onRelatedPublicationSuccess={(data) => {
-              setEditedPublication(data as unknown as Tables<'publications'>);
-              setShowModal(true);
-            }}
-          />
-        </StyledForm>
-      </Edit>
-      <PublicationDataModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        publicationData={editedPublication}
-      />
-    </>
+    <Edit transform={transform} actions={false}>
+      <StyledForm
+        toolbar={
+          <Fab
+            variant="extended"
+            color="info"
+            sx={{ bottom: 10, fontFamily: 'inherit', position: 'fixed' }}
+            type="submit"
+          >
+            <Save sx={{ mr: 1 }} />
+            {translate('ra.action.save')}
+          </Fab>
+        }
+      >
+        <PublicationForm
+          onRelatedPublicationSuccess={(data) => {
+            const publication = data as Tables<'publications'>;
+            redirect(`/publications/${publication.id}/create-related`);
+          }}
+        />
+      </StyledForm>
+    </Edit>
   );
 };
