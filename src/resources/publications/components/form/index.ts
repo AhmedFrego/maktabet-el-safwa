@@ -8,4 +8,4 @@ export * from './AcademicYearsInput';
 export * from './YearInput';
 export * from './PriceDisplay';
 export * from './PublicationForm';
-export * from './RelatedPublicationsInput';
+export * from './RelatedPublicationButton';

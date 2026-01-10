@@ -1,13 +1,6 @@
-import { PropsWithChildren } from 'react';
-import { KeyboardDoubleArrowDown, Link as LinkIcon } from '@mui/icons-material';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Typography,
-  Button,
-} from '@mui/material';
+import { PropsWithChildren, useEffect } from 'react';
+import { KeyboardDoubleArrowDown } from '@mui/icons-material';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import {
   AutocompleteInput,
   BooleanInput,
@@ -15,16 +8,13 @@ import {
   ReferenceInput,
   required,
   TextInput,
-  useSaveContext,
-  useTranslate,
   FormDataConsumer,
 } from 'react-admin';
-import { useFormContext, useFormState } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import { toArabicNumerals } from 'utils';
 
-import { TermInput, YearInput, RelatedPublicationsInput } from '.';
-import { useEffect } from 'react';
+import { TermInput, YearInput, RelatedPublicationButton } from '.';
 
 interface ExtrasAccordionProps extends PropsWithChildren {
   onRelatedPublicationSuccess?: (data: unknown) => void;
@@ -34,24 +24,6 @@ export const ExtrasAccordion = ({
   children,
   onRelatedPublicationSuccess,
 }: ExtrasAccordionProps) => {
-  const { save } = useSaveContext();
-  const translate = useTranslate();
-
-  const handleRelatedPublicationClick = async () => {
-    if (save) {
-      await save(
-        {},
-        {
-          onSuccess: (data) => {
-            if (onRelatedPublicationSuccess) {
-              onRelatedPublicationSuccess(data);
-            }
-          },
-        }
-      );
-    }
-  };
-
   return (
     <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
       <AccordionSummary
@@ -86,32 +58,7 @@ export const ExtrasAccordion = ({
 
         <TextInput fullWidth source="additional_data" helperText={false} />
 
-        <FormDataConsumer>
-          {({ formData }) => {
-            const RelatedPublicationButton = () => {
-              const { isValid } = useFormState();
-              const isDisabled = !isValid || !formData.additional_data;
-
-              return (
-                <Button
-                  type="button"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  startIcon={<LinkIcon />}
-                  onClick={handleRelatedPublicationClick}
-                  disabled={isDisabled}
-                  sx={{ fontFamily: 'inherit', py: 1.5 }}
-                >
-                  {translate('resources.publications.messages.save_and_manage_related')}
-                </Button>
-              );
-            };
-
-            return <RelatedPublicationButton />;
-          }}
-        </FormDataConsumer>
+        <RelatedPublicationButton onSuccess={onRelatedPublicationSuccess} />
 
         <BooleanInput source="do_round" defaultValue={true} helperText={false} />
 
@@ -149,7 +96,7 @@ export const ExtrasAccordion = ({
             {toArabicNumerals('تعديل السعر بقيمة (5, - 10 , إلخ ...) بالجنيه')}
           </Typography>
 
-          <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ width: '100%', gap: 1, display: 'flex' }}>
             <TextInput
               source="change_price.oneFacePrice"
               helperText={false}
@@ -162,9 +109,6 @@ export const ExtrasAccordion = ({
             />
           </Box>
         </Box>
-
-        <RelatedPublicationsInput />
-
         {children}
       </AccordionDetails>
     </Accordion>
