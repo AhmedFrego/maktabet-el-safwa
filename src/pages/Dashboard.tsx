@@ -348,7 +348,9 @@ export const Dashboard = () => {
                     <Typography variant="h6" gutterBottom>
                       إجمالي الإيرادات
                     </Typography>
-                    <Typography variant="h4">{formatCurrency(financialStats.totalRevenue)}</Typography>
+                    <Typography variant="h4">
+                      {formatCurrency(financialStats.totalRevenue)}
+                    </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       من {toArabicNumerals(financialStats.totalOrders)} طلب
                     </Typography>
@@ -362,7 +364,9 @@ export const Dashboard = () => {
                     <Typography variant="h6" gutterBottom>
                       المبالغ المتبقية
                     </Typography>
-                    <Typography variant="h4">{formatCurrency(financialStats.totalPending)}</Typography>
+                    <Typography variant="h4">
+                      {formatCurrency(financialStats.totalPending)}
+                    </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       مستحقات غير مدفوعة
                     </Typography>
@@ -413,7 +417,10 @@ export const Dashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={formatDate} reversed={true} />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} labelFormatter={formatDate} />
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                    labelFormatter={formatDate}
+                  />
                   <Legend />
                   <Line
                     type="monotone"
@@ -612,10 +619,18 @@ export const Dashboard = () => {
                             <TableCell>{toArabicNumerals(index + 1)}</TableCell>
                             <TableCell>{item.title}</TableCell>
                             <TableCell align="center">
-                              <Chip label={toArabicNumerals(item.totalQuantity)} color="primary" size="small" />
+                              <Chip
+                                label={toArabicNumerals(item.totalQuantity)}
+                                color="primary"
+                                size="small"
+                              />
                             </TableCell>
-                            <TableCell align="center">{toArabicNumerals(item.orderCount)}</TableCell>
-                            <TableCell align="center">{formatCurrency(item.totalRevenue)}</TableCell>
+                            <TableCell align="center">
+                              {toArabicNumerals(item.orderCount)}
+                            </TableCell>
+                            <TableCell align="center">
+                              {formatCurrency(item.totalRevenue)}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -690,7 +705,10 @@ export const Dashboard = () => {
                             dataKey="count"
                           >
                             {analytics.termDistribution.map((_entry, index) => (
-                              <Cell key={`cell-${index}`} fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]} />
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]}
+                              />
                             ))}
                           </Pie>
                           <Tooltip />
@@ -746,7 +764,10 @@ export const Dashboard = () => {
                             dataKey="count"
                           >
                             {analytics.publicationTypeDistribution.map((_entry, index) => (
-                              <Cell key={`cell-${index}`} fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]} />
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]}
+                              />
                             ))}
                           </Pie>
                           <Tooltip />
@@ -803,9 +824,15 @@ export const Dashboard = () => {
                             <TableCell>{toArabicNumerals(index + 1)}</TableCell>
                             <TableCell>{client.clientName}</TableCell>
                             <TableCell align="center">
-                              <Chip label={toArabicNumerals(client.orderCount)} color="primary" size="small" />
+                              <Chip
+                                label={toArabicNumerals(client.orderCount)}
+                                color="primary"
+                                size="small"
+                              />
                             </TableCell>
-                            <TableCell align="center">{formatCurrency(client.totalSpent)}</TableCell>
+                            <TableCell align="center">
+                              {formatCurrency(client.totalSpent)}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

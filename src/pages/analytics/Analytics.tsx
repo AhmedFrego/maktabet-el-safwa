@@ -251,7 +251,9 @@ export const Analytics = () => {
                                 size="small"
                               />
                             </TableCell>
-                            <TableCell align="center">{toArabicNumerals(item.orderCount)}</TableCell>
+                            <TableCell align="center">
+                              {toArabicNumerals(item.orderCount)}
+                            </TableCell>
                             <TableCell align="center">
                               {formatCurrency(item.totalRevenue)}
                             </TableCell>

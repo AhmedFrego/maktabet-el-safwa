@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useTranslate, useDeleteMany, useNotify, useRefresh, useListContext } from 'react-admin';
 import { useAppDispatch, useAppSelector, resetDeletion } from 'store';
-import { toArabicNumerals } from 'utils';
+import { removeFromAllRelated, toArabicNumerals } from 'utils';
 
 interface Publication {
   id: string;
@@ -41,7 +41,15 @@ export const DeleteConfirmationModal = ({ open, onClose }: DeleteConfirmationMod
     itemsToDelete.includes(pub.id)
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    // First, remove from all related publications (cascade delete)
+    try {
+      await Promise.all(itemsToDelete.map((id) => removeFromAllRelated(id)));
+    } catch (error) {
+      console.error('Error removing related publications:', error);
+      // Continue with deletion even if cascade fails
+    }
+
     deleteMany(
       'publications',
       { ids: itemsToDelete },

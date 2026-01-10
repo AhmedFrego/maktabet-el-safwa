@@ -23,7 +23,7 @@ import { useFormContext, useFormState } from 'react-hook-form';
 
 import { toArabicNumerals } from 'utils';
 
-import { TermInput, YearInput } from '.';
+import { TermInput, YearInput, RelatedPublicationsInput } from '.';
 import { useEffect } from 'react';
 
 interface ExtrasAccordionProps extends PropsWithChildren {
@@ -149,7 +149,7 @@ export const ExtrasAccordion = ({
             {toArabicNumerals('تعديل السعر بقيمة (5, - 10 , إلخ ...) بالجنيه')}
           </Typography>
 
-          <Box sx={{ width: '100%', gap: 1, display: 'flex' }}>
+          <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
             <TextInput
               source="change_price.oneFacePrice"
               helperText={false}
@@ -162,6 +162,9 @@ export const ExtrasAccordion = ({
             />
           </Box>
         </Box>
+
+        <RelatedPublicationsInput />
+
         {children}
       </AccordionDetails>
     </Accordion>

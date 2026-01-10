@@ -10,6 +10,7 @@ export interface ReservationBase {
   deliveredAt?: string | null;
   deliveredBy?: string | null;
   isDublix: boolean;
+  groupId?: string; // ID to track related publication groups
 }
 
 export interface ReservationMustKeys extends Publication {
@@ -20,14 +21,25 @@ export interface ReservationMustKeys extends Publication {
 }
 
 export type ReservationRecord = ReservationBase & ReservationMustKeys;
+
+export interface RelatedGroupPayload {
+  items: ReservationMustKeys[];
+  groupId: string;
+}
+
 export interface ReservationState {
   reservedItems: ReservationRecord[];
   isReserving: boolean | 'confirming';
+  pendingSuggestion: {
+    triggerPublication: ReservationMustKeys | null;
+    relatedIds: string[];
+  } | null;
 }
 
 const initialState: ReservationState = {
   reservedItems: [],
   isReserving: false,
+  pendingSuggestion: null,
 };
 
 export const reservationSlice = createSlice({
@@ -85,6 +97,41 @@ export const reservationSlice = createSlice({
         deliveredAt: now,
       }));
     },
+    // Set pending suggestion for showing related publications modal
+    setPendingSuggestion(
+      state,
+      action: PayloadAction<{
+        triggerPublication: ReservationMustKeys;
+        relatedIds: string[];
+      } | null>
+    ) {
+      state.pendingSuggestion = action.payload;
+    },
+    // Add multiple related items as a group
+    addRelatedGroup(state, action: PayloadAction<RelatedGroupPayload>) {
+      const { items, groupId } = action.payload;
+
+      items.forEach((item) => {
+        const existingItem = state.reservedItems.find((i) => i.id === item.id);
+
+        if (existingItem) {
+          existingItem.quantity += 1;
+          existingItem.totalPrice = existingItem.quantity * (existingItem.price || 10000);
+          existingItem.groupId = groupId;
+        } else {
+          state.reservedItems.push({
+            ...item,
+            quantity: 1,
+            status: 'in-progress',
+            totalPrice: item.price || 10000,
+            isDublix: true,
+            deliveredAt: null,
+            deliveredBy: null,
+            groupId,
+          });
+        }
+      });
+    },
   },
 });
 
@@ -95,6 +142,8 @@ export const {
   setIsReserving,
   modifyItem,
   markAllAsDelivered,
+  setPendingSuggestion,
+  addRelatedGroup,
 } = reservationSlice.actions;
 
 export default reservationSlice.reducer;

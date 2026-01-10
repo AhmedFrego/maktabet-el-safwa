@@ -3,21 +3,41 @@ import { useNavigate } from 'react-router';
 import { Box, Typography } from '@mui/material';
 
 import { StyledContainer, ListActions, Loading } from 'components/UI';
-import { useAppSelector } from 'store';
+import { useAppSelector, useAppDispatch, setPendingSuggestion } from 'store';
 
 import { CustomFilterSidebar, PublicationCard } from './components';
 import { Publication, publicationsColumns } from '.';
+import { RelatedSuggestionModal } from 'resources/reservations/components';
 
 export const PublicationsList = () => {
   const isReserving = useAppSelector((state) => state.reservation.isReserving);
+  const pendingSuggestion = useAppSelector((state) => state.reservation.pendingSuggestion);
+  const dispatch = useAppDispatch();
+
+  const handleCloseSuggestionModal = () => {
+    dispatch(setPendingSuggestion(null));
+  };
+
   return (
-    <List
-      actions={isReserving ? false : <ListActions />}
-      aside={<CustomFilterSidebar />}
-      queryOptions={{ meta: { columns: publicationsColumns } }}
-    >
-      <PublicationsContainer />
-    </List>
+    <>
+      <List
+        actions={isReserving ? false : <ListActions />}
+        aside={<CustomFilterSidebar />}
+        queryOptions={{ meta: { columns: publicationsColumns } }}
+      >
+        <PublicationsContainer />
+      </List>
+
+      {/* Related Publications Suggestion Modal */}
+      {pendingSuggestion && (
+        <RelatedSuggestionModal
+          open={!!pendingSuggestion}
+          onClose={handleCloseSuggestionModal}
+          triggerPublication={pendingSuggestion.triggerPublication as Publication}
+          relatedIds={pendingSuggestion.relatedIds}
+        />
+      )}
+    </>
   );
 };
 

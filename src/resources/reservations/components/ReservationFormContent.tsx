@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 import { FormDataConsumer, NumberInput, maxValue, required, useTranslate } from 'react-admin';
 import { useFormContext } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -7,6 +7,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import { RefObject } from 'react';
+import { GroupWork } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -18,8 +19,15 @@ import { ReservedItem } from './ReservedItem';
 import { AddCustomPublicationButton } from './AddCustomPublicationButton';
 import { ReservationCTA } from './ReservationCTA';
 
+interface GroupedItems {
+  groupId: string;
+  items: ReservationRecord[];
+  groupTotal: number;
+}
+
 interface ReservationFormContentProps {
   reserved_items: ReservationRecord[];
+  groupedItems: GroupedItems[];
   total_price: number;
   deadLine: PickerValue;
   setDeadLine: (value: PickerValue) => void;
@@ -29,6 +37,7 @@ interface ReservationFormContentProps {
 
 export const ReservationFormContent = ({
   reserved_items,
+  groupedItems,
   total_price,
   deadLine,
   setDeadLine,
@@ -41,6 +50,74 @@ export const ReservationFormContent = ({
   const handleInstantDelivery = () => {
     setValue('paid_amount', total_price);
     onInstantDelivery();
+  };
+
+  // Render items grouped by related publications
+  const renderGroupedItems = () => {
+    return groupedItems.map((group, groupIndex) => {
+      const isGrouped = group.items.length > 1;
+      const individualSum = group.items.reduce((sum, item) => sum + item.totalPrice, 0);
+      const savings = individualSum - group.groupTotal;
+
+      return (
+        <Box key={group.groupId}>
+          {isGrouped && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                color: 'secondary.main',
+                mb: 0.5,
+              }}
+            >
+              <GroupWork fontSize="small" />
+              <Typography variant="caption" color="secondary">
+                مجموعة مرتبطة ({toArabicNumerals(group.items.length)} عناصر)
+              </Typography>
+            </Box>
+          )}
+          <Box
+            sx={{
+              borderRight: isGrouped ? '3px solid' : 'none',
+              borderColor: 'secondary.main',
+              pr: isGrouped ? 1.5 : 0,
+              mb: 1,
+            }}
+          >
+            {group.items.map((item) => (
+              <ReservedItem item={item} key={item.id} />
+            ))}
+            {isGrouped && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: 'secondary.light',
+                  color: 'secondary.contrastText',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  mt: 0.5,
+                }}
+              >
+                <Typography variant="caption">
+                  إجمالي المجموعة: {toArabicNumerals(group.groupTotal)}{' '}
+                  {translate('custom.currency.short')}
+                </Typography>
+                {savings > 0 && (
+                  <Typography variant="caption" sx={{ color: 'success.main' }}>
+                    (وفرت {toArabicNumerals(savings)} {translate('custom.currency.short')})
+                  </Typography>
+                )}
+              </Box>
+            )}
+          </Box>
+          {groupIndex < groupedItems.length - 1 && <Divider sx={{ my: 1 }} />}
+        </Box>
+      );
+    });
   };
 
   return (
@@ -63,7 +140,7 @@ export const ReservationFormContent = ({
           {translate('resources.reservations.messages.no_items')}
         </Typography>
       ) : (
-        reserved_items.map((x) => <ReservedItem item={x} key={x.id} />)
+        renderGroupedItems()
       )}
       <AddCustomPublicationButton />
       <Typography>

@@ -1,5 +1,5 @@
-import { Typography, CardProps, Checkbox } from '@mui/material';
-import { Remove, Add, DeleteForever } from '@mui/icons-material';
+import { Typography, CardProps, Checkbox, Tooltip, Badge } from '@mui/material';
+import { Remove, Add, DeleteForever, GroupWork } from '@mui/icons-material';
 
 import { DEFAULT_COVER_URL } from 'types';
 import {
@@ -9,6 +9,7 @@ import {
   decreaseItemQuantity,
   addItemToDelete,
   removeItemFromDelete,
+  setPendingSuggestion,
 } from 'store';
 import { toArabicNumerals } from 'utils';
 import {
@@ -43,6 +44,33 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
   const isReserved = reservedItems.find((item) => item.id === record.id);
   const isSelectedForDelete = itemsToDelete.includes(record.id);
 
+  const hasRelatedPublications =
+    record.related_publications && record.related_publications.length > 0;
+  const relatedCount = record.related_publications?.length || 0;
+
+  const handleAddToCart = () => {
+    const itemData = {
+      ...record,
+      title,
+      price: prices?.price?.twoFacesPrice,
+      cover_type_id: prices?.cover?.id,
+      cover_type: { name: prices.cover?.name },
+    };
+
+    // If publication has related items and this is the first time adding it, show suggestion modal
+    if (hasRelatedPublications && !isReserved) {
+      dispatch(
+        setPendingSuggestion({
+          triggerPublication: record,
+          relatedIds: record.related_publications || [],
+        })
+      );
+    }
+
+    // Always add the item to cart
+    dispatch(addOrIncreaseItem(itemData));
+  };
+
   const handleDeleteToggle = () => {
     if (isSelectedForDelete) {
       dispatch(removeItemFromDelete(record.id));
@@ -56,21 +84,7 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
       {isReserving && (
         <StyledSelector>
           <StyledReserveQuantity>
-            <Add
-              fontSize="inherit"
-              color="success"
-              onClick={() =>
-                dispatch(
-                  addOrIncreaseItem({
-                    ...record,
-                    title,
-                    price: prices?.price?.twoFacesPrice,
-                    cover_type_id: prices?.cover?.id,
-                    cover_type: { name: prices.cover?.name },
-                  })
-                )
-              }
-            />
+            <Add fontSize="inherit" color="success" onClick={handleAddToCart} />
             {isReserved && (
               <>
                 {toArabicNumerals(isReserved?.quantity)}
@@ -113,6 +127,26 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
       )}
       <StyledCardContent>
         <StyledChip label={toArabicNumerals(academicShortName)} />
+        {hasRelatedPublications && (
+          <Tooltip title={`جزء من مجموعة (${toArabicNumerals(relatedCount + 1)} عناصر)`}>
+            <Badge
+              badgeContent={toArabicNumerals(relatedCount + 1)}
+              color="secondary"
+              sx={{
+                position: 'absolute',
+                top: 8,
+                left: 8,
+                '& .MuiBadge-badge': {
+                  fontSize: '0.65rem',
+                  minWidth: 18,
+                  height: 18,
+                },
+              }}
+            >
+              <GroupWork fontSize="small" color="secondary" />
+            </Badge>
+          </Tooltip>
+        )}
         <StyledTag>
           <span>{toArabicNumerals(prices.price.twoFacesPrice)}</span>
           <span>{translate('custom.currency.short')}</span>
