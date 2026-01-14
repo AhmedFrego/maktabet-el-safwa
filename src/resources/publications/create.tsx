@@ -41,7 +41,11 @@ export const PublicationCreate = () => {
   };
 
   return (
-    <Create transform={transform} sx={{ position: 'relative' }}>
+    <Create
+      transform={transform}
+      sx={{ position: 'relative' }}
+      mutationOptions={{ onSuccess: () => redirect('/publications') }}
+    >
       <StyledForm
         defaultValues={{
           year: setting?.current_year,
