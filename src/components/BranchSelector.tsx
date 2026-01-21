@@ -25,7 +25,7 @@ export const BranchSelector = () => {
     {
       // Disable the query once we have a cached directPrintClientId
       enabled: !directPrintClientId,
-    },
+    }
   );
 
   useEffect(() => {

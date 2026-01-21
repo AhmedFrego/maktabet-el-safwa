@@ -20,10 +20,14 @@ export const PublicationEdit = () => {
 
     if (!session.session) return Promise.reject('no logged in user');
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
+
     if (file) {
-      const { data: cover, error } = await supabase.storage
-        .from('covers')
-        .update(extractFileName(record?.cover_url || '') || '', file);
+      const path = extractFileName(record?.cover_url || '');
+      const { data: cover, error } = path
+        ? await supabase.storage.from('covers').update(path, file, { upsert: true })
+        : await supabase.storage
+            .from('covers')
+            .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, file);
 
       if (error) {
         throw error;
