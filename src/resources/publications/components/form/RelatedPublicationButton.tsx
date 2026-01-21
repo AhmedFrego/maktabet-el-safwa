@@ -1,7 +1,7 @@
 import { Link as LinkIcon } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import { useSaveContext, useTranslate, FormDataConsumer } from 'react-admin';
-import { useFormState } from 'react-hook-form';
+import { useFormContext, useFormState } from 'react-hook-form';
 
 interface RelatedPublicationButtonProps {
   onSuccess?: (data: unknown) => void;
@@ -10,19 +10,17 @@ interface RelatedPublicationButtonProps {
 export const RelatedPublicationButton = ({ onSuccess }: RelatedPublicationButtonProps) => {
   const { save } = useSaveContext();
   const translate = useTranslate();
+  const { getValues } = useFormContext();
 
   const handleRelatedPublicationClick = async () => {
     if (save) {
-      await save(
-        {},
-        {
-          onSuccess: (data) => {
-            if (onSuccess) {
-              onSuccess(data);
-            }
-          },
-        }
-      );
+      await save(getValues(), {
+        onSuccess: (data) => {
+          if (onSuccess) {
+            onSuccess(data);
+          }
+        },
+      });
     }
   };
 
