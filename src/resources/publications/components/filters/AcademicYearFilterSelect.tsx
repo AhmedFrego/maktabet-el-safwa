@@ -1,5 +1,4 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import { School } from '@mui/icons-material';
 import { useTranslate, useListContext } from 'react-admin';
 import { Enums } from 'types';
 
@@ -13,8 +12,11 @@ export const AcademicYearFilterSelect = ({
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { academic_year: _, ...rest } = filterValues;
+
     if (value === '') {
-      setFilters(filterValues, []);
+      setFilters(rest, []);
     } else {
       setFilters({ ...filterValues, academic_year: value }, []);
     }
@@ -23,7 +25,6 @@ export const AcademicYearFilterSelect = ({
   return (
     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
       <InputLabel id="academic-year-filter-label" sx={{ display: 'flex', alignItems: 'center' }}>
-        <School fontSize="small" sx={{ mr: 0.5 }} />
         {translate('custom.filters.academic_year')}
       </InputLabel>
       <Select

@@ -1,5 +1,4 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import { ViewAgenda } from '@mui/icons-material';
 import { useTranslate, useListContext } from 'react-admin';
 import { Enums } from 'types';
 
@@ -19,8 +18,9 @@ export const PublicationsTypeFilterSelect = () => {
   const handleChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
     if (value === '') {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { publication_type: _, ...rest } = filterValues;
-      setFilters(filterValues, []);
+      setFilters(rest, []);
     } else {
       setFilters({ ...filterValues, publication_type: value }, []);
     }
@@ -29,7 +29,6 @@ export const PublicationsTypeFilterSelect = () => {
   return (
     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
       <InputLabel id="publication-type-filter-label">
-        <ViewAgenda fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
         {translate('resources.publications.fields.publication_type')}
       </InputLabel>
       <Select

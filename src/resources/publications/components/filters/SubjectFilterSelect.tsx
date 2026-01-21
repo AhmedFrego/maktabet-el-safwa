@@ -1,5 +1,4 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import { Book } from '@mui/icons-material';
 import { useTranslate, useListContext } from 'react-admin';
 import { idName } from 'types/types';
 
@@ -10,7 +9,8 @@ export const SubjectFilterSelect = ({ uniqueSubjects }: { uniqueSubjects: idName
   const handleChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
     if (value === '') {
-      const { subject_id: _, ...rest } = filterValues;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { subject_id, ...rest } = filterValues;
       setFilters(rest, []);
     } else {
       setFilters({ ...filterValues, subject_id: value }, []);
@@ -19,10 +19,7 @@ export const SubjectFilterSelect = ({ uniqueSubjects }: { uniqueSubjects: idName
 
   return (
     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-      <InputLabel id="subject-filter-label">
-        <Book fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
-        {translate('custom.filters.subject')}
-      </InputLabel>
+      <InputLabel id="subject-filter-label">{translate('custom.filters.subject')}</InputLabel>
       <Select
         labelId="subject-filter-label"
         value={filterValues.subject_id || ''}

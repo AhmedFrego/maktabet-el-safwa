@@ -1,11 +1,11 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import { DateRange } from '@mui/icons-material';
-import { useTranslate, useListContext } from 'react-admin';
-import { Enums } from 'types/supabase-generated.types';
+import { useTranslate, useListContext, useStore } from 'react-admin';
+import { Enums, Tables } from 'types/supabase-generated.types';
 
 export const TermFilterSelect = () => {
   const translate = useTranslate();
   const { filterValues, setFilters } = useListContext();
+  const [setting] = useStore<Tables<'settings'>>('settings');
 
   const termsMap = [
     { id: '1st', name: translate('resources.publications.labels.term.1st') },
@@ -28,13 +28,10 @@ export const TermFilterSelect = () => {
 
   return (
     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-      <InputLabel id="term-filter-label">
-        <DateRange fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
-        {translate('custom.filters.term_id')}
-      </InputLabel>
+      <InputLabel id="term-filter-label">{translate('custom.filters.term_id')}</InputLabel>
       <Select
         labelId="term-filter-label"
-        value={filterValues.term || ''}
+        value={filterValues.term ?? setting?.current_term ?? ''}
         label={translate('custom.filters.term_id')}
         onChange={handleChange}
       >
