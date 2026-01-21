@@ -61,13 +61,14 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
     if (hasRelatedPublications && !isReserved) {
       dispatch(
         setPendingSuggestion({
-          triggerPublication: record,
+          triggerPublication: itemData,
           relatedIds: record.related_publications || [],
         })
       );
+      return; // Don't add immediately, let modal handle it
     }
 
-    // Always add the item to cart
+    // Add the item to cart (only if no related items or already reserved)
     dispatch(addOrIncreaseItem(itemData));
   };
 

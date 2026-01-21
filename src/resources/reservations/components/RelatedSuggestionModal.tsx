@@ -8,14 +8,12 @@ import {
   Box,
   Typography,
   CircularProgress,
-  Card,
-  CardContent,
-  CardActions,
-  Grid,
-  Chip,
-  Divider,
+  Checkbox,
+  FormControlLabel,
+  List,
+  ListItem,
 } from '@mui/material';
-import { GroupWork, Add, ShoppingCart } from '@mui/icons-material';
+import { GroupWork, ShoppingCart } from '@mui/icons-material';
 import { useTranslate } from 'react-admin';
 
 import { toArabicNumerals } from 'utils';
@@ -44,6 +42,7 @@ export const RelatedSuggestionModal = ({
 
   const [loading, setLoading] = useState(false);
   const [relatedPublications, setRelatedPublications] = useState<Publication[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set([triggerPublication.id]));
 
   // Fetch related publications when modal opens
   useEffect(() => {
@@ -62,35 +61,17 @@ export const RelatedSuggestionModal = ({
       }
     };
 
-    fetchRelated();
-  }, [open, relatedIds]);
+    if (open) {
+      setSelectedIds(new Set([triggerPublication.id]));
+      fetchRelated();
+    }
+  }, [open, relatedIds, triggerPublication.id]);
 
   // Calculate individual prices for display
   const getPublicationPrice = (pub: Publication) => {
     const result = calcPrice({ record: pub });
     return result.price.twoFacesPrice;
   };
-
-  // Calculate group price
-  const allGroupPublications = [triggerPublication, ...relatedPublications];
-  const groupPriceResult = calcGroupPrice(
-    allGroupPublications.map((pub) => ({
-      record: pub,
-      quantity: 1,
-    }))
-  );
-
-  // Sum of individual prices (with individual rounding)
-  const individualTotal = allGroupPublications.reduce(
-    (sum, pub) => sum + getPublicationPrice(pub),
-    0
-  );
-
-  // Group total (with single rounding at the end)
-  const groupTotal = groupPriceResult.groupTotal.twoFacesPrice;
-
-  // Savings
-  const savings = individualTotal - groupTotal;
 
   const handleAddSingle = (pub: Publication) => {
     const prices = calcPrice({ record: pub });
@@ -107,22 +88,34 @@ export const RelatedSuggestionModal = ({
     );
   };
 
-  const handleAddAll = () => {
-    // Add all related publications with group pricing
-    allGroupPublications.forEach((pub) => {
-      const prices = calcPrice({ record: pub });
-      const title = getPublicationTitle(pub);
-
-      dispatch(
-        addOrIncreaseItem({
-          ...pub,
-          title,
-          price: prices.price.twoFacesPrice,
-          cover_type_id: prices.cover?.id,
-          cover_type: { name: prices.cover?.name },
-        })
-      );
+  const handleTogglePublication = (pubId: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(pubId)) {
+        // Don't allow unchecking trigger publication
+        if (pubId === triggerPublication.id) return prev;
+        newSet.delete(pubId);
+      } else {
+        newSet.add(pubId);
+      }
+      return newSet;
     });
+  };
+
+  const handleSelectAll = () => {
+    const allIds = [triggerPublication.id, ...relatedPublications.map((p) => p.id)];
+    setSelectedIds(new Set(allIds));
+  };
+
+  const handleAddSelected = () => {
+    const publicationsToAdd = [triggerPublication, ...relatedPublications].filter((pub) =>
+      selectedIds.has(pub.id)
+    );
+
+    publicationsToAdd.forEach((pub) => {
+      handleAddSingle(pub);
+    });
+
     onClose();
   };
 
@@ -139,7 +132,7 @@ export const RelatedSuggestionModal = ({
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <GroupWork color="primary" />
-          <Typography variant="h6">منشورات ذات صلة</Typography>
+          <Typography variant="inherit">منشورات ذات صلة</Typography>
         </Box>
       </DialogTitle>
 
@@ -150,56 +143,97 @@ export const RelatedSuggestionModal = ({
           </Box>
         ) : (
           <>
-            {/* Already added publication */}
+            {/* Publications list with checkboxes */}
             <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                تم إضافته للسلة:
-              </Typography>
-              <Card variant="outlined" sx={{ bgcolor: 'success.light', opacity: 0.8 }}>
-                <CardContent sx={{ py: 1, '&:last-child': { pb: 1 } }}>
-                  <Typography variant="body1">{getPublicationTitle(triggerPublication)}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    السعر: {toArabicNumerals(getPublicationPrice(triggerPublication))} ج.م
-                  </Typography>
-                </CardContent>
-              </Card>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 1,
+                }}
+              >
+                <Typography variant="subtitle2" color="text.secondary">
+                  اختر المنشورات للإضافة:
+                </Typography>
+                <Button size="small" onClick={handleSelectAll}>
+                  تحديد الكل
+                </Button>
+              </Box>
+
+              <List
+                sx={{
+                  bgcolor: 'background.paper',
+                  borderRadius: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                {/* Trigger publication - always first and checked */}
+                <ListItem
+                  sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    bgcolor: 'info.light',
+                    opacity: 0.9,
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={selectedIds.has(triggerPublication.id)}
+                        onChange={() => handleTogglePublication(triggerPublication.id)}
+                        disabled
+                      />
+                    }
+                    label={
+                      <Box sx={{ width: '100%' }}>
+                        <Typography variant="body1">
+                          {getPublicationTitle(triggerPublication)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          السعر: {toArabicNumerals(getPublicationPrice(triggerPublication))} ج.م
+                        </Typography>
+                      </Box>
+                    }
+                    sx={{ width: '100%', mr: 0 }}
+                  />
+                </ListItem>
+
+                {/* Related publications */}
+                {relatedPublications.map((pub) => (
+                  <ListItem
+                    key={pub.id}
+                    sx={{
+                      borderBottom: 1,
+                      borderColor: 'divider',
+                      '&:last-child': { borderBottom: 0 },
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedIds.has(pub.id)}
+                          onChange={() => handleTogglePublication(pub.id)}
+                        />
+                      }
+                      label={
+                        <Box sx={{ width: '100%' }}>
+                          <Typography variant="body1">{getPublicationTitle(pub)}</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            السعر: {toArabicNumerals(getPublicationPrice(pub))} ج.م
+                          </Typography>
+                        </Box>
+                      }
+                      sx={{ width: '100%', mr: 0 }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
             </Box>
 
-            <Divider sx={{ my: 2 }} />
-
-            {/* Related publications */}
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              منشورات مرتبطة ({toArabicNumerals(relatedPublications.length)}):
-            </Typography>
-
-            <Grid container spacing={2}>
-              {relatedPublications.map((pub) => (
-                <Grid size={{ xs: 12, sm: 6 }} key={pub.id}>
-                  <Card variant="outlined">
-                    <CardContent sx={{ py: 1.5 }}>
-                      <Typography variant="body1" noWrap>
-                        {getPublicationTitle(pub)}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                        <Chip
-                          label={`${toArabicNumerals(getPublicationPrice(pub))} ج.م`}
-                          size="small"
-                          color="primary"
-                        />
-                      </Box>
-                    </CardContent>
-                    <CardActions sx={{ pt: 0 }}>
-                      <Button size="small" startIcon={<Add />} onClick={() => handleAddSingle(pub)}>
-                        إضافة للسلة
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-
-            {/* Group pricing summary */}
-            {relatedPublications.length > 0 && (
+            {/* Group pricing summary for selected items */}
+            {selectedIds.size > 1 && (
               <Box
                 sx={{
                   mt: 3,
@@ -210,42 +244,83 @@ export const RelatedSuggestionModal = ({
                 }}
               >
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  سعر المجموعة الكاملة:
+                  سعر المجموعة المحددة:
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography>عدد المنشورات:</Typography>
+                  <Typography>{toArabicNumerals(selectedIds.size)}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography>مجموع الأسعار المنفصلة:</Typography>
-                  <Typography>{toArabicNumerals(individualTotal)} ج.م</Typography>
+                  <Typography>
+                    {toArabicNumerals(
+                      [...selectedIds].reduce((sum, id) => {
+                        const pub = [triggerPublication, ...relatedPublications].find(
+                          (p) => p.id === id
+                        );
+                        return sum + (pub ? getPublicationPrice(pub) : 0);
+                      }, 0)
+                    )}{' '}
+                    ج.م
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography fontWeight="bold">سعر المجموعة:</Typography>
-                  <Typography fontWeight="bold">{toArabicNumerals(groupTotal)} ج.م</Typography>
+                  <Typography fontWeight="bold">
+                    {toArabicNumerals(
+                      calcGroupPrice(
+                        [...selectedIds].map((id) => {
+                          const pub = [triggerPublication, ...relatedPublications].find(
+                            (p) => p.id === id
+                          );
+                          return { record: pub!, quantity: 1 };
+                        })
+                      ).groupTotal.twoFacesPrice
+                    )}{' '}
+                    ج.م
+                  </Typography>
                 </Box>
-                {savings > 0 && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography color="success.dark">التوفير:</Typography>
-                    <Typography color="success.dark" fontWeight="bold">
-                      {toArabicNumerals(savings)} ج.م
-                    </Typography>
-                  </Box>
-                )}
+                {(() => {
+                  const selectedPubs = [...selectedIds]
+                    .map((id) =>
+                      [triggerPublication, ...relatedPublications].find((p) => p.id === id)
+                    )
+                    .filter(Boolean) as Publication[];
+                  const selectedIndividualTotal = selectedPubs.reduce(
+                    (sum, pub) => sum + getPublicationPrice(pub),
+                    0
+                  );
+                  const selectedGroupTotal = calcGroupPrice(
+                    selectedPubs.map((pub) => ({ record: pub, quantity: 1 }))
+                  ).groupTotal.twoFacesPrice;
+                  const selectedSavings = selectedIndividualTotal - selectedGroupTotal;
+                  return selectedSavings > 0 ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography color="success.dark">التوفير:</Typography>
+                      <Typography color="success.dark" fontWeight="bold">
+                        {toArabicNumerals(selectedSavings)} ج.م
+                      </Typography>
+                    </Box>
+                  ) : null;
+                })()}
               </Box>
             )}
           </>
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ gap: 1 }}>
         <Button onClick={onClose}>{translate('ra.action.close')}</Button>
-        {relatedPublications.length > 0 && (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<ShoppingCart />}
-            onClick={handleAddAll}
-          >
-            إضافة الكل للسلة ({toArabicNumerals(allGroupPublications.length)})
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<ShoppingCart />}
+          onClick={handleAddSelected}
+        >
+          {selectedIds.size === 1
+            ? 'إضافة المنشور المحدد'
+            : `إضافة المحددة (${toArabicNumerals(selectedIds.size)})`}
+        </Button>
       </DialogActions>
     </Dialog>
   );

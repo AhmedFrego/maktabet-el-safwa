@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   AppBar,
   TitlePortal,
@@ -7,10 +8,11 @@ import {
   useRedirect,
 } from 'react-admin';
 import { styled } from '@mui/material/styles';
-import { EditNote, Settings } from '@mui/icons-material';
+import { EditNote, Settings, PointOfSale } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector, setIsReserving } from 'store';
 
 import { Box, Badge, Button, IconButton } from '@mui/material';
+import { DirectReservationModal } from 'resources/reservations/components';
 
 import { Logo } from '.';
 import { toArabicNumerals } from 'utils';
@@ -21,6 +23,7 @@ export const Header = () => {
     <StyledAppBar
       toolbar={
         <>
+          <DirectReservationButton />
           <ReservationButton />
           <ToggleThemeButton />
           <LoadingIndicator />
@@ -100,3 +103,18 @@ const StyledReservationButton = styled(Button)(({ theme }) => ({
   display: 'flex',
   gap: '.5rem',
 }));
+
+const DirectReservationButton = () => {
+  const translate = useTranslate();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <StyledReservationButton variant="outlined" onClick={() => setOpen(true)}>
+        <PointOfSale />
+        {translate('resources.reservations.actions.direct')}
+      </StyledReservationButton>
+      <DirectReservationModal open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+};

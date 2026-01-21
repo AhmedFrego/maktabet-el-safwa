@@ -14,4 +14,6 @@ export const ModalContent = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   gap: 1,
+  maxHeight: '90vh',
+  overflow: 'auto',
 });

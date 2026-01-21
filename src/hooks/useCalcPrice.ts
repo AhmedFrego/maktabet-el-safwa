@@ -55,7 +55,7 @@ export const useCalcPrice = () => {
       twoFacesPrice:
         printPrices.twoFacesPrice + coverPrice + (+record.change_price?.twoFacesPrice || 0),
       coverPrice,
-      chosenCover,
+      chosenCover: chosenCover ?? null,
       doRound: record.do_round ?? false,
     };
   };
