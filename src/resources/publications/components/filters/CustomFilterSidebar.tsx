@@ -3,11 +3,11 @@ import { FilterListOff } from '@mui/icons-material';
 import { Identifier, useGetList, useListContext, useTranslate } from 'react-admin';
 
 import {
-  YearFilterAccordion,
-  AcademicYearFilterAccordion,
-  TermFilterAccordion,
-  SubjectFilterAccordion,
-  PublicationsTypeFilter,
+  YearFilterSelect,
+  AcademicYearFilterSelect,
+  TermFilterSelect,
+  SubjectFilterSelect,
+  PublicationsTypeFilterSelect,
 } from '.';
 import { Enums, idName } from 'types';
 
@@ -66,11 +66,13 @@ export const CustomFilterSidebar = () => {
             </Button>
           </Box>
         )}
-        <PublicationsTypeFilter />
-        <AcademicYearFilterAccordion uniqueAcademicYears={uniqueAcademicYears} />
-        <SubjectFilterAccordion uniqueSubjects={uniqueSubjects} />
-        <YearFilterAccordion uniqueYears={uniqueYears} />
-        <TermFilterAccordion />
+        <Box sx={{ p: 1.5 }}>
+          <PublicationsTypeFilterSelect />
+          <AcademicYearFilterSelect uniqueAcademicYears={uniqueAcademicYears} />
+          <SubjectFilterSelect uniqueSubjects={uniqueSubjects} />
+          <YearFilterSelect uniqueYears={uniqueYears} />
+          <TermFilterSelect />
+        </Box>
       </CardContent>
     </Card>
   );

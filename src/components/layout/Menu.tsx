@@ -1,7 +1,6 @@
 import { Menu as RAMenu, useStore } from 'react-admin';
 
 import { styled, Avatar } from '@mui/material';
-import { Assessment, BarChart } from '@mui/icons-material';
 import { Tables } from 'types/supabase-generated.types';
 import { useAppSelector } from 'store';
 
@@ -22,8 +21,6 @@ export const Menu = () => {
         primaryText={setting?.branch_name}
       />
       <RAMenu.ResourceItems />
-      <RAMenu.Item to="/reports" primaryText="التقارير المالية" leftIcon={<Assessment />} />
-      <RAMenu.Item to="/analytics" primaryText="التحليلات" leftIcon={<BarChart />} />
     </StyledRAMenu>
   );
 };
