@@ -203,10 +203,10 @@ export const CreateRelatedPublication = () => {
 
   // Default values from parent publication
   const defaultValues = {
-    pages: publicationData.pages || 0,
+    pages: 0,
     paper_type_id: publicationData.paper_type_id || '',
     additional_data: '',
-    do_round: false,
+    do_round: true,
     coverless: false,
     two_faces_cover: false,
   };

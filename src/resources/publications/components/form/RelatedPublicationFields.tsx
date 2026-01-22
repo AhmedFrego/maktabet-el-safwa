@@ -46,7 +46,7 @@ export const RelatedPublicationFields = ({ showCover = true }: RelatedPublicatio
 
       <TextInput fullWidth source="additional_data" helperText={false} validate={[required()]} />
 
-      <BooleanInput source="do_round" defaultValue={false} helperText={false} />
+      <BooleanInput source="do_round" defaultValue={true} helperText={false} />
 
       <BooleanInput source="coverless" defaultValue={false} helperText={false} />
 
