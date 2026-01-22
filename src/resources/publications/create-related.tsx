@@ -1,15 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Button,
-  Typography,
-  Divider,
-  Paper,
-  IconButton,
-  CircularProgress,
-} from '@mui/material';
-import { Close, Visibility, Save, Add, ArrowBack } from '@mui/icons-material';
+import { Box, Typography, Divider, Paper, IconButton } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 import {
   useTranslate,
   useRedirect,
@@ -24,10 +16,13 @@ import { syncAddRelated } from 'utils/helpers/syncRelatedPublications';
 import { resizeToA4 } from 'utils/helpers/resizeToA4';
 import { supabase } from 'lib/supabase';
 import { STOREGE_URL, Tables } from 'types';
-import { toArabicNumerals } from 'utils';
 import { Loading } from 'components/UI';
 
-import { RelatedPublicationFields } from './components';
+import {
+  ParentPublicationInfo,
+  RelatedPublicationFields,
+  RelatedPublicationFormActions,
+} from './components';
 
 export const CreateRelatedPublication = () => {
   const { id } = useParams<{ id: string }>();
@@ -235,22 +230,11 @@ export const CreateRelatedPublication = () => {
         <Divider sx={{ my: 2 }} />
 
         {/* Parent publication info (read-only) */}
-        <Typography
-          variant="body1"
-          sx={{
-            fontFamily: 'inherit',
-            fontWeight: 'bold',
-            fontSize: '1.1rem',
-            color: 'primary.main',
-            textAlign: 'center',
-            py: 1,
-            mb: 2,
-            bgcolor: 'action.hover',
-            borderRadius: 1,
-          }}
-        >
-          {`${subject?.name || publicationData.subject_id} ${publisher?.name || publicationData.publisher_id} - ${translate(`custom.labels.academic_years.${publicationData.academic_year}.short_name`)} - ${publicationData.term ? translate(`custom.labels.terms.${publicationData.term}.name`) : ''} ${toArabicNumerals(publicationData.year)}`}
-        </Typography>
+        <ParentPublicationInfo
+          publication={publicationData}
+          subjectName={subject?.name}
+          publisherName={publisher?.name}
+        />
 
         <Form defaultValues={defaultValues} key={createdCount}>
           <RelatedPublicationFields />
@@ -273,95 +257,15 @@ export const CreateRelatedPublication = () => {
             </Typography>
           )}
 
-          <FormActions
+          <RelatedPublicationFormActions
             isLoading={isCreating || isUploading}
             onBack={handleBack}
             onViewPublication={handleViewPublication}
             onSaveAndAddAnother={(data) => handleSubmit(data, true)}
             onSave={(data) => handleSubmit(data, false)}
-            translate={translate}
           />
         </Form>
       </Paper>
-    </Box>
-  );
-};
-
-// Separate component for form actions to access form context
-interface FormActionsProps {
-  isLoading: boolean;
-  onBack: () => void;
-  onViewPublication: () => void;
-  onSaveAndAddAnother: (data: Record<string, unknown>) => void;
-  onSave: (data: Record<string, unknown>) => void;
-  translate: (key: string) => string;
-}
-
-import { useFormContext, useFormState } from 'react-hook-form';
-
-const FormActions = ({
-  isLoading,
-  onBack,
-  onViewPublication,
-  onSaveAndAddAnother,
-  onSave,
-  translate,
-}: FormActionsProps) => {
-  const { getValues } = useFormContext();
-  const { isValid } = useFormState();
-
-  const handleSaveAndAddAnother = () => {
-    if (isValid) {
-      onSaveAndAddAnother(getValues());
-    }
-  };
-
-  const handleSave = () => {
-    if (isValid) {
-      onSave(getValues());
-    }
-  };
-
-  return (
-    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-      <Button
-        variant="outlined"
-        color="primary"
-        startIcon={<Close />}
-        onClick={onBack}
-        sx={{ fontFamily: 'inherit' }}
-      >
-        {translate('ra.action.cancel')}
-      </Button>
-      <Button
-        variant="outlined"
-        color="info"
-        startIcon={<Visibility />}
-        onClick={onViewPublication}
-        sx={{ fontFamily: 'inherit' }}
-      >
-        {translate('resources.publications.messages.view_publication')}
-      </Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        startIcon={isLoading ? <CircularProgress size={16} /> : <Add />}
-        onClick={handleSaveAndAddAnother}
-        disabled={isLoading || !isValid}
-        sx={{ fontFamily: 'inherit' }}
-      >
-        {translate('resources.publications.messages.save_and_add_another')}
-      </Button>
-      <Button
-        variant="contained"
-        color="success"
-        startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <Save />}
-        onClick={handleSave}
-        disabled={isLoading || !isValid}
-        sx={{ fontFamily: 'inherit' }}
-      >
-        {translate('resources.publications.messages.save_related_publication')}
-      </Button>
     </Box>
   );
 };
