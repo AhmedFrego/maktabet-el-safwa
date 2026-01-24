@@ -1,4 +1,9 @@
-export const resizeToA4 = async (file: File, maxWidth = 1200): Promise<Blob> => {
+// Maximum file size: 5MB for Supabase storage
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// Target size for aggressive compression
+const TARGET_SIZE = 150 * 1024;
+
+export const resizeToA4 = async (file: File, maxWidth = 1000): Promise<Blob> => {
   const imageBitmap = await createImageBitmap(file);
 
   const a4Ratio = 1.414;
@@ -28,15 +33,25 @@ export const resizeToA4 = async (file: File, maxWidth = 1200): Promise<Blob> => 
 
   ctx.drawImage(imageBitmap, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
 
-  let quality = 0.9;
+  let quality = 0.85;
   let blob: Blob | null = null;
+  let attempts = 0;
+  const maxAttempts = 20;
+
   do {
     blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob((b) => resolve(b), 'image/jpeg', quality)
     );
     if (!blob) throw new Error('Failed to create blob');
-    quality -= 0.05;
-  } while (blob.size > 200 * 1024 && quality > 0.4);
+    quality -= 0.04;
+    attempts++;
+  } while (blob.size > TARGET_SIZE && quality > 0.1 && attempts < maxAttempts);
+
+  if (!blob || blob.size > MAX_FILE_SIZE) {
+    throw new Error(
+      `Image file too large (${(blob?.size || 0) / 1024 / 1024}MB). Maximum allowed size is ${MAX_FILE_SIZE / 1024 / 1024}MB. Please use a smaller image.`
+    );
+  }
 
   return blob;
 };

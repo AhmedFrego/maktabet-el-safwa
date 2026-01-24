@@ -5,7 +5,7 @@ import { Save } from '@mui/icons-material';
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
 import { TablesUpdate, STOREGE_URL, Tables } from 'types';
-import { extractFileName } from 'utils';
+import { extractFileName, resizeToA4 } from 'utils';
 
 import { Publication, PublicationForm, PublicationWithFileCover } from '.';
 
@@ -22,12 +22,21 @@ export const PublicationEdit = () => {
     const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
 
     if (file) {
+      let uploadBlob: Blob = file;
+      try {
+        // Resize and compress the image before upload
+        uploadBlob = await resizeToA4(file);
+      } catch (resizeError) {
+        console.error('Image resize error:', resizeError);
+        throw resizeError;
+      }
+
       const path = extractFileName(record?.cover_url || '');
       const { data: cover, error } = path
-        ? await supabase.storage.from('covers').update(path, file, { upsert: true })
+        ? await supabase.storage.from('covers').update(path, uploadBlob, { upsert: true })
         : await supabase.storage
             .from('covers')
-            .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, file);
+            .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, uploadBlob);
 
       if (error) {
         throw error;

@@ -116,13 +116,13 @@ export const PublicationDataModal = ({
 
       if (error) {
         console.error('Cover upload error:', error);
-        return null;
+        throw error;
       }
 
       return `${STOREGE_URL}${cover?.fullPath}`;
     } catch (error) {
       console.error('Cover resize/upload error:', error);
-      return null;
+      throw error;
     }
   };
 
@@ -188,7 +188,14 @@ export const PublicationDataModal = ({
       // Upload cover if provided
       let coverUrl: string | null = null;
       if (coverFile && !coverless) {
-        coverUrl = await uploadCover(coverFile);
+        try {
+          coverUrl = await uploadCover(coverFile);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'خطأ في تحميل الصورة';
+          notify(errorMessage, { type: 'error' });
+          setIsUploading(false);
+          return;
+        }
       }
 
       // Get all existing related publications in the group
@@ -260,8 +267,9 @@ export const PublicationDataModal = ({
           },
         }
       );
-    } catch {
-      notify(translate('resources.publications.messages.unexpected_error'), { type: 'error' });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      notify(errorMessage, { type: 'error' });
       setIsUploading(false);
     }
   };
