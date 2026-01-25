@@ -8,6 +8,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  TextField,
   Checkbox,
   FormControlLabel,
   List,
@@ -43,6 +44,7 @@ export const RelatedSuggestionModal = ({
   const [loading, setLoading] = useState(false);
   const [relatedPublications, setRelatedPublications] = useState<Publication[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set([triggerPublication.id]));
+  const [groupQuantity, setGroupQuantity] = useState<number>(1);
 
   // Fetch related publications when modal opens
   useEffect(() => {
@@ -63,6 +65,7 @@ export const RelatedSuggestionModal = ({
 
     if (open) {
       setSelectedIds(new Set([triggerPublication.id]));
+      setGroupQuantity(1);
       fetchRelated();
     }
   }, [open, relatedIds, triggerPublication.id]);
@@ -108,12 +111,15 @@ export const RelatedSuggestionModal = ({
   };
 
   const handleAddSelected = () => {
+    const quantity = Math.min(50, Math.max(1, Math.floor(groupQuantity || 1)));
     const publicationsToAdd = [triggerPublication, ...relatedPublications].filter((pub) =>
       selectedIds.has(pub.id)
     );
 
     publicationsToAdd.forEach((pub) => {
-      handleAddSingle(pub);
+      for (let i = 0; i < quantity; i += 1) {
+        handleAddSingle(pub);
+      }
     });
 
     onClose();
@@ -243,23 +249,43 @@ export const RelatedSuggestionModal = ({
                   color: 'primary.contrastText',
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  سعر المجموعة المحددة:
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: 2 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    سعر المجموعة المحددة:
+                  </Typography>
+                  <TextField
+                    size="small"
+                    type="number"
+                    label="الكمية"
+                    value={groupQuantity}
+                    onChange={(e) => setGroupQuantity(Number(e.target.value))}
+                    inputProps={{ min: 1, max: 50, step: 1 }}
+                    sx={{ width: 120, bgcolor: 'background.paper', borderRadius: 1 }}
+                  />
+                </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography>عدد المنشورات:</Typography>
                   <Typography>{toArabicNumerals(selectedIds.size)}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography>إجمالي العناصر (مع الكمية):</Typography>
+                  <Typography>
+                    {toArabicNumerals(
+                      selectedIds.size * Math.min(50, Math.max(1, Math.floor(groupQuantity || 1)))
+                    )}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography>مجموع الأسعار المنفصلة:</Typography>
                   <Typography>
                     {toArabicNumerals(
-                      [...selectedIds].reduce((sum, id) => {
-                        const pub = [triggerPublication, ...relatedPublications].find(
-                          (p) => p.id === id
-                        );
-                        return sum + (pub ? getPublicationPrice(pub) : 0);
-                      }, 0)
+                      Math.min(50, Math.max(1, Math.floor(groupQuantity || 1))) *
+                        [...selectedIds].reduce((sum, id) => {
+                          const pub = [triggerPublication, ...relatedPublications].find(
+                            (p) => p.id === id
+                          );
+                          return sum + (pub ? getPublicationPrice(pub) : 0);
+                        }, 0)
                     )}{' '}
                     ج.م
                   </Typography>
@@ -273,7 +299,10 @@ export const RelatedSuggestionModal = ({
                           const pub = [triggerPublication, ...relatedPublications].find(
                             (p) => p.id === id
                           );
-                          return { record: pub!, quantity: 1 };
+                          return {
+                            record: pub!,
+                            quantity: Math.min(50, Math.max(1, Math.floor(groupQuantity || 1))),
+                          };
                         })
                       ).groupTotal.twoFacesPrice
                     )}{' '}
@@ -287,11 +316,17 @@ export const RelatedSuggestionModal = ({
                     )
                     .filter(Boolean) as Publication[];
                   const selectedIndividualTotal = selectedPubs.reduce(
-                    (sum, pub) => sum + getPublicationPrice(pub),
+                    (sum, pub) =>
+                      sum +
+                      Math.min(50, Math.max(1, Math.floor(groupQuantity || 1))) *
+                        getPublicationPrice(pub),
                     0
                   );
                   const selectedGroupTotal = calcGroupPrice(
-                    selectedPubs.map((pub) => ({ record: pub, quantity: 1 }))
+                    selectedPubs.map((pub) => ({
+                      record: pub,
+                      quantity: Math.min(50, Math.max(1, Math.floor(groupQuantity || 1))),
+                    }))
                   ).groupTotal.twoFacesPrice;
                   const selectedSavings = selectedIndividualTotal - selectedGroupTotal;
                   return selectedSavings > 0 ? (
