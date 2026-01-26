@@ -121,8 +121,8 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
           <Typography noWrap>{phone_number ? toArabicNumerals(phone_number) : ''}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>{`${translate('resources.reservations.fields.total_price')}: ${total_price}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${paid_amount}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.total_price')}: ${toArabicNumerals(total_price)}`}</Typography>
+          <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${toArabicNumerals(paid_amount)}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`}</Typography>
           <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${translate(
             `resources.reservations.status.${reservation_status}`
@@ -165,19 +165,25 @@ const ReservedItems = ({
           },
         }}
       >
-        <TableHead
-          sx={(theme) => ({
-            backgroundColor: theme.palette.grey[100],
-          })}
-        >
-          <TableRow sx={{}}>
-            <StyledTableCell>{<HelpOutline />}</StyledTableCell>
-            <StyledTableCell>المحجوز</StyledTableCell>
-            <StyledTableCell align="center">الورق</StyledTableCell>
-            <StyledTableCell align="center">الغلاف</StyledTableCell>
-            <StyledTableCell align="center">عدد</StyledTableCell>
-            <StyledTableCell align="center">سعر الوحدة</StyledTableCell>
-            <StyledTableCell align="center">إجمالي السعر</StyledTableCell>
+        <TableHead>
+          <TableRow>
+            <StyledTableCell component="th">{<HelpOutline />}</StyledTableCell>
+            <StyledTableCell component="th">المحجوز</StyledTableCell>
+            <StyledTableCell component="th" align="center">
+              الورق
+            </StyledTableCell>
+            <StyledTableCell component="th" align="center">
+              الغلاف
+            </StyledTableCell>
+            <StyledTableCell component="th" align="center">
+              عدد
+            </StyledTableCell>
+            <StyledTableCell component="th" align="center">
+              سعر الوحدة
+            </StyledTableCell>
+            <StyledTableCell component="th" align="center">
+              إجمالي السعر
+            </StyledTableCell>
           </TableRow>
         </TableHead>
 
@@ -225,7 +231,7 @@ const ReservedItems = ({
                 {item.title}
               </StyledTableCell>
 
-              <StyledTableCell align="center">{item.paper_type.name}</StyledTableCell>
+              <StyledTableCell align="center">{item.paper_type?.name}</StyledTableCell>
               <StyledTableCell align="center">{item.cover_type?.name}</StyledTableCell>
               <StyledTableCell align="center">{toArabicNumerals(item.quantity)}</StyledTableCell>
               <StyledTableCell align="center">
@@ -255,6 +261,13 @@ const StyledReservationItem = styled(Box)({});
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[200]}`,
   padding: 8,
-  backgroundColor: 'transparent',
   whiteSpace: 'nowrap',
+  backgroundColor: 'transparent',
+  '&.MuiTableCell-head': {
+    backgroundColor: `${theme.palette.grey[100]} !important`,
+    fontWeight: 600,
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+  },
 }));
