@@ -334,7 +334,7 @@ export const arabicMessages: TranslationMessages = {
         academic_years: 'السنة الدراسية',
       },
       actions: {
-        create: 'إنشاء مستخدم',
+        create: 'عميل جديد',
         update: 'تحديث بيانات المستخدم',
         delete: 'حذف المستخدم',
         view: 'عرض تفاصيل المستخدم',

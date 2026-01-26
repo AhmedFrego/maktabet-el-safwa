@@ -24,6 +24,7 @@ export const PublicationsList = () => {
         actions={isReserving ? false : <ListActions />}
         aside={<CustomFilterSidebar />}
         queryOptions={{ meta: { columns: publicationsColumns } }}
+        sort={{ field: 'subject', order: 'ASC' }}
       >
         <PublicationsContainer />
       </List>
@@ -33,7 +34,7 @@ export const PublicationsList = () => {
         <RelatedSuggestionModal
           open={!!pendingSuggestion}
           onClose={handleCloseSuggestionModal}
-          triggerPublication={pendingSuggestion.triggerPublication as Publication}
+          triggerPublication={pendingSuggestion.triggerPublication as unknown as Publication}
           relatedIds={pendingSuggestion.relatedIds}
         />
       )}

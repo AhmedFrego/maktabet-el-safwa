@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ModalContent, ModalWrapper } from 'components/UI';
-import { ButtonGroup, Modal } from '@mui/material';
+import { ButtonGroup, Modal, Typography } from '@mui/material';
 import {
   AutocompleteInput,
   Button,
@@ -102,8 +102,26 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
         <ModalContent
           sx={(theme) => ({
             backgroundColor: theme.palette.grey[100],
+            maxWidth: 280,
+            width: '90%',
           })}
         >
+          <Typography
+            variant="h6"
+            sx={(theme) => ({
+              fontFamily: 'inherit',
+              fontWeight: 800,
+              textAlign: 'center',
+              mb: 3,
+              pb: 1.5,
+              mt: 1,
+              color: theme.palette.secondary.main,
+              borderBottom: `3px solid ${theme.palette.secondary.main}`,
+              fontSize: '1.25rem',
+            })}
+          >
+            {translate('resources.users.actions.create')}
+          </Typography>
           <CreateBase
             redirect={false}
             resource="users"
