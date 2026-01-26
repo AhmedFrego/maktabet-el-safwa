@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AppBar,
   TitlePortal,
@@ -9,7 +9,7 @@ import {
 } from 'react-admin';
 import { styled } from '@mui/material/styles';
 import { EditNote, Settings, PointOfSale } from '@mui/icons-material';
-import { useAppDispatch, useAppSelector, setIsReserving } from 'store';
+import { clearItems, useAppDispatch, useAppSelector, setIsReserving } from 'store';
 
 import { Box, Badge, Button, IconButton } from '@mui/material';
 import { DirectReservationModal } from 'resources/reservations/components';
@@ -47,17 +47,51 @@ const ReservationButton = () => {
   const redirect = useRedirect();
   const { isReserving, reservedItems } = useAppSelector((state) => state.reservation);
   const totalQuantity = reservedItems.reduce((cur, acc) => cur + acc.quantity, 0);
+
+  const clickTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) {
+        window.clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleSingleClick = () => {
+    if (clickTimeoutRef.current) {
+      window.clearTimeout(clickTimeoutRef.current);
+    }
+
+    // Delay single click slightly to allow double click to cancel it.
+    clickTimeoutRef.current = window.setTimeout(() => {
+      clickTimeoutRef.current = null;
+
+      if (!isReserving) {
+        dispatch(setIsReserving(true));
+        redirect('/publications');
+      } else {
+        dispatch(setIsReserving('confirming'));
+      }
+    }, 250);
+  };
+
+  const handleDoubleClick = () => {
+    if (clickTimeoutRef.current) {
+      window.clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+    }
+
+    // Reset reservation slice to initial state.
+    dispatch(clearItems());
+  };
+
   return (
     <StyledReservationButton
       variant="outlined"
-      onClick={() => {
-        if (!isReserving) {
-          dispatch(setIsReserving(true));
-          redirect('/publications');
-        } else {
-          dispatch(setIsReserving('confirming'));
-        }
-      }}
+      onClick={handleSingleClick}
+      onDoubleClick={handleDoubleClick}
     >
       <Badge
         invisible={!totalQuantity}

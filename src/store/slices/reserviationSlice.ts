@@ -28,7 +28,7 @@ export interface RelatedGroupPayload {
 }
 
 export interface ReservationState {
-  reservedItems: ReservationRecord[];
+  reservedItems: ReservationRecord[] & { __brand?: 'ReservationRecord' };
   isReserving: boolean | 'confirming';
   pendingSuggestion: {
     triggerPublication: ReservationMustKeys | null;
@@ -53,15 +53,16 @@ export const reservationSlice = createSlice({
         existingItem.quantity += 1;
         existingItem.totalPrice = existingItem.quantity * (existingItem.price || 10000);
       } else {
-        state.reservedItems.push({
+        const newItem: ReservationRecord = {
           ...action.payload,
           quantity: 1,
-          status: 'in-progress',
+          status: 'in-progress' as ReservationStatus,
           totalPrice: action.payload.price || 10000,
           isDublix: true,
           deliveredAt: null,
           deliveredBy: null,
-        });
+        };
+        (state.reservedItems as ReservationRecord[]).push(newItem);
       }
     },
     modifyItem: (state, action: PayloadAction<Partial<ReservationRecord> & { id: string }>) => {
@@ -91,11 +92,10 @@ export const reservationSlice = createSlice({
     },
     markAllAsDelivered(state) {
       const now = new Date().toISOString();
-      state.reservedItems = state.reservedItems.map((item) => ({
-        ...item,
-        status: 'delivered' as ReservationStatus,
-        deliveredAt: now,
-      }));
+      state.reservedItems.forEach((item) => {
+        item.status = 'delivered';
+        item.deliveredAt = now;
+      });
     },
     // Set pending suggestion for showing related publications modal
     setPendingSuggestion(
@@ -119,16 +119,17 @@ export const reservationSlice = createSlice({
           existingItem.totalPrice = existingItem.quantity * (existingItem.price || 10000);
           existingItem.groupId = groupId;
         } else {
-          state.reservedItems.push({
+          const newItem: ReservationRecord = {
             ...item,
             quantity: 1,
-            status: 'in-progress',
+            status: 'in-progress' as ReservationStatus,
             totalPrice: item.price || 10000,
             isDublix: true,
             deliveredAt: null,
             deliveredBy: null,
             groupId,
-          });
+          };
+          (state.reservedItems as ReservationRecord[]).push(newItem);
         }
       });
     },
