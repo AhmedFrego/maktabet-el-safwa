@@ -42,14 +42,33 @@ export const ReservationCTA = ({
     }, 0);
   };
 
+  const handleCancel = () => {
+    const cancelFn = onCancel || (() => dispatch(clearItems()));
+    // If no items, cancel directly without confirmation
+    if (!hasItems) {
+      cancelFn();
+    }
+  };
+
   return (
     <>
       <Box sx={{ display: 'flex', gap: '1rem' }}>
-        <NestedModal
-          confirmFn={onCancel || (() => dispatch(clearItems()))}
-          title={translate('resources.reservations.actions.cancel')}
-          maxWidth={400}
-        />
+        {hasItems ? (
+          <NestedModal
+            confirmFn={onCancel || (() => dispatch(clearItems()))}
+            title={translate('resources.reservations.actions.cancel')}
+            maxWidth={400}
+          />
+        ) : (
+          <Button
+            variant="outlined"
+            sx={{ fontFamily: 'inherit' }}
+            onClick={handleCancel}
+            color="error"
+          >
+            {translate('resources.reservations.actions.cancel')}
+          </Button>
+        )}
         <Button
           variant="outlined"
           sx={{ fontFamily: 'inherit' }}
