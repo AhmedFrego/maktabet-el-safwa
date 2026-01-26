@@ -2,6 +2,24 @@ import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@m
 import { useTranslate, useListContext } from 'react-admin';
 import { Enums } from 'types';
 
+const ACADEMIC_YEARS_ORDER: Enums<'academic_years'>[] = [
+  'KG0',
+  'KG1',
+  'KG2',
+  '1st_primary',
+  '2nd_primary',
+  '3rd_primary',
+  '4th_primary',
+  '5th_primary',
+  '6th_primary',
+  '1st_preparatory',
+  '2nd_preparatory',
+  '3rd_preparatory',
+  '1st_secondary',
+  '2nd_secondary',
+  '3rd_secondary',
+];
+
 export const AcademicYearFilterSelect = ({
   uniqueAcademicYears,
 }: {
@@ -22,6 +40,13 @@ export const AcademicYearFilterSelect = ({
     }
   };
 
+  // Sort academic years according to the defined order
+  const sortedAcademicYears = [...uniqueAcademicYears].sort((a, b) => {
+    const indexA = ACADEMIC_YEARS_ORDER.indexOf(a);
+    const indexB = ACADEMIC_YEARS_ORDER.indexOf(b);
+    return indexA - indexB;
+  });
+
   return (
     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
       <InputLabel id="academic-year-filter-label" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -36,7 +61,7 @@ export const AcademicYearFilterSelect = ({
         <MenuItem value="">
           <em>{translate('ra.action.clear_input_value')}</em>
         </MenuItem>
-        {uniqueAcademicYears.map((year) => (
+        {sortedAcademicYears.map((year) => (
           <MenuItem key={year} value={year}>
             {translate(`custom.labels.academic_years.${year}.name`)}
           </MenuItem>
