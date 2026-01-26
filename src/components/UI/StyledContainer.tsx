@@ -11,6 +11,5 @@ export const StyledContainer = styled(Container)(({ theme }) => ({
   maxWidth: 'none',
   '& > *': {
     flex: '0 0 auto',
-    maxWidth: 'calc(20% - 16px)', // 5 items per row with gap
   },
 }));
