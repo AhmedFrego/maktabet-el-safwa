@@ -1,6 +1,7 @@
 import { Edit, DoneAll, Visibility, Delete } from '@mui/icons-material';
 import { Box, ButtonGroup, styled, Typography } from '@mui/material';
 import { Button, useDelete, useRedirect, useRefresh, useTranslate } from 'react-admin';
+import { useState } from 'react';
 
 import { NestedModal } from 'components/UI';
 import { myProvider, supabase } from 'lib';
@@ -8,14 +9,16 @@ import { ReservationRecord } from 'store';
 import { TablesUpdate } from 'types';
 
 import { Reservation } from '..';
+import { ReservationEditModal } from './ReservationEditModal';
 
 export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => {
   const { id, total_price, reserved_items } = reservation;
   const redirect = useRedirect();
   const translate = useTranslate();
   const refresh = useRefresh();
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
-  const handleEdit = () => redirect(id);
+  const handleEdit = () => setEditModalOpen(true);
 
   const handleDeliver = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -36,21 +39,28 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
   };
   if (reservation.reservation_status === 'delivered') return;
   return (
-    <ButtonGroup variant="outlined" size="medium" sx={{ mt: 2 }}>
-      <DeletelModal id={id} />
-      <StyledButton color="warning" onClick={handleEdit}>
-        <Edit />
-        <Typography>{translate('resources.reservations.actions.update')}</Typography>
-      </StyledButton>
-      <StyledButton color="info" onClick={() => redirect(`/reservations/${id}/show`)}>
-        <Visibility />
-        <Typography>{translate('resources.reservations.actions.show')}</Typography>
-      </StyledButton>
-      <StyledButton color="success" onClick={handleDeliver}>
-        <DoneAll />
-        <Typography>{translate('resources.reservations.actions.deliver')}</Typography>
-      </StyledButton>
-    </ButtonGroup>
+    <>
+      <ButtonGroup variant="outlined" size="medium" sx={{ mt: 2 }}>
+        <DeletelModal id={id} />
+        <StyledButton color="warning" onClick={handleEdit}>
+          <Edit />
+          <Typography>{translate('resources.reservations.actions.update')}</Typography>
+        </StyledButton>
+        <StyledButton color="info" onClick={() => redirect(`/reservations/${id}/show`)}>
+          <Visibility />
+          <Typography>{translate('resources.reservations.actions.show')}</Typography>
+        </StyledButton>
+        <StyledButton color="success" onClick={handleDeliver}>
+          <DoneAll />
+          <Typography>{translate('resources.reservations.actions.deliver')}</Typography>
+        </StyledButton>
+      </ButtonGroup>
+      <ReservationEditModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        reservation={reservation}
+      />
+    </>
   );
 };
 

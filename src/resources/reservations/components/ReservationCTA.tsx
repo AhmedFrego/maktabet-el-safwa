@@ -13,6 +13,8 @@ interface ReservationCTAProps {
   reserved_items: ReservationRecord[];
   client_id?: string;
   submitButtonRef: RefObject<HTMLButtonElement>;
+  onCancel?: () => void;
+  onEdit?: () => void;
 }
 
 export const ReservationCTA = ({
@@ -22,6 +24,8 @@ export const ReservationCTA = ({
   reserved_items,
   client_id,
   submitButtonRef,
+  onCancel,
+  onEdit,
 }: ReservationCTAProps) => {
   const dispatch = useAppDispatch();
   const translate = useTranslate();
@@ -42,14 +46,14 @@ export const ReservationCTA = ({
     <>
       <Box sx={{ display: 'flex', gap: '1rem' }}>
         <NestedModal
-          confirmFn={() => dispatch(clearItems())}
+          confirmFn={onCancel || (() => dispatch(clearItems()))}
           title={translate('resources.reservations.actions.cancel')}
           maxWidth={400}
         />
         <Button
           variant="outlined"
           sx={{ fontFamily: 'inherit' }}
-          onClick={() => dispatch(setIsReserving(true))}
+          onClick={onEdit || (() => dispatch(setIsReserving(true)))}
           color="info"
         >
           {translate('ra.action.edit')}

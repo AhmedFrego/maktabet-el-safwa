@@ -35,6 +35,7 @@ export interface ReservationMustKeys extends PriceCalcFields {
   paper_type?: { name: string | undefined } | undefined;
   cover_type_id: string | null | undefined;
   cover_type: { name: string | undefined } | null | undefined;
+  related_publications?: string[] | null;
 }
 
 export interface ReservationRecord extends ReservationBase, ReservationMustKeys {}
@@ -53,12 +54,18 @@ export interface ReservationState {
   reservedItems: ReservationRecord[];
   isReserving: boolean | 'confirming';
   pendingSuggestion: PendingSuggestion | null;
+  editingReservation: {
+    client_id: string;
+    paid_amount: number;
+    reservation_id: string;
+  } | null;
 }
 
 const initialState: ReservationState = {
   reservedItems: [],
   isReserving: false,
   pendingSuggestion: null,
+  editingReservation: null,
 };
 
 export const reservationSlice = createSlice({
@@ -115,6 +122,17 @@ export const reservationSlice = createSlice({
         item.deliveredAt = now;
       });
     },
+    // Set reserved items (used for editing existing reservations)
+    setReservedItems(state, action: PayloadAction<ReservationRecord[]>) {
+      state.reservedItems = action.payload;
+    },
+    // Set editing reservation context (client_id, paid_amount, reservation_id)
+    setEditingReservation(
+      state,
+      action: PayloadAction<{ client_id: string; paid_amount: number; reservation_id: string } | null>
+    ) {
+      state.editingReservation = action.payload;
+    },
     // Set pending suggestion for showing related publications modal
     setPendingSuggestion(state, action: PayloadAction<PendingSuggestion | null>) {
       state.pendingSuggestion = action.payload;
@@ -157,6 +175,8 @@ export const {
   setIsReserving,
   modifyItem,
   markAllAsDelivered,
+  setReservedItems,
+  setEditingReservation,
   setPendingSuggestion,
   addRelatedGroup,
 } = reservationSlice.actions;

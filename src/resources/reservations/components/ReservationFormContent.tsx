@@ -33,6 +33,8 @@ interface ReservationFormContentProps {
   setDeadLine: (value: PickerValue) => void;
   onInstantDelivery: () => void;
   submitButtonRef: RefObject<HTMLButtonElement>;
+  onCancel?: () => void; // Optional cancel handler for edit mode
+  onEdit?: () => void; // Optional edit handler for edit mode
 }
 
 export const ReservationFormContent = ({
@@ -43,6 +45,8 @@ export const ReservationFormContent = ({
   setDeadLine,
   onInstantDelivery,
   submitButtonRef,
+  onCancel,
+  onEdit,
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
   const { setValue } = useFormContext();
@@ -176,6 +180,8 @@ export const ReservationFormContent = ({
             reserved_items={reserved_items}
             client_id={formData.client_id}
             submitButtonRef={submitButtonRef}
+            onCancel={onCancel}
+            onEdit={onEdit}
           />
         )}
       </FormDataConsumer>

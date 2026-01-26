@@ -6,3 +6,4 @@ export * from './ReservationCTA';
 export * from './ReservationFormContent';
 export * from './RelatedSuggestionModal';
 export * from './DirectReservationModal';
+export * from './ReservationEditModal';
