@@ -4,15 +4,14 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  FormControlLabel,
   styled,
-  Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { AutocompleteInput, BooleanInput, useGetList, useTranslate } from 'react-admin';
 
+import { NumericTextInput } from 'components/form';
 import { useCalcPrice, useGetCovers } from 'hooks';
 import { modifyItem, ReservationRecord, useAppDispatch } from 'store';
 import { Tables } from 'types';
@@ -53,68 +52,6 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
 
       <AccordionDetails>
         <Box>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isManualPrice}
-                  onChange={(_, checked) => {
-                    if (checked) {
-                      const unitPrice = item.price || 0;
-                      dispatch(
-                        modifyItem({
-                          id: item.id,
-                          manualPrice: unitPrice,
-                          price: unitPrice,
-                          totalPrice: unitPrice * item.quantity,
-                        })
-                      );
-                    } else {
-                      const computedUnitPrice = calcPrice({ record: recordForCalc }).price[
-                        item.isDublix ? 'twoFacesPrice' : 'oneFacePrice'
-                      ];
-                      dispatch(
-                        modifyItem({
-                          id: item.id,
-                          manualPrice: null,
-                          price: computedUnitPrice,
-                          totalPrice: computedUnitPrice * item.quantity,
-                        })
-                      );
-                    }
-                  }}
-                />
-              }
-              label={translate('resources.reservations.fields.manual_price')}
-            />
-
-            {isManualPrice && (
-              <TextField
-                size="small"
-                type="number"
-                label={translate('resources.reservations.fields.unit_price')}
-                value={item.manualPrice ?? ''}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  if (raw === '') {
-                    dispatch(modifyItem({ id: item.id, manualPrice: null }));
-                    return;
-                  }
-                  const unitPrice = Number(raw);
-                  if (Number.isNaN(unitPrice)) return;
-                  dispatch(
-                    modifyItem({
-                      id: item.id,
-                      manualPrice: unitPrice,
-                      price: unitPrice,
-                      totalPrice: unitPrice * item.quantity,
-                    })
-                  );
-                }}
-              />
-            )}
-          </Box>
-
           <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
             <AutocompleteInput
               choices={paper_types}
@@ -206,6 +143,67 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
             }}
           />
 
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mt: 1, width: '100%' }}>
+            <NumericTextInput
+              fullWidth
+              size="small"
+              label={translate('custom.labels.quantity')}
+              value={item.quantity}
+              onValueChange={(raw) => {
+                if (raw === '') return;
+                const nextQuantity = Math.max(1, Number(raw));
+                if (Number.isNaN(nextQuantity)) return;
+
+                const unitPrice = item.manualPrice ?? item.price ?? 0;
+                dispatch(
+                  modifyItem({
+                    id: item.id,
+                    quantity: nextQuantity,
+                    totalPrice: unitPrice * nextQuantity,
+                  })
+                );
+              }}
+              sx={{ flex: 1 }}
+              inputProps={{ min: 1 }}
+            />
+
+            <NumericTextInput
+              fullWidth
+              size="small"
+              label={translate('resources.reservations.fields.unit_price')}
+              value={item.manualPrice ?? item.price ?? ''}
+              onValueChange={(raw) => {
+                // Empty => revert to auto-calculated price
+                if (raw === '') {
+                  const computedUnitPrice = calcPrice({ record: recordForCalc }).price[
+                    item.isDublix ? 'twoFacesPrice' : 'oneFacePrice'
+                  ];
+                  dispatch(
+                    modifyItem({
+                      id: item.id,
+                      manualPrice: null,
+                      price: computedUnitPrice,
+                      totalPrice: computedUnitPrice * item.quantity,
+                    })
+                  );
+                  return;
+                }
+
+                const unitPrice = Number(raw);
+                if (Number.isNaN(unitPrice)) return;
+                dispatch(
+                  modifyItem({
+                    id: item.id,
+                    manualPrice: unitPrice,
+                    price: unitPrice,
+                    totalPrice: unitPrice * item.quantity,
+                  })
+                );
+              }}
+              sx={{ flex: 1 }}
+            />
+          </Box>
+
           <TextField
             fullWidth
             multiline
@@ -225,7 +223,7 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
 };
 
 const StyledReservedItem = styled(Accordion)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: 'transparent',
   borderRadius: 6,
   boxShadow: 'none',
   '&::before': {
@@ -234,6 +232,9 @@ const StyledReservedItem = styled(Accordion)(({ theme }) => ({
   '& .MuiAccordionSummary-root': {
     paddingInline: 15,
     minHeight: theme.spacing(6),
+    backgroundColor: theme.palette.grey[100],
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
   },
   '& .MuiAccordionSummary-content': {
     marginBlock: 8,
@@ -242,5 +243,8 @@ const StyledReservedItem = styled(Accordion)(({ theme }) => ({
     paddingInline: 15,
     paddingBottom: 12,
     paddingTop: 4,
+    backgroundColor: theme.palette.background.default,
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
   },
 }));

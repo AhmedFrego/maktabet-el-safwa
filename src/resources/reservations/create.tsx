@@ -23,13 +23,13 @@ export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
   const [setting] = useStore<Tables<'settings'>>('settings');
   const submitButtonRef = useRef<HTMLButtonElement>(null);
-  const { calcGroupPrice, groupRelatedItems } = useCalcGroupPrice();
+  const { groupRelatedItems } = useCalcGroupPrice();
 
   const { isReserving, reservedItems: reserved_items } = useAppSelector(
     (state) => state.reservation
   );
 
-  // Calculate total price with group pricing
+  // Calculate total price from reserved items (reflects any manual/unit price edits)
   const { total_price, groupedItems } = useMemo(() => {
     type ItemForGrouping = {
       id: string;
@@ -46,19 +46,12 @@ export const ReservationCreate = () => {
 
     const groups = groupRelatedItems<ItemForGrouping>(itemsForGrouping);
 
-    // Calculate total for each group and sum
+    // Sum totals for each group and compute overall total
     let totalPrice = 0;
     const groupedResult: { groupId: string; items: ReservationRecord[]; groupTotal: number }[] = [];
 
     groups.forEach((groupItemsRaw, groupId) => {
-      // Convert to GroupPriceItem format for calcGroupPrice
-      const groupItems = groupItemsRaw.map((g) => ({
-        record: g.originalItem as Parameters<typeof calcGroupPrice>[0][0]['record'],
-        quantity: g.originalItem.quantity,
-      }));
-
-      const groupResult = calcGroupPrice(groupItems);
-      const groupTotal = groupResult.groupTotal.twoFacesPrice;
+      const groupTotal = groupItemsRaw.reduce((sum, g) => sum + (g.originalItem.totalPrice || 0), 0);
       totalPrice += groupTotal;
 
       groupedResult.push({
@@ -69,7 +62,7 @@ export const ReservationCreate = () => {
     });
 
     return { total_price: totalPrice, groupedItems: groupedResult };
-  }, [reserved_items, calcGroupPrice, groupRelatedItems]);
+  }, [reserved_items, groupRelatedItems]);
 
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
