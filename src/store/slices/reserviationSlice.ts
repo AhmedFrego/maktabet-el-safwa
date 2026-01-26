@@ -1,5 +1,4 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { Publication } from 'resources/publications';
 import { Enums } from 'types';
 
 export type ReservationStatus = Enums<'reservation_state'>;
@@ -11,29 +10,49 @@ export interface ReservationBase {
   deliveredBy?: string | null;
   isDublix: boolean;
   groupId?: string; // ID to track related publication groups
+  note?: string | null;
+  manualPrice?: number | null; // Unit price override (when set, don't auto-calc)
 }
 
-export interface ReservationMustKeys extends Publication {
+// Keep this local to avoid recursive Json types from Supabase-generated definitions
+// (e.g., publications.change_price) that can trigger TS "type instantiation is excessively deep"
+export interface PriceCalcFields {
+  pages: number;
+  paper_type_id: string;
+  coverless: boolean | null;
+  two_faces_cover: boolean | null;
+  do_round: boolean | null;
+  change_price: {
+    oneFacePrice: number;
+    twoFacesPrice: number;
+  };
+}
+
+export interface ReservationMustKeys extends PriceCalcFields {
+  id: string;
   title: string;
   price: number;
-  cover_type_id: string | undefined;
-  cover_type: { name: string | undefined } | undefined;
+  paper_type?: { name: string | undefined } | undefined;
+  cover_type_id: string | null | undefined;
+  cover_type: { name: string | undefined } | null | undefined;
 }
 
-export type ReservationRecord = ReservationBase & ReservationMustKeys;
+export interface ReservationRecord extends ReservationBase, ReservationMustKeys {}
 
 export interface RelatedGroupPayload {
   items: ReservationMustKeys[];
   groupId: string;
 }
 
+export interface PendingSuggestion {
+  triggerPublication: ReservationMustKeys | null;
+  relatedIds: string[];
+}
+
 export interface ReservationState {
-  reservedItems: ReservationRecord[] & { __brand?: 'ReservationRecord' };
+  reservedItems: ReservationRecord[];
   isReserving: boolean | 'confirming';
-  pendingSuggestion: {
-    triggerPublication: ReservationMustKeys | null;
-    relatedIds: string[];
-  } | null;
+  pendingSuggestion: PendingSuggestion | null;
 }
 
 const initialState: ReservationState = {
@@ -61,18 +80,17 @@ export const reservationSlice = createSlice({
           isDublix: true,
           deliveredAt: null,
           deliveredBy: null,
+          note: null,
+          manualPrice: null,
         };
-        (state.reservedItems as ReservationRecord[]).push(newItem);
+        state.reservedItems = [...state.reservedItems, newItem];
       }
     },
     modifyItem: (state, action: PayloadAction<Partial<ReservationRecord> & { id: string }>) => {
       const index = state.reservedItems.findIndex((item) => item.id === action.payload.id);
 
       if (index !== -1) {
-        state.reservedItems[index] = {
-          ...state.reservedItems[index],
-          ...action.payload,
-        };
+        Object.assign(state.reservedItems[index], action.payload);
       }
     },
     clearItems: () => initialState,
@@ -98,13 +116,7 @@ export const reservationSlice = createSlice({
       });
     },
     // Set pending suggestion for showing related publications modal
-    setPendingSuggestion(
-      state,
-      action: PayloadAction<{
-        triggerPublication: ReservationMustKeys;
-        relatedIds: string[];
-      } | null>
-    ) {
+    setPendingSuggestion(state, action: PayloadAction<PendingSuggestion | null>) {
       state.pendingSuggestion = action.payload;
     },
     // Add multiple related items as a group
@@ -128,8 +140,10 @@ export const reservationSlice = createSlice({
             deliveredAt: null,
             deliveredBy: null,
             groupId,
+            note: null,
+            manualPrice: null,
           };
-          (state.reservedItems as ReservationRecord[]).push(newItem);
+          state.reservedItems = [...state.reservedItems, newItem];
         }
       });
     },

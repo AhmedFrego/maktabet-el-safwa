@@ -62,11 +62,13 @@ export const AddCustomPublicationButton = () => {
         price: formData.price,
         cover_type_id: formData.coverless ? null : formData.cover_type_id,
         cover_type: formData.coverless ? null : { name: selectedCoverType?.name },
-        publisher: { name: '' },
-        subject: { name: '' },
         paper_type: { name: selectedPaperType?.name },
         paper_type_id: formData.paper_type_id,
         coverless: formData.coverless,
+        pages: 0,
+        two_faces_cover: false,
+        do_round: false,
+        change_price: { oneFacePrice: 0, twoFacesPrice: 0 },
       } as ReservationMustKeys;
 
       for (let i = 0; i < formData.quantity; i++) {

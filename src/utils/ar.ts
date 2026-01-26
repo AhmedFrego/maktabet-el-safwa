@@ -355,6 +355,9 @@ export const arabicMessages: TranslationMessages = {
         total_price: 'السعر الإجمالي',
         delivered_at: 'تاريخ التسليم',
         delivered_by: 'تم التسليم بواسطة',
+        note: 'ملاحظة',
+        manual_price: 'سعر يدوي',
+        unit_price: 'سعر الوحدة',
       },
       actions: {
         create: 'إنشاء حجز',
