@@ -1,4 +1,5 @@
-import { Typography, CardProps, Checkbox, Tooltip, Badge, Box } from '@mui/material';
+import { useState, useRef, useCallback } from 'react';
+import { Typography, CardProps, Checkbox, Tooltip, Box, Badge, Popover } from '@mui/material';
 import { Remove, Add, DeleteForever, Star } from '@mui/icons-material';
 
 import { DEFAULT_COVER_URL } from 'types';
@@ -20,7 +21,6 @@ import {
   StyledChip,
   StyledReserveQuantity,
   StyledSelector,
-  StyledTag,
 } from '..';
 import { useCalcPrice } from 'hooks/useCalcPrice';
 import { useTranslate } from 'react-admin';
@@ -40,6 +40,16 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
   const academicShortName = translate(
     `custom.labels.academic_years.${record.academic_year}.short_name`
   );
+
+  // Calculate group price (master + all related items)
+  const groupPrice =
+    relatedItems.length > 0
+      ? prices.price.twoFacesPrice +
+        relatedItems.reduce((sum, item) => {
+          const itemPrice = calcPrice({ record: item });
+          return sum + itemPrice.price.twoFacesPrice;
+        }, 0)
+      : prices.price.twoFacesPrice;
 
   const title = `${subject.name} ${additional_data || ''} ${publisher.name} ${academicShortName} ${translate(
     `custom.labels.terms.${term}.name`
@@ -172,45 +182,61 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
         )}
         <StyledCardContent>
           <StyledChip label={toArabicNumerals(academicShortName)} />
-          {/* Master indicator */}
-          {isMaster && (
-            <Tooltip title={translate('resources.publications.messages.is_collection_master')}>
-              <Star
-                fontSize="small"
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  left: 8,
-                  color: 'warning.main',
-                }}
-              />
-            </Tooltip>
-          )}
-          {/* Stacked items count badge */}
-          {hasStackedItems && (
-            <Tooltip
-              title={`${translate('resources.publications.messages.collection_items')}: ${toArabicNumerals(relatedItems.length + 1)}`}
+          {/* Price tag with master indicator and group count badge */}
+          <Tooltip
+            title={
+              hasStackedItems
+                ? `${translate('resources.publications.messages.collection_items')}: ${toArabicNumerals(relatedItems.length + 1)}`
+                : ''
+            }
+          >
+            <Badge
+              badgeContent={hasStackedItems ? toArabicNumerals(relatedItems.length + 1) : 0}
+              color="secondary"
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                '& .MuiBadge-badge': {
+                  fontSize: '0.7rem',
+                  fontWeight: 'bold',
+                  minWidth: 20,
+                  height: 20,
+                },
+              }}
             >
-              <Badge
-                badgeContent={toArabicNumerals(relatedItems.length + 1)}
-                color="secondary"
+              <Box
                 sx={{
-                  position: 'absolute',
-                  top: isMaster ? 32 : 8,
-                  left: 8,
-                  '& .MuiBadge-badge': {
-                    fontSize: '0.65rem',
-                    minWidth: 18,
-                    height: 18,
-                  },
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
                 }}
-              />
-            </Tooltip>
-          )}
-          <StyledTag>
-            <span>{toArabicNumerals(prices.price.twoFacesPrice)}</span>
-            <span>{translate('custom.currency.short')}</span>
-          </StyledTag>
+              >
+                {/* Master indicator */}
+                {isMaster && (
+                  <Tooltip title={translate('resources.publications.messages.is_collection_master')}>
+                    <Star fontSize="small" sx={{ color: 'warning.main' }} />
+                  </Tooltip>
+                )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontFamily: 'inherit',
+                    lineHeight: 1,
+                  }}
+                >
+                  {toArabicNumerals(groupPrice)} {translate('custom.currency.short')}
+                </Typography>
+              </Box>
+            </Badge>
+          </Tooltip>
           <CoverImage src={cover_url || DEFAULT_COVER_URL} alt={title} />
           <Typography variant="body2" noWrap>
             {`${subject.name}${additional_data ? ` (${additional_data})` : ''}`}
