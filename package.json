@@ -20,6 +20,8 @@
     "@mui/x-date-pickers": "^8.12.0",
     "@reduxjs/toolkit": "^2.9.0",
     "dayjs": "^1.11.18",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
     "ra-supabase": "^3.4.0",
     "react": "^19.0.0",
     "react-admin": "^5.11.0",

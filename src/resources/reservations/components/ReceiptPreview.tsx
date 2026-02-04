@@ -1,5 +1,5 @@
 import { Box, Typography, Button } from '@mui/material';
-import { Print, ArrowBack } from '@mui/icons-material';
+import { Print, ArrowBack, Download, PictureAsPdf } from '@mui/icons-material';
 import { useTranslate, useStore } from 'react-admin';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -52,6 +52,103 @@ export const ReceiptPreview = ({
     contentRef: receiptRef,
     documentTitle: `receipt-${reservationId || 'new'}`,
   });
+
+  // Download receipt as image
+  const handleDownloadImage = async () => {
+    if (!receiptRef.current) return;
+
+    try {
+      // Dynamically import html2canvas
+      const html2canvas = (await import('html2canvas')).default;
+
+      // Get only the first receipt (not the duplicate)
+      const firstReceipt = receiptRef.current.querySelector('[dir="rtl"]') as HTMLElement;
+      if (!firstReceipt) return;
+
+      const canvas = await html2canvas(firstReceipt, {
+        scale: 2, // Higher quality
+        backgroundColor: '#ffffff',
+        useCORS: true,
+      });
+
+      // Create download link
+      const link = document.createElement('a');
+      const phoneForFilename = clientPhone ? `-${clientPhone.replace(/\s/g, '')}` : '';
+      link.download = `receipt-${clientName}${phoneForFilename}-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Error generating image:', error);
+    }
+  };
+
+  // Download receipt as PDF
+  const handleDownloadPdf = async () => {
+    if (!receiptRef.current) return;
+
+    try {
+      // Dynamically import html2canvas and jspdf
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+
+      // Get all receipts (both copies)
+      const receipts = receiptRef.current.querySelectorAll(
+        '[dir="rtl"]'
+      ) as NodeListOf<HTMLElement>;
+      if (receipts.length === 0) return;
+
+      // Capture first receipt to determine dimensions
+      const firstCanvas = await html2canvas(receipts[0], {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+      });
+
+      // Calculate PDF dimensions (72mm width for thermal receipt)
+      const imgWidth = 72; // mm
+      const imgHeight = (firstCanvas.height * imgWidth) / firstCanvas.width;
+
+      // Create PDF with custom size
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [imgWidth, imgHeight],
+      });
+
+      // Add first page (customer copy)
+      const firstImgData = firstCanvas.toDataURL('image/png');
+      pdf.addImage(firstImgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+      // Add second page (store copy) if exists
+      if (receipts.length > 1) {
+        // Make the second receipt visible temporarily
+        const secondReceiptContainer = receipts[1].parentElement;
+        const originalDisplay = secondReceiptContainer?.style.display;
+        if (secondReceiptContainer) secondReceiptContainer.style.display = 'block';
+
+        const secondCanvas = await html2canvas(receipts[1], {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          useCORS: true,
+        });
+
+        // Restore original display
+        if (secondReceiptContainer) secondReceiptContainer.style.display = originalDisplay || '';
+
+        pdf.addPage([imgWidth, imgHeight]);
+        const secondImgData = secondCanvas.toDataURL('image/png');
+        pdf.addImage(secondImgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+
+      // Save PDF with phone in filename
+      const phoneForFilename = clientPhone ? `-${clientPhone.replace(/\s/g, '')}` : '';
+      pdf.save(
+        `receipt-${clientName}${phoneForFilename}-${new Date().toISOString().split('T')[0]}.pdf`
+      );
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
 
   // Format current date for display
   const formatCurrentDate = () => {
@@ -316,13 +413,12 @@ export const ReceiptPreview = ({
       )}
 
       {/* ═══════════ Store Header ═══════════ */}
-      <Box sx={{ textAlign: 'center', mb: 1.5 }}>
+      <Box sx={{ textAlign: 'center', mb: 1 }}>
         <Typography
           sx={{
             ...textStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: 'bold',
-            letterSpacing: '1px',
           }}
         >
           {translate('custom.messages.store_name')}
@@ -504,7 +600,17 @@ export const ReceiptPreview = ({
 
         {/* Branch Phone Numbers */}
         {setting?.branch_phone_numbers && setting.branch_phone_numbers.length > 0 && (
-          <Box sx={{ mt: 1, pt: 1, borderTop: '1px dotted #ccc' }}>
+          <Box
+            sx={{
+              mt: 1,
+              pt: 1,
+              borderTop: '1px dotted #ccc',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 1.5,
+              flexWrap: 'wrap',
+            }}
+          >
             {setting.branch_phone_numbers.map((phone, idx) => (
               <Typography
                 key={idx}
@@ -542,6 +648,12 @@ export const ReceiptPreview = ({
         </Button>
         <Button variant="contained" startIcon={<Print />} onClick={() => handlePrint()}>
           {translate('ra.action.print')}
+        </Button>
+        <Button variant="outlined" startIcon={<Download />} onClick={handleDownloadImage}>
+          تحميل صورة
+        </Button>
+        <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={handleDownloadPdf}>
+          تحميل PDF
         </Button>
       </Box>
 
