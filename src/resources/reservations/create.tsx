@@ -1,10 +1,10 @@
 import { useState, useRef, useMemo } from 'react';
-import { Modal } from '@mui/material';
-import { Create, Edit, SimpleForm, useStore, useGetOne } from 'react-admin';
+import { Box, Modal } from '@mui/material';
+import { Create, Edit, SimpleForm, useStore, useNotify } from 'react-admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
-import { ModalWrapper, ModalContent } from 'components/UI';
+import { ModalWrapper } from 'components/UI';
 import { supabase } from 'lib';
 import {
   clearItems,
@@ -19,13 +19,6 @@ import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
 
 import { ReservationFormContent, ReceiptPreview } from './components';
-
-// State for created reservation data
-interface CreatedReservation {
-  id: string;
-  clientId: string;
-  paidAmount: number;
-}
 
 export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
@@ -80,14 +73,15 @@ export const ReservationCreate = () => {
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
   const [instantDelivery, setInstantDelivery] = useState(false);
-  const [createdReservation, setCreatedReservation] = useState<CreatedReservation | null>(null);
+  const notify = useNotify();
 
-  // Fetch client data for receipt
-  const { data: clientData } = useGetOne(
-    'users',
-    { id: createdReservation?.clientId || '' },
-    { enabled: !!createdReservation?.clientId }
-  );
+  // State for receipt generation after successful creation
+  const [receiptData, setReceiptData] = useState<{
+    clientName: string;
+    clientPhone?: string;
+    reservationId: string;
+    paidAmount: number;
+  } | null>(null);
 
   const handleInstantDelivery = () => {
     setDeadLine(dayjs());
@@ -153,122 +147,143 @@ export const ReservationCreate = () => {
     return data;
   };
 
-  // Handle closing after receipt is shown
-  const handleCloseReceipt = () => {
-    setCreatedReservation(null);
+  // Handle success - show receipt for auto-download
+  const handleCreateSuccess = async (data: Tables<'reservations'>) => {
+    try {
+      // Fetch client data for the receipt
+      const { data: client } = await supabase
+        .from('users')
+        .select('full_name, phone_number')
+        .eq('id', data.client_id)
+        .single();
+
+      // Set receipt data to trigger hidden receipt render + auto-download
+      setReceiptData({
+        clientName: client?.full_name || 'العميل',
+        clientPhone: client?.phone_number || undefined,
+        reservationId: data.id,
+        paidAmount: data.paid_amount,
+      });
+
+      notify('تم إنشاء الحجز بنجاح', { type: 'success' });
+    } catch (error) {
+      console.error('Error fetching client:', error);
+      notify('تم إنشاء الحجز بنجاح', { type: 'success' });
+      // Close even if client fetch failed
+      dispatch(clearItems());
+      dispatch(setEditingReservation(null));
+    }
+  };
+
+  // Called after PDF is auto-downloaded
+  const handleReceiptClose = () => {
+    setReceiptData(null);
     dispatch(clearItems());
     dispatch(setEditingReservation(null));
   };
 
-  // If reservation was just created, show the receipt
-  if (createdReservation && !editingReservation) {
-    return (
+  return (
+    <>
       <Modal
         open={isReserving === 'confirming'}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <ModalWrapper>
-          <ModalContent sx={{ gap: 1.5 }}>
-            <ReceiptPreview
-              clientName={clientData?.full_name || 'العميل'}
-              clientPhone={clientData?.phone_number}
-              groupedItems={groupedItems}
-              totalPrice={total_price}
-              paidAmount={createdReservation.paidAmount}
-              deadLine={deadLine}
-              reservationId={createdReservation.id}
-              onBack={() => {}} // Not used when onClose is provided
-              autoDownloadPdf={true}
-              onClose={handleCloseReceipt}
-            />
-          </ModalContent>
+          {editingReservation ? (
+            <Edit
+              resource="reservations"
+              id={editingReservation.reservation_id}
+              transform={confirmReserve}
+              mutationOptions={{
+                onSuccess: () => {
+                  dispatch(clearItems());
+                  dispatch(setEditingReservation(null));
+                },
+              }}
+              mutationMode="pessimistic"
+            >
+              <SimpleForm
+                toolbar={false}
+                defaultValues={{
+                  client_id: editingReservation.client_id,
+                  paid_amount: editingReservation.paid_amount,
+                }}
+                sx={(theme) => ({
+                  backgroundColor: theme.palette.grey[50],
+                  border: `2px solid ${theme.palette.info.dark}`,
+                  borderRadius: 1,
+                  width: '100%',
+                })}
+              >
+                <ReservationFormContent
+                  reserved_items={reserved_items}
+                  groupedItems={groupedItems}
+                  total_price={total_price}
+                  deadLine={deadLine}
+                  setDeadLine={setDeadLine}
+                  onInstantDelivery={handleInstantDelivery}
+                  submitButtonRef={submitButtonRef}
+                />
+              </SimpleForm>
+            </Edit>
+          ) : (
+            <Create
+              transform={confirmReserve}
+              resource="reservations"
+              mutationOptions={{
+                onSuccess: handleCreateSuccess,
+              }}
+            >
+              <SimpleForm
+                toolbar={false}
+                sx={(theme) => ({
+                  backgroundColor: theme.palette.grey[50],
+                  border: `2px solid ${theme.palette.info.dark}`,
+                  borderRadius: 1,
+                  width: '100%',
+                })}
+              >
+                <ReservationFormContent
+                  reserved_items={reserved_items}
+                  groupedItems={groupedItems}
+                  total_price={total_price}
+                  deadLine={deadLine}
+                  setDeadLine={setDeadLine}
+                  onInstantDelivery={handleInstantDelivery}
+                  submitButtonRef={submitButtonRef}
+                />
+              </SimpleForm>
+            </Create>
+          )}
         </ModalWrapper>
       </Modal>
-    );
-  }
 
-  return (
-    <Modal
-      open={isReserving === 'confirming'}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <ModalWrapper>
-        {editingReservation ? (
-          <Edit
-            resource="reservations"
-            id={editingReservation.reservation_id}
-            transform={confirmReserve}
-            mutationOptions={{
-              onSuccess: () => {
-                dispatch(clearItems());
-                dispatch(setEditingReservation(null));
-              },
-            }}
-            mutationMode="pessimistic"
-          >
-            <SimpleForm
-              toolbar={false}
-              defaultValues={{
-                client_id: editingReservation.client_id,
-                paid_amount: editingReservation.paid_amount,
-              }}
-              sx={(theme) => ({
-                backgroundColor: theme.palette.grey[50],
-                border: `2px solid ${theme.palette.info.dark}`,
-                borderRadius: 1,
-                width: '100%',
-              })}
-            >
-              <ReservationFormContent
-                reserved_items={reserved_items}
-                groupedItems={groupedItems}
-                total_price={total_price}
-                deadLine={deadLine}
-                setDeadLine={setDeadLine}
-                onInstantDelivery={handleInstantDelivery}
-                submitButtonRef={submitButtonRef}
-              />
-            </SimpleForm>
-          </Edit>
-        ) : (
-          <Create
-            transform={confirmReserve}
-            resource="reservations"
-            mutationOptions={{
-              onSuccess: (data) => {
-                // Store the created reservation info to show receipt
-                setCreatedReservation({
-                  id: data.id,
-                  clientId: data.client_id,
-                  paidAmount: data.paid_amount,
-                });
-              },
-            }}
-          >
-            <SimpleForm
-              toolbar={false}
-              sx={(theme) => ({
-                backgroundColor: theme.palette.grey[50],
-                border: `2px solid ${theme.palette.info.dark}`,
-                borderRadius: 1,
-                width: '100%',
-              })}
-            >
-              <ReservationFormContent
-                reserved_items={reserved_items}
-                groupedItems={groupedItems}
-                total_price={total_price}
-                deadLine={deadLine}
-                setDeadLine={setDeadLine}
-                onInstantDelivery={handleInstantDelivery}
-                submitButtonRef={submitButtonRef}
-              />
-            </SimpleForm>
-          </Create>
-        )}
-      </ModalWrapper>
-    </Modal>
+      {/* Hidden receipt for auto-download after creation */}
+      {receiptData && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            width: '400px',
+            zIndex: -1,
+          }}
+        >
+          <ReceiptPreview
+            clientName={receiptData.clientName}
+            clientPhone={receiptData.clientPhone}
+            groupedItems={groupedItems}
+            totalPrice={total_price}
+            paidAmount={receiptData.paidAmount}
+            deadLine={deadLine}
+            reservationId={receiptData.reservationId}
+            onBack={() => {}}
+            autoDownloadPdf
+            onClose={handleReceiptClose}
+          />
+        </Box>
+      )}
+    </>
   );
 };
