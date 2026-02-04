@@ -7,16 +7,103 @@ import { TablesUpdate } from 'types';
  */
 
 /**
+ * Set a publication as the collection master for its related group.
+ * Sets is_collection_master=true on the target, false on all related items.
+ *
+ * @param publicationId - The ID of the publication to set as master
+ * @returns Promise resolving when all updates complete
+ */
+export const setCollectionMaster = async (
+  publicationId: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    // Fetch the publication and its related items
+    const { data: publication, error: fetchError } = await supabase
+      .from('publications')
+      .select('id, related_publications')
+      .eq('id', publicationId)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!publication) throw new Error('Publication not found');
+
+    const relatedIds = (publication.related_publications as string[]) || [];
+
+    // Set the target publication as master
+    const { error: masterError } = await supabase
+      .from('publications')
+      .update({ is_collection_master: true } as TablesUpdate<'publications'>)
+      .eq('id', publicationId);
+
+    if (masterError) throw masterError;
+
+    // Set all related publications as non-masters
+    if (relatedIds.length > 0) {
+      const { error: relatedError } = await supabase
+        .from('publications')
+        .update({ is_collection_master: false } as TablesUpdate<'publications'>)
+        .in('id', relatedIds);
+
+      if (relatedError) throw relatedError;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error setting collection master:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'فشل تعيين المنشور الرئيسي',
+    };
+  }
+};
+
+/**
+ * Get the master publication of a group.
+ *
+ * @param publicationIds - Array of publication IDs in the group
+ * @returns The master publication ID or null if none exists
+ */
+export const getMasterOfGroup = async (
+  publicationIds: string[]
+): Promise<{ masterId: string | null; error?: string }> => {
+  try {
+    if (publicationIds.length === 0) {
+      return { masterId: null };
+    }
+
+    const { data: master, error: fetchError } = await supabase
+      .from('publications')
+      .select('id')
+      .in('id', publicationIds)
+      .eq('is_collection_master', true)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+
+    return { masterId: master?.id || null };
+  } catch (error) {
+    console.error('Error getting group master:', error);
+    return {
+      masterId: null,
+      error: error instanceof Error ? error.message : 'فشل جلب المنشور الرئيسي',
+    };
+  }
+};
+
+/**
  * Add bidirectional links between a publication and its related publications.
  * Updates both the source publication and all target publications.
+ * Auto-sets the parent (first ID in relatedIds) as master if no master exists in the group.
  *
  * @param publicationId - The ID of the publication being edited
  * @param relatedIds - Array of publication IDs to link to
+ * @param parentId - Optional parent publication ID to auto-set as master
  * @returns Promise resolving when all updates complete
  */
 export const syncAddRelated = async (
   publicationId: string,
-  relatedIds: string[]
+  relatedIds: string[],
+  parentId?: string
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     if (relatedIds.length === 0) {
@@ -27,11 +114,14 @@ export const syncAddRelated = async (
     const allIds = [publicationId, ...relatedIds];
     const { data: publications, error: fetchError } = await supabase
       .from('publications')
-      .select('id, related_publications')
+      .select('id, related_publications, is_collection_master')
       .in('id', allIds);
 
     if (fetchError) throw fetchError;
     if (!publications) throw new Error('Failed to fetch publications');
+
+    // Check if any publication in the group is already a master
+    const hasMaster = publications.some((pub) => pub.is_collection_master === true);
 
     // Build update map
     const updates: { id: string; related_publications: string[] }[] = [];
@@ -79,6 +169,15 @@ export const syncAddRelated = async (
         .eq('id', update.id);
 
       if (updateError) throw updateError;
+    }
+
+    // Auto-set parent as master if no master exists in the group
+    if (!hasMaster && parentId) {
+      const masterResult = await setCollectionMaster(parentId);
+      if (!masterResult.success) {
+        console.warn('Failed to auto-set master:', masterResult.error);
+        // Don't fail the whole operation, just log the warning
+      }
     }
 
     return { success: true };

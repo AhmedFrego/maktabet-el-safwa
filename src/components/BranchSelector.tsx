@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useStore, useGetList, useNotify, useTranslate, useGetOne } from 'react-admin';
+import { useStore, useGetList, useNotify, useTranslate } from 'react-admin';
 import { Dialog, DialogTitle, Box, Typography, Avatar } from '@mui/material';
 
 import { Tables } from 'types';

@@ -1,4 +1,4 @@
-import { ExpandMore } from '@mui/icons-material';
+import { ExpandMore, Star } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -7,6 +7,7 @@ import {
   styled,
   TextField,
   Typography,
+  Chip,
 } from '@mui/material';
 import { useState } from 'react';
 import { AutocompleteInput, BooleanInput, useGetList, useTranslate } from 'react-admin';
@@ -17,7 +18,13 @@ import { modifyItem, ReservationRecord, useAppDispatch } from 'store';
 import { Tables } from 'types';
 import { toArabicNumerals } from 'utils';
 
-export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
+interface ReservedItemProps {
+  item: ReservationRecord;
+  isGroupMember?: boolean;
+  isMaster?: boolean;
+}
+
+export const ReservedItem = ({ item, isGroupMember = false, isMaster = false }: ReservedItemProps) => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
   const { calcPrice } = useCalcPrice();
@@ -31,20 +38,42 @@ export const ReservedItem = ({ item }: { item: ReservationRecord }) => {
 
   const isManualPrice = item.manualPrice != null;
 
+  // For group members, show additional_data as the main display, otherwise show full title
+  const displayTitle = isGroupMember && item.additional_data
+    ? item.additional_data
+    : item.title;
+
   return (
-    <StyledReservedItem expanded={expanded} onChange={(_, next) => setExpanded(next)}>
+    <StyledReservedItem
+      expanded={expanded}
+      onChange={(_, next) => setExpanded(next)}
+      sx={isMaster ? { '& .MuiAccordionSummary-root': { backgroundColor: 'warning.light' } } : {}}
+    >
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 3,
+            gap: 2,
             width: '100%',
           }}
         >
-          <Typography>{`${toArabicNumerals(item.quantity)} * ${toArabicNumerals(item.title)}`}</Typography>
-          <Typography color="textSecondary">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 0 }}>
+            {isMaster && <Star fontSize="small" sx={{ color: 'warning.main', flexShrink: 0 }} />}
+            {isGroupMember && item.additional_data && (
+              <Chip
+                label={item.additional_data}
+                size="small"
+                color={isMaster ? 'warning' : 'default'}
+                sx={{ fontFamily: 'inherit', flexShrink: 0 }}
+              />
+            )}
+            <Typography noWrap sx={{ flex: 1 }}>
+              {`${toArabicNumerals(item.quantity)} × ${isGroupMember && item.additional_data ? '' : toArabicNumerals(displayTitle)}`}
+            </Typography>
+          </Box>
+          <Typography color="textSecondary" sx={{ flexShrink: 0 }}>
             {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
           </Typography>
         </Box>

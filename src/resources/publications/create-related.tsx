@@ -139,7 +139,8 @@ export const CreateRelatedPublication = () => {
           {
             onSuccess: async (newPublication) => {
               // Use syncAddRelated to update ALL existing group members with the new publication
-              const syncResult = await syncAddRelated(newPublication.id, allGroupIds);
+              // Pass parentId to auto-set parent as master if no master exists in group
+              const syncResult = await syncAddRelated(newPublication.id, allGroupIds, publicationData.id);
 
               if (!syncResult.success) {
                 notify(translate('resources.publications.messages.update_original_error'), {

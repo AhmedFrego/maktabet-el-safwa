@@ -7,7 +7,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import { RefObject } from 'react';
-import { GroupWork } from '@mui/icons-material';
+import { Star } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -63,9 +63,41 @@ export const ReservationFormContent = ({
       const individualSum = group.items.reduce((sum, item) => sum + item.totalPrice, 0);
       const savings = individualSum - group.groupTotal;
 
+      // Find the master item in the group (if any)
+      const masterItem = group.items.find((item) => item.is_collection_master === true);
+      const nonMasterItems = group.items.filter((item) => item.is_collection_master !== true);
+
+      // Sort items: master first, then by additional_data
+      const sortedItems = masterItem
+        ? [masterItem, ...nonMasterItems]
+        : group.items;
+
       return (
         <Box key={group.groupId}>
-          {isGrouped && (
+          {isGrouped && masterItem && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                color: 'warning.main',
+                mb: 0.5,
+                backgroundColor: 'warning.light',
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+              }}
+            >
+              <Star fontSize="small" />
+              <Typography variant="body2" sx={{ fontFamily: 'inherit', fontWeight: 'bold' }}>
+                {masterItem.title}
+              </Typography>
+              <Typography variant="caption" sx={{ mr: 'auto' }}>
+                ({toArabicNumerals(group.items.length)} {translate('custom.labels.item')})
+              </Typography>
+            </Box>
+          )}
+          {isGrouped && !masterItem && (
             <Box
               sx={{
                 display: 'flex',
@@ -75,22 +107,26 @@ export const ReservationFormContent = ({
                 mb: 0.5,
               }}
             >
-              <GroupWork fontSize="small" />
               <Typography variant="caption" color="secondary">
-                مجموعة مرتبطة ({toArabicNumerals(group.items.length)} عناصر)
+                {translate('resources.publications.messages.collection_items')}: {toArabicNumerals(group.items.length)}
               </Typography>
             </Box>
           )}
           <Box
             sx={{
               borderRight: isGrouped ? '3px solid' : 'none',
-              borderColor: 'secondary.main',
+              borderColor: masterItem ? 'warning.main' : 'secondary.main',
               pr: isGrouped ? 1.5 : 0,
               mb: 1,
             }}
           >
-            {group.items.map((item) => (
-              <ReservedItem item={item} key={item.id} />
+            {sortedItems.map((item) => (
+              <ReservedItem
+                item={item}
+                key={item.id}
+                isGroupMember={isGrouped}
+                isMaster={item.is_collection_master === true}
+              />
             ))}
             {isGrouped && (
               <Box
@@ -98,8 +134,8 @@ export const ReservationFormContent = ({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: 'secondary.light',
-                  color: 'secondary.contrastText',
+                  backgroundColor: masterItem ? 'warning.light' : 'secondary.light',
+                  color: masterItem ? 'warning.contrastText' : 'secondary.contrastText',
                   px: 1.5,
                   py: 0.5,
                   borderRadius: 1,
@@ -107,12 +143,12 @@ export const ReservationFormContent = ({
                 }}
               >
                 <Typography variant="caption">
-                  إجمالي المجموعة: {toArabicNumerals(group.groupTotal)}{' '}
+                  {translate('resources.publications.messages.group_total')}: {toArabicNumerals(group.groupTotal)}{' '}
                   {translate('custom.currency.short')}
                 </Typography>
                 {savings > 0 && (
                   <Typography variant="caption" sx={{ color: 'success.main' }}>
-                    (وفرت {toArabicNumerals(savings)} {translate('custom.currency.short')})
+                    ({translate('resources.publications.messages.saved')} {toArabicNumerals(savings)} {translate('custom.currency.short')})
                   </Typography>
                 )}
               </Box>

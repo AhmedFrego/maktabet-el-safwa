@@ -54,6 +54,7 @@ export type Database = {
           created_by: string;
           do_round: boolean | null;
           id: string;
+          is_collection_master: boolean | null;
           pages: number;
           paper_type_id: string;
           publication_type: Database['public']['Enums']['publications_types'] | null;
@@ -76,6 +77,7 @@ export type Database = {
           created_by: string;
           do_round?: boolean | null;
           id?: string;
+          is_collection_master?: boolean | null;
           pages: number;
           paper_type_id: string;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
@@ -98,6 +100,7 @@ export type Database = {
           created_by?: string;
           do_round?: boolean | null;
           id?: string;
+          is_collection_master?: boolean | null;
           pages?: number;
           paper_type_id?: string;
           publication_type?: Database['public']['Enums']['publications_types'] | null;
