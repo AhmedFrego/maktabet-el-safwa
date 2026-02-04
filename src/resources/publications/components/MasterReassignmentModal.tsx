@@ -218,7 +218,11 @@ export const MasterReassignmentModal = ({
 
               {selectedAction === 'remove_from_group' && (
                 <Box sx={{ pr: 4, mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mb: 1, display: 'block' }}
+                  >
                     {translate('resources.publications.messages.select_items_to_remove')}
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>

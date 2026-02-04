@@ -68,9 +68,7 @@ export const ReservationFormContent = ({
       const nonMasterItems = group.items.filter((item) => item.is_collection_master !== true);
 
       // Sort items: master first, then by additional_data
-      const sortedItems = masterItem
-        ? [masterItem, ...nonMasterItems]
-        : group.items;
+      const sortedItems = masterItem ? [masterItem, ...nonMasterItems] : group.items;
 
       return (
         <Box key={group.groupId}>
@@ -108,7 +106,8 @@ export const ReservationFormContent = ({
               }}
             >
               <Typography variant="caption" color="secondary">
-                {translate('resources.publications.messages.collection_items')}: {toArabicNumerals(group.items.length)}
+                {translate('resources.publications.messages.collection_items')}:{' '}
+                {toArabicNumerals(group.items.length)}
               </Typography>
             </Box>
           )}
@@ -143,12 +142,13 @@ export const ReservationFormContent = ({
                 }}
               >
                 <Typography variant="caption">
-                  {translate('resources.publications.messages.group_total')}: {toArabicNumerals(group.groupTotal)}{' '}
-                  {translate('custom.currency.short')}
+                  {translate('resources.publications.messages.group_total')}:{' '}
+                  {toArabicNumerals(group.groupTotal)} {translate('custom.currency.short')}
                 </Typography>
                 {savings > 0 && (
                   <Typography variant="caption" sx={{ color: 'success.main' }}>
-                    ({translate('resources.publications.messages.saved')} {toArabicNumerals(savings)} {translate('custom.currency.short')})
+                    ({translate('resources.publications.messages.saved')}{' '}
+                    {toArabicNumerals(savings)} {translate('custom.currency.short')})
                   </Typography>
                 )}
               </Box>

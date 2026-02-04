@@ -57,7 +57,8 @@ const PublicationsContainer = () => {
 
     publications.forEach((pub) => {
       // Only fetch related items for masters or standalone publications
-      const hasRelated = pub.related_publications && (pub.related_publications as string[]).length > 0;
+      const hasRelated =
+        pub.related_publications && (pub.related_publications as string[]).length > 0;
       const isMaster = pub.is_collection_master === true;
 
       if (hasRelated && isMaster) {
@@ -90,7 +91,8 @@ const PublicationsContainer = () => {
     if (!publications) return [];
 
     return publications.filter((pub) => {
-      const hasRelated = pub.related_publications && (pub.related_publications as string[]).length > 0;
+      const hasRelated =
+        pub.related_publications && (pub.related_publications as string[]).length > 0;
 
       // If no related publications, always show
       if (!hasRelated) return true;
@@ -104,9 +106,7 @@ const PublicationsContainer = () => {
       // Check if any publication in this group is a master
       const relatedIds = pub.related_publications as string[];
       const groupHasMaster = publications.some(
-        (p) =>
-          p.is_collection_master === true &&
-          (relatedIds.includes(p.id) || p.id === pub.id)
+        (p) => p.is_collection_master === true && (relatedIds.includes(p.id) || p.id === pub.id)
       );
 
       // If no master in group, show all items individually

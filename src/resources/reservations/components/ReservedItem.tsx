@@ -24,7 +24,11 @@ interface ReservedItemProps {
   isMaster?: boolean;
 }
 
-export const ReservedItem = ({ item, isGroupMember = false, isMaster = false }: ReservedItemProps) => {
+export const ReservedItem = ({
+  item,
+  isGroupMember = false,
+  isMaster = false,
+}: ReservedItemProps) => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
   const { calcPrice } = useCalcPrice();
@@ -39,9 +43,7 @@ export const ReservedItem = ({ item, isGroupMember = false, isMaster = false }: 
   const isManualPrice = item.manualPrice != null;
 
   // For group members, show additional_data as the main display, otherwise show full title
-  const displayTitle = isGroupMember && item.additional_data
-    ? item.additional_data
-    : item.title;
+  const displayTitle = isGroupMember && item.additional_data ? item.additional_data : item.title;
 
   return (
     <StyledReservedItem
