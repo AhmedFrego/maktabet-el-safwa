@@ -1,7 +1,7 @@
 import { Box, Typography, Button } from '@mui/material';
-import { Print, ArrowBack, Download, PictureAsPdf } from '@mui/icons-material';
+import { Print, ArrowBack, Download, PictureAsPdf, Close } from '@mui/icons-material';
 import { useTranslate, useStore } from 'react-admin';
-import { useRef } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
 import { toArabicNumerals } from 'utils';
@@ -24,6 +24,8 @@ interface ReceiptPreviewProps {
   deadLine: PickerValue;
   reservationId?: string;
   onBack: () => void;
+  autoDownloadPdf?: boolean;
+  onClose?: () => void; // Called after auto-download to close the modal
 }
 
 // Shared text styles for receipt
@@ -41,10 +43,13 @@ export const ReceiptPreview = ({
   deadLine,
   reservationId,
   onBack,
+  autoDownloadPdf,
+  onClose,
 }: ReceiptPreviewProps) => {
   const translate = useTranslate();
   const [setting] = useStore<Tables<'settings'>>('settings');
   const receiptRef = useRef<HTMLDivElement>(null);
+  const [pdfDownloaded, setPdfDownloaded] = useState(false);
 
   const remainAmount = totalPrice - paidAmount;
 
@@ -83,8 +88,8 @@ export const ReceiptPreview = ({
   };
 
   // Download receipt as PDF
-  const handleDownloadPdf = async () => {
-    if (!receiptRef.current) return;
+  const handleDownloadPdf = useCallback(async (): Promise<boolean> => {
+    if (!receiptRef.current) return false;
 
     try {
       // Dynamically import html2canvas and jspdf
@@ -95,7 +100,7 @@ export const ReceiptPreview = ({
       const receipts = receiptRef.current.querySelectorAll(
         '[dir="rtl"]'
       ) as NodeListOf<HTMLElement>;
-      if (receipts.length === 0) return;
+      if (receipts.length === 0) return false;
 
       // Capture first receipt to determine dimensions
       const firstCanvas = await html2canvas(receipts[0], {
@@ -145,10 +150,30 @@ export const ReceiptPreview = ({
       pdf.save(
         `receipt-${clientName}${phoneForFilename}-${new Date().toISOString().split('T')[0]}.pdf`
       );
+      return true; // Indicate success
     } catch (error) {
       console.error('Error generating PDF:', error);
+      return false;
     }
-  };
+  }, [clientName, clientPhone]);
+
+  // Auto-download PDF when autoDownloadPdf is true, then auto-close
+  useEffect(() => {
+    if (autoDownloadPdf && !pdfDownloaded && receiptRef.current) {
+      // Small delay to ensure the receipt is rendered
+      const timer = setTimeout(async () => {
+        const success = await handleDownloadPdf();
+        if (success) {
+          setPdfDownloaded(true);
+          // Auto-close after download if onClose is provided
+          if (onClose) {
+            onClose();
+          }
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [autoDownloadPdf, pdfDownloaded, handleDownloadPdf, onClose]);
 
   // Format current date for display
   const formatCurrentDate = () => {
@@ -638,21 +663,30 @@ export const ReceiptPreview = ({
           display: 'flex',
           gap: 2,
           justifyContent: 'center',
+          flexWrap: 'wrap',
           '@media print': {
             display: 'none',
           },
         }}
       >
-        <Button variant="outlined" startIcon={<ArrowBack />} onClick={onBack}>
-          {translate('ra.action.back')}
-        </Button>
+        {onClose ? (
+          // After reservation created - show close button
+          <Button variant="contained" color="error" startIcon={<Close />} onClick={onClose}>
+            إغلاق
+          </Button>
+        ) : (
+          // Preview mode - show back button
+          <Button variant="outlined" startIcon={<ArrowBack />} onClick={onBack}>
+            {translate('ra.action.back')}
+          </Button>
+        )}
         <Button variant="contained" startIcon={<Print />} onClick={() => handlePrint()}>
           {translate('ra.action.print')}
         </Button>
         <Button variant="outlined" startIcon={<Download />} onClick={handleDownloadImage}>
           تحميل صورة
         </Button>
-        <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={handleDownloadPdf}>
+        <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => handleDownloadPdf()}>
           تحميل PDF
         </Button>
       </Box>

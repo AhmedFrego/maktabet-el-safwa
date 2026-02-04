@@ -1,10 +1,10 @@
 import { useState, useRef, useMemo } from 'react';
 import { Modal } from '@mui/material';
-import { Create, Edit, SimpleForm, useStore } from 'react-admin';
+import { Create, Edit, SimpleForm, useStore, useGetOne } from 'react-admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
-import { ModalWrapper } from 'components/UI';
+import { ModalWrapper, ModalContent } from 'components/UI';
 import { supabase } from 'lib';
 import {
   clearItems,
@@ -18,7 +18,14 @@ import { Tables, TablesInsert, TablesUpdate } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
 
-import { ReservationFormContent } from './components';
+import { ReservationFormContent, ReceiptPreview } from './components';
+
+// State for created reservation data
+interface CreatedReservation {
+  id: string;
+  clientId: string;
+  paidAmount: number;
+}
 
 export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
@@ -73,6 +80,14 @@ export const ReservationCreate = () => {
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
   const [instantDelivery, setInstantDelivery] = useState(false);
+  const [createdReservation, setCreatedReservation] = useState<CreatedReservation | null>(null);
+
+  // Fetch client data for receipt
+  const { data: clientData } = useGetOne(
+    'users',
+    { id: createdReservation?.clientId || '' },
+    { enabled: !!createdReservation?.clientId }
+  );
 
   const handleInstantDelivery = () => {
     setDeadLine(dayjs());
@@ -138,6 +153,41 @@ export const ReservationCreate = () => {
     return data;
   };
 
+  // Handle closing after receipt is shown
+  const handleCloseReceipt = () => {
+    setCreatedReservation(null);
+    dispatch(clearItems());
+    dispatch(setEditingReservation(null));
+  };
+
+  // If reservation was just created, show the receipt
+  if (createdReservation && !editingReservation) {
+    return (
+      <Modal
+        open={isReserving === 'confirming'}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <ModalWrapper>
+          <ModalContent sx={{ gap: 1.5 }}>
+            <ReceiptPreview
+              clientName={clientData?.full_name || 'العميل'}
+              clientPhone={clientData?.phone_number}
+              groupedItems={groupedItems}
+              totalPrice={total_price}
+              paidAmount={createdReservation.paidAmount}
+              deadLine={deadLine}
+              reservationId={createdReservation.id}
+              onBack={() => {}} // Not used when onClose is provided
+              autoDownloadPdf={true}
+              onClose={handleCloseReceipt}
+            />
+          </ModalContent>
+        </ModalWrapper>
+      </Modal>
+    );
+  }
+
   return (
     <Modal
       open={isReserving === 'confirming'}
@@ -187,9 +237,13 @@ export const ReservationCreate = () => {
             transform={confirmReserve}
             resource="reservations"
             mutationOptions={{
-              onSuccess: () => {
-                dispatch(clearItems());
-                dispatch(setEditingReservation(null));
+              onSuccess: (data) => {
+                // Store the created reservation info to show receipt
+                setCreatedReservation({
+                  id: data.id,
+                  clientId: data.client_id,
+                  paidAmount: data.paid_amount,
+                });
               },
             }}
           >
