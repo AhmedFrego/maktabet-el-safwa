@@ -1,13 +1,20 @@
-import { Box, Divider, Typography } from '@mui/material';
-import { FormDataConsumer, NumberInput, maxValue, required, useTranslate } from 'react-admin';
-import { useFormContext } from 'react-hook-form';
+import { Box, Divider, Typography, Button } from '@mui/material';
+import {
+  FormDataConsumer,
+  NumberInput,
+  maxValue,
+  required,
+  useTranslate,
+  useGetOne,
+} from 'react-admin';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
-import { RefObject } from 'react';
-import { Star } from '@mui/icons-material';
+import { RefObject, useState } from 'react';
+import { Star, Receipt } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -18,6 +25,7 @@ import { ReservationRecord } from 'store/slices/reserviationSlice';
 import { ReservedItem } from './ReservedItem';
 import { AddCustomPublicationButton } from './AddCustomPublicationButton';
 import { ReservationCTA } from './ReservationCTA';
+import { ReceiptPreview } from './ReceiptPreview';
 
 interface GroupedItems {
   groupId: string;
@@ -50,6 +58,14 @@ export const ReservationFormContent = ({
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
   const { setValue } = useFormContext();
+  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+
+  // Watch form values for receipt preview
+  const clientId = useWatch({ name: 'client_id' });
+  const paidAmount = useWatch({ name: 'paid_amount' });
+
+  // Fetch client data for receipt
+  const { data: clientData } = useGetOne('users', { id: clientId }, { enabled: !!clientId });
 
   const handleInstantDelivery = () => {
     setValue('paid_amount', total_price);
@@ -160,6 +176,23 @@ export const ReservationFormContent = ({
     });
   };
 
+  // Show receipt preview
+  if (showReceiptPreview) {
+    return (
+      <ModalContent sx={{ gap: 1.5 }}>
+        <ReceiptPreview
+          clientName={clientData?.full_name || translate('custom.labels.client')}
+          clientPhone={clientData?.phone_number}
+          groupedItems={groupedItems}
+          totalPrice={total_price}
+          paidAmount={Number(paidAmount) || 0}
+          deadLine={deadLine}
+          onBack={() => setShowReceiptPreview(false)}
+        />
+      </ModalContent>
+    );
+  }
+
   return (
     <ModalContent sx={{ gap: 1.5 }}>
       <ClientInput />
@@ -207,6 +240,16 @@ export const ReservationFormContent = ({
           disablePast
         />
       </LocalizationProvider>
+      {/* Receipt Preview Button */}
+      <Button
+        variant="outlined"
+        startIcon={<Receipt />}
+        onClick={() => setShowReceiptPreview(true)}
+        disabled={reserved_items.length === 0 || !clientId}
+        sx={{ fontFamily: 'inherit' }}
+      >
+        معاينة الإيصال
+      </Button>
       <FormDataConsumer>
         {({ formData }) => (
           <ReservationCTA

@@ -7,3 +7,4 @@ export * from './ReservationFormContent';
 export * from './RelatedSuggestionModal';
 export * from './DirectReservationModal';
 export * from './ReservationEditModal';
+export * from './ReceiptPreview';

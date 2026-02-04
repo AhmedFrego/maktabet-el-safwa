@@ -19,6 +19,7 @@ export const arabicMessages: TranslationMessages = {
       edit: 'تعديل',
       export: 'تصدير',
       list: 'قائمة',
+      print: 'طباعة',
       refresh: 'تحديث',
       remove_filter: 'إزالة هذا الفلتر',
       remove_all_filters: 'إزالة جميع الفلاتر',
@@ -454,6 +455,15 @@ export const arabicMessages: TranslationMessages = {
     },
     messages: {
       instant_delivery_warning: 'تأكد من تسليم جميع العناصر المحجوزة وتحصيل المبلغ الكامل',
+      receipt_preview: 'معاينة الإيصال',
+      delivery_date: 'موعد التسليم',
+      thank_you: 'شكراً لتعاملكم معنا',
+      reservation_id: 'رقم الحجز',
+      store_name: 'مكتبة الصفوة',
+      branch: 'فرع',
+      item_name: 'الصنف',
+      total: 'الإجمالي',
+      note: 'ملاحظة',
     },
   },
 };
