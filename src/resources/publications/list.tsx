@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Button, List, useListContext, useTranslate, useGetMany } from 'react-admin';
-import { useNavigate } from 'react-router';
 import { Box, Typography } from '@mui/material';
 
 import { StyledContainer, ListActions, Loading } from 'components/UI';
@@ -45,9 +44,6 @@ export const PublicationsList = () => {
 
 const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
-  const state = useAppSelector((state) => state.reservation);
-  const isDeletingMode = useAppSelector((state) => state.deletion.isDeletingMode);
-  const navigate = useNavigate();
   const translate = useTranslate();
 
   // Collect all related publication IDs that need to be fetched for stacked display
@@ -150,12 +146,7 @@ const PublicationsContainer = () => {
       ) : (
         filteredPublications &&
         filteredPublications.map((record) => (
-          <PublicationCard
-            key={record.id}
-            record={record}
-            relatedItems={getRelatedItems(record)}
-            onClick={() => !state.isReserving && !isDeletingMode && navigate(`${record.id}/show`)}
-          />
+          <PublicationCard key={record.id} record={record} relatedItems={getRelatedItems(record)} />
         ))
       )}
     </StyledContainer>

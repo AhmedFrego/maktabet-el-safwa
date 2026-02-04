@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
-import { Typography, CardProps, Checkbox, Tooltip, Box, Badge, Popover } from '@mui/material';
+import { useState, useRef } from 'react';
+import { Typography, CardProps, Checkbox, Tooltip, Box, Badge } from '@mui/material';
 import { Remove, Add, DeleteForever, Star } from '@mui/icons-material';
+import { useNavigate } from 'react-router';
 
 import { DEFAULT_COVER_URL } from 'types';
 import {
@@ -21,6 +22,7 @@ import {
   StyledChip,
   StyledReserveQuantity,
   StyledSelector,
+  CollectionModal,
 } from '..';
 import { useCalcPrice } from 'hooks/useCalcPrice';
 import { useTranslate } from 'react-admin';
@@ -34,6 +36,9 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
   const dispatch = useAppDispatch();
   const { calcPrice } = useCalcPrice();
   const translate = useTranslate();
+  const navigate = useNavigate();
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { additional_data, subject, term, cover_url, publisher } = record;
   const prices = calcPrice({ record });
@@ -96,6 +101,46 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
     }
   };
 
+  // Handle double-click to show collection modal
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    // Only show modal for masters with related items, not in reserving/deleting modes
+    if (hasStackedItems && !isReserving && !isDeletingMode) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Cancel any pending single-click navigation
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      setShowCollectionModal(true);
+    }
+  };
+
+  // Handle single click - navigate to show page (with delay for stacked cards)
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate in reserving or deleting modes, or if modal is open
+    if (isReserving || isDeletingMode || showCollectionModal) return;
+
+    // If this card has stacked items, delay navigation to allow double-click detection
+    if (hasStackedItems) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Cancel previous timeout if clicking rapidly
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+
+      clickTimeoutRef.current = setTimeout(() => {
+        clickTimeoutRef.current = null;
+        navigate(`/publications/${record.id}/show`);
+      }, 300); // 300ms delay to detect double-click
+    } else {
+      // For non-stacked cards, navigate immediately
+      navigate(`/publications/${record.id}/show`);
+    }
+  };
+
   // Render stacked background cards for related items
   const renderStackedBackground = () => {
     if (!hasStackedItems) return null;
@@ -133,9 +178,18 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
         mb: hasStackedItems ? 1 : 0,
         mr: hasStackedItems ? 1 : 0,
       }}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
     >
       {renderStackedBackground()}
-      <StyledCard {...props} sx={{ position: 'relative', zIndex: 1, ...props.sx }}>
+      <StyledCard
+        {...props}
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          ...props.sx,
+        }}
+      >
         {isReserving && (
           <StyledSelector>
             <StyledReserveQuantity>
@@ -219,7 +273,9 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
               >
                 {/* Master indicator */}
                 {isMaster && (
-                  <Tooltip title={translate('resources.publications.messages.is_collection_master')}>
+                  <Tooltip
+                    title={translate('resources.publications.messages.is_collection_master')}
+                  >
                     <Star fontSize="small" sx={{ color: 'warning.main' }} />
                   </Tooltip>
                 )}
@@ -246,6 +302,16 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
           </Typography>
         </StyledCardContent>
       </StyledCard>
+
+      {/* Collection Preview Modal */}
+      {hasStackedItems && (
+        <CollectionModal
+          open={showCollectionModal}
+          onClose={() => setShowCollectionModal(false)}
+          masterPublication={record}
+          relatedItems={relatedItems}
+        />
+      )}
     </Box>
   );
 };
