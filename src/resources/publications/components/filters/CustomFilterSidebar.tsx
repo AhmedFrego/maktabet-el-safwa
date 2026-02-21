@@ -49,7 +49,7 @@ export const CustomFilterSidebar = () => {
   if (isLoading || !publications) return null;
 
   return (
-    <Card sx={{ order: -1, minWidth: 200, maxWidth: 250, flexShrink: 0 }}>
+    <Card sx={{ order: -1, minWidth: 200, maxWidth: 230, flexShrink: 0 }}>
       <CardContent sx={{ p: 0 }}>
         {hasActiveFilters && (
           <Box sx={{ p: 1 }}>

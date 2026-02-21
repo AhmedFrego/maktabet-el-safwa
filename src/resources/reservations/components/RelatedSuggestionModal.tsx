@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  ButtonGroup,
   Box,
   Typography,
   CircularProgress,
@@ -87,6 +88,7 @@ export const RelatedSuggestionModal = ({
         price: prices.price.twoFacesPrice,
         cover_type_id: prices.cover?.id,
         cover_type: { name: prices.cover?.name },
+        related_publications: (pub.related_publications as string[] | null) || null,
       })
     );
   };
@@ -95,8 +97,6 @@ export const RelatedSuggestionModal = ({
     setSelectedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(pubId)) {
-        // Don't allow unchecking trigger publication
-        if (pubId === triggerPublication.id) return prev;
         newSet.delete(pubId);
       } else {
         newSet.add(pubId);
@@ -108,6 +108,22 @@ export const RelatedSuggestionModal = ({
   const handleSelectAll = () => {
     const allIds = [triggerPublication.id, ...relatedPublications.map((p) => p.id)];
     setSelectedIds(new Set(allIds));
+  };
+
+  const handleSelectAndAddAll = () => {
+    const allIds = [triggerPublication.id, ...relatedPublications.map((p) => p.id)];
+    setSelectedIds(new Set(allIds));
+
+    const quantity = Math.min(50, Math.max(1, Math.floor(groupQuantity || 1)));
+    const allPublications = [triggerPublication, ...relatedPublications];
+
+    allPublications.forEach((pub) => {
+      for (let i = 0; i < quantity; i += 1) {
+        handleAddSingle(pub);
+      }
+    });
+
+    onClose();
   };
 
   const handleAddSelected = () => {
@@ -138,7 +154,9 @@ export const RelatedSuggestionModal = ({
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <GroupWork color="primary" />
-          <Typography variant="inherit">منشورات ذات صلة</Typography>
+          <Typography variant="inherit" sx={{ fontFamily: 'inherit' }}>
+            {translate('resources.publications.messages.related_publications_modal_title')}
+          </Typography>
         </Box>
       </DialogTitle>
 
@@ -159,11 +177,15 @@ export const RelatedSuggestionModal = ({
                   mb: 1,
                 }}
               >
-                <Typography variant="subtitle2" color="text.secondary">
-                  اختر المنشورات للإضافة:
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ fontFamily: 'inherit' }}
+                >
+                  {translate('resources.publications.messages.select_publications_to_add')}
                 </Typography>
-                <Button size="small" onClick={handleSelectAll}>
-                  تحديد الكل
+                <Button size="small" onClick={handleSelectAll} sx={{ fontFamily: 'inherit' }}>
+                  {translate('ra.action.select_all')}
                 </Button>
               </Box>
 
@@ -189,16 +211,21 @@ export const RelatedSuggestionModal = ({
                       <Checkbox
                         checked={selectedIds.has(triggerPublication.id)}
                         onChange={() => handleTogglePublication(triggerPublication.id)}
-                        disabled
                       />
                     }
                     label={
                       <Box sx={{ width: '100%' }}>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{ fontFamily: 'inherit' }}>
                           {getPublicationTitle(triggerPublication)}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          السعر: {toArabicNumerals(getPublicationPrice(triggerPublication))} ج.م
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontFamily: 'inherit' }}
+                        >
+                          {translate('resources.publications.messages.price_label')}:{' '}
+                          {toArabicNumerals(getPublicationPrice(triggerPublication))}{' '}
+                          {translate('custom.currency.short')}
                         </Typography>
                       </Box>
                     }
@@ -225,9 +252,17 @@ export const RelatedSuggestionModal = ({
                       }
                       label={
                         <Box sx={{ width: '100%' }}>
-                          <Typography variant="body1">{getPublicationTitle(pub)}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            السعر: {toArabicNumerals(getPublicationPrice(pub))} ج.م
+                          <Typography variant="body1" sx={{ fontFamily: 'inherit' }}>
+                            {getPublicationTitle(pub)}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontFamily: 'inherit' }}
+                          >
+                            {translate('resources.publications.messages.price_label')}:{' '}
+                            {toArabicNumerals(getPublicationPrice(pub))}{' '}
+                            {translate('custom.currency.short')}
                           </Typography>
                         </Box>
                       }
@@ -250,34 +285,47 @@ export const RelatedSuggestionModal = ({
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: 2 }}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    سعر المجموعة المحددة:
+                  <Typography variant="subtitle1" fontWeight="bold" sx={{ fontFamily: 'inherit' }}>
+                    {translate('resources.publications.messages.group_price_title')}:
                   </Typography>
                   <TextField
                     size="small"
                     type="number"
-                    label="الكمية"
+                    label={translate('custom.labels.quantity')}
                     value={groupQuantity}
                     onChange={(e) => setGroupQuantity(Number(e.target.value))}
                     inputProps={{ min: 1, max: 50, step: 1 }}
-                    sx={{ width: 120, bgcolor: 'background.paper', borderRadius: 1 }}
+                    sx={{
+                      width: 120,
+                      bgcolor: 'background.paper',
+                      borderRadius: 1,
+                      '& .MuiInputLabel-root, & .MuiInputBase-input': { fontFamily: 'inherit' },
+                    }}
                   />
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>عدد المنشورات:</Typography>
-                  <Typography>{toArabicNumerals(selectedIds.size)}</Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
+                    {translate('resources.publications.messages.publications_count')}:
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
+                    {toArabicNumerals(selectedIds.size)}
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>إجمالي العناصر (مع الكمية):</Typography>
-                  <Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
+                    {translate('resources.publications.messages.total_items_with_quantity')}:
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
                     {toArabicNumerals(
                       selectedIds.size * Math.min(50, Math.max(1, Math.floor(groupQuantity || 1)))
                     )}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>مجموع الأسعار المنفصلة:</Typography>
-                  <Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
+                    {translate('resources.publications.messages.separate_prices_sum')}:
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'inherit' }}>
                     {toArabicNumerals(
                       Math.min(50, Math.max(1, Math.floor(groupQuantity || 1))) *
                         [...selectedIds].reduce((sum, id) => {
@@ -287,12 +335,14 @@ export const RelatedSuggestionModal = ({
                           return sum + (pub ? getPublicationPrice(pub) : 0);
                         }, 0)
                     )}{' '}
-                    ج.م
+                    {translate('custom.currency.short')}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography fontWeight="bold">سعر المجموعة:</Typography>
-                  <Typography fontWeight="bold">
+                  <Typography fontWeight="bold" sx={{ fontFamily: 'inherit' }}>
+                    {translate('resources.publications.messages.group_price_label')}:
+                  </Typography>
+                  <Typography fontWeight="bold" sx={{ fontFamily: 'inherit' }}>
                     {toArabicNumerals(
                       calcGroupPrice(
                         [...selectedIds].map((id) => {
@@ -306,7 +356,7 @@ export const RelatedSuggestionModal = ({
                         })
                       ).groupTotal.twoFacesPrice
                     )}{' '}
-                    ج.م
+                    {translate('custom.currency.short')}
                   </Typography>
                 </Box>
                 {(() => {
@@ -331,9 +381,15 @@ export const RelatedSuggestionModal = ({
                   const selectedSavings = selectedIndividualTotal - selectedGroupTotal;
                   return selectedSavings > 0 ? (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography color="success.dark">التوفير:</Typography>
-                      <Typography color="success.dark" fontWeight="bold">
-                        {toArabicNumerals(selectedSavings)} ج.م
+                      <Typography color="success.dark" sx={{ fontFamily: 'inherit' }}>
+                        {translate('resources.publications.messages.savings_label')}:
+                      </Typography>
+                      <Typography
+                        color="success.dark"
+                        fontWeight="bold"
+                        sx={{ fontFamily: 'inherit' }}
+                      >
+                        {toArabicNumerals(selectedSavings)} {translate('custom.currency.short')}
                       </Typography>
                     </Box>
                   ) : null;
@@ -344,18 +400,26 @@ export const RelatedSuggestionModal = ({
         )}
       </DialogContent>
 
-      <DialogActions sx={{ gap: 1 }}>
-        <Button onClick={onClose}>{translate('ra.action.close')}</Button>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<ShoppingCart />}
-          onClick={handleAddSelected}
-        >
-          {selectedIds.size === 1
-            ? 'إضافة المنشور المحدد'
-            : `إضافة المحددة (${toArabicNumerals(selectedIds.size)})`}
-        </Button>
+      <DialogActions>
+        <ButtonGroup variant="contained">
+          <Button onClick={onClose} color="error" sx={{ fontFamily: 'inherit' }}>
+            {translate('ra.action.close')}
+          </Button>
+          <Button color="success" onClick={handleSelectAndAddAll} sx={{ fontFamily: 'inherit' }}>
+            {translate('resources.publications.messages.select_and_add_all')}
+          </Button>
+          <Button
+            color="primary"
+            startIcon={<ShoppingCart />}
+            onClick={handleAddSelected}
+            disabled={selectedIds.size === 0}
+            sx={{ fontFamily: 'inherit' }}
+          >
+            {selectedIds.size === 1
+              ? translate('resources.publications.messages.add_selected_single')
+              : `${translate('resources.publications.messages.add_selected_multiple')} (${toArabicNumerals(selectedIds.size)})`}
+          </Button>
+        </ButtonGroup>
       </DialogActions>
     </Dialog>
   );
