@@ -76,6 +76,7 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
       price: prices?.price?.twoFacesPrice,
       cover_type_id: prices?.cover?.id,
       cover_type: { name: prices.cover?.name },
+      related_publications: (record.related_publications as string[]) || null,
     };
 
     // If publication has related items and this is the first time adding it, show suggestion modal
@@ -83,7 +84,7 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
       dispatch(
         setPendingSuggestion({
           triggerPublication: itemData,
-          relatedIds: record.related_publications || [],
+          relatedIds: (record.related_publications as string[]) || [],
         })
       );
       return; // Don't add immediately, let modal handle it
@@ -141,52 +142,18 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
     }
   };
 
-  // Render stacked background cards for related items
-  const renderStackedBackground = () => {
-    if (!hasStackedItems) return null;
-
-    // Show max 2 stacked cards behind
-    const stackCount = Math.min(relatedItems.length, 2);
-
-    return (
-      <>
-        {Array.from({ length: stackCount }).map((_, index) => (
-          <Box
-            key={index}
-            sx={{
-              position: 'absolute',
-              top: (index + 1) * 4,
-              right: (index + 1) * -4,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'background.paper',
-              borderRadius: 2,
-              boxShadow: 1,
-              zIndex: -1 - index,
-              opacity: 0.8 - index * 0.2,
-            }}
-          />
-        ))}
-      </>
-    );
-  };
-
   return (
     <Box
       sx={{
         position: 'relative',
-        mb: hasStackedItems ? 1 : 0,
-        mr: hasStackedItems ? 1 : 0,
       }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      {renderStackedBackground()}
       <StyledCard
         {...props}
         sx={{
           position: 'relative',
-          zIndex: 1,
           ...props.sx,
         }}
       >

@@ -6,9 +6,10 @@ export const StyledContainer = styled(Container)(({ theme }) => ({
   gap: theme.spacing(2),
   padding: theme.spacing(2),
   flexWrap: 'wrap',
-  justifyContent: 'flex-start',
+  justifyContent: 'center',
   borderRadius: theme.shape.borderRadius,
-  maxWidth: 'none',
+  maxWidth: 'none !important',
+  width: '100%',
   '& > *': {
     flex: '0 0 auto',
   },

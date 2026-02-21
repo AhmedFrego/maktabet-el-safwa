@@ -25,6 +25,7 @@ export const PublicationsList = () => {
         aside={<CustomFilterSidebar />}
         queryOptions={{ meta: { columns: publicationsColumns } }}
         sort={{ field: 'subject_id', order: 'ASC' }}
+        sx={{ '& .RaList-content': { maxWidth: 'none', width: '100%' } }}
       >
         <PublicationsContainer />
       </List>
