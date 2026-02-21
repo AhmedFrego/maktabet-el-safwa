@@ -36,6 +36,8 @@ export interface ReservationMustKeys extends PriceCalcFields {
   cover_type_id: string | null | undefined;
   cover_type: { name: string | undefined } | null | undefined;
   related_publications?: string[] | null;
+  is_collection_master?: boolean | null;
+  additional_data?: string | null;
 }
 
 export interface ReservationRecord extends ReservationBase, ReservationMustKeys {}
@@ -129,7 +131,11 @@ export const reservationSlice = createSlice({
     // Set editing reservation context (client_id, paid_amount, reservation_id)
     setEditingReservation(
       state,
-      action: PayloadAction<{ client_id: string; paid_amount: number; reservation_id: string } | null>
+      action: PayloadAction<{
+        client_id: string;
+        paid_amount: number;
+        reservation_id: string;
+      } | null>
     ) {
       state.editingReservation = action.payload;
     },

@@ -1,5 +1,7 @@
-import { Typography, CardProps, Checkbox, Tooltip, Badge } from '@mui/material';
-import { Remove, Add, DeleteForever, GroupWork } from '@mui/icons-material';
+import { useState, useRef } from 'react';
+import { Typography, CardProps, Checkbox, Tooltip, Box, Badge } from '@mui/material';
+import { Remove, Add, DeleteForever, Star } from '@mui/icons-material';
+import { useNavigate } from 'react-router';
 
 import { DEFAULT_COVER_URL } from 'types';
 import {
@@ -20,21 +22,39 @@ import {
   StyledChip,
   StyledReserveQuantity,
   StyledSelector,
-  StyledTag,
+  CollectionModal,
 } from '..';
 import { useCalcPrice } from 'hooks/useCalcPrice';
 import { useTranslate } from 'react-admin';
 
-export const PublicationCard = ({ record, ...props }: { record: Publication } & CardProps) => {
+interface PublicationCardProps extends CardProps {
+  record: Publication;
+  relatedItems?: Publication[];
+}
+
+export const PublicationCard = ({ record, relatedItems = [], ...props }: PublicationCardProps) => {
   const dispatch = useAppDispatch();
   const { calcPrice } = useCalcPrice();
   const translate = useTranslate();
+  const navigate = useNavigate();
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { additional_data, subject, term, cover_url, publisher } = record;
   const prices = calcPrice({ record });
   const academicShortName = translate(
     `custom.labels.academic_years.${record.academic_year}.short_name`
   );
+
+  // Calculate group price (master + all related items)
+  const groupPrice =
+    relatedItems.length > 0
+      ? prices.price.twoFacesPrice +
+        relatedItems.reduce((sum, item) => {
+          const itemPrice = calcPrice({ record: item });
+          return sum + itemPrice.price.twoFacesPrice;
+        }, 0)
+      : prices.price.twoFacesPrice;
 
   const title = `${subject.name} ${additional_data || ''} ${publisher.name} ${academicShortName} ${translate(
     `custom.labels.terms.${term}.name`
@@ -46,7 +66,8 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
 
   const hasRelatedPublications =
     record.related_publications && record.related_publications.length > 0;
-  const relatedCount = record.related_publications?.length || 0;
+  const isMaster = record.is_collection_master === true;
+  const hasStackedItems = relatedItems.length > 0;
 
   const handleAddToCart = () => {
     const itemData = {
@@ -80,86 +101,217 @@ export const PublicationCard = ({ record, ...props }: { record: Publication } & 
     }
   };
 
-  return (
-    <StyledCard {...props}>
-      {isReserving && (
-        <StyledSelector>
-          <StyledReserveQuantity>
-            <Add fontSize="inherit" color="success" onClick={handleAddToCart} />
-            {isReserved && (
-              <>
-                {toArabicNumerals(isReserved?.quantity)}
-                {isReserved.quantity === 1 ? (
-                  <DeleteForever
-                    fontSize="inherit"
-                    color="error"
-                    onClick={() => dispatch(decreaseItemQuantity(record.id))}
-                  />
-                ) : (
-                  <Remove
-                    fontSize="inherit"
-                    onClick={() => dispatch(decreaseItemQuantity(record.id))}
-                  />
-                )}
-              </>
-            )}
-          </StyledReserveQuantity>
-        </StyledSelector>
-      )}
-      {isDeletingMode && (
-        <StyledSelector
-          sx={(theme) => ({
-            backgroundColor: isSelectedForDelete
-              ? theme.palette.error.light
-              : 'rgba(211, 47, 47, 0.08)',
-          })}
-        >
-          <Checkbox
-            checked={isSelectedForDelete}
-            onChange={handleDeleteToggle}
-            sx={(theme) => ({
-              color: theme.palette.error.main,
-              '&.Mui-checked': {
-                color: theme.palette.error.main,
-              },
-            })}
+  // Handle double-click to show collection modal
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    // Only show modal for masters with related items, not in reserving/deleting modes
+    if (hasStackedItems && !isReserving && !isDeletingMode) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Cancel any pending single-click navigation
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      setShowCollectionModal(true);
+    }
+  };
+
+  // Handle single click - navigate to show page (with delay for stacked cards)
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate in reserving or deleting modes, or if modal is open
+    if (isReserving || isDeletingMode || showCollectionModal) return;
+
+    // If this card has stacked items, delay navigation to allow double-click detection
+    if (hasStackedItems) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Cancel previous timeout if clicking rapidly
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+
+      clickTimeoutRef.current = setTimeout(() => {
+        clickTimeoutRef.current = null;
+        navigate(`/publications/${record.id}/show`);
+      }, 300); // 300ms delay to detect double-click
+    } else {
+      // For non-stacked cards, navigate immediately
+      navigate(`/publications/${record.id}/show`);
+    }
+  };
+
+  // Render stacked background cards for related items
+  const renderStackedBackground = () => {
+    if (!hasStackedItems) return null;
+
+    // Show max 2 stacked cards behind
+    const stackCount = Math.min(relatedItems.length, 2);
+
+    return (
+      <>
+        {Array.from({ length: stackCount }).map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              position: 'absolute',
+              top: (index + 1) * 4,
+              right: (index + 1) * -4,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: 1,
+              zIndex: -1 - index,
+              opacity: 0.8 - index * 0.2,
+            }}
           />
-        </StyledSelector>
-      )}
-      <StyledCardContent>
-        <StyledChip label={toArabicNumerals(academicShortName)} />
-        {hasRelatedPublications && (
-          <Tooltip title={`جزء من مجموعة (${toArabicNumerals(relatedCount + 1)} عناصر)`}>
+        ))}
+      </>
+    );
+  };
+
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        mb: hasStackedItems ? 1 : 0,
+        mr: hasStackedItems ? 1 : 0,
+      }}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
+    >
+      {renderStackedBackground()}
+      <StyledCard
+        {...props}
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          ...props.sx,
+        }}
+      >
+        {isReserving && (
+          <StyledSelector>
+            <StyledReserveQuantity>
+              <Add fontSize="inherit" color="success" onClick={handleAddToCart} />
+              {isReserved && (
+                <>
+                  {toArabicNumerals(isReserved?.quantity)}
+                  {isReserved.quantity === 1 ? (
+                    <DeleteForever
+                      fontSize="inherit"
+                      color="error"
+                      onClick={() => dispatch(decreaseItemQuantity(record.id))}
+                    />
+                  ) : (
+                    <Remove
+                      fontSize="inherit"
+                      onClick={() => dispatch(decreaseItemQuantity(record.id))}
+                    />
+                  )}
+                </>
+              )}
+            </StyledReserveQuantity>
+          </StyledSelector>
+        )}
+        {isDeletingMode && (
+          <StyledSelector
+            sx={(theme) => ({
+              backgroundColor: isSelectedForDelete
+                ? theme.palette.error.light
+                : 'rgba(211, 47, 47, 0.08)',
+            })}
+          >
+            <Checkbox
+              checked={isSelectedForDelete}
+              onChange={handleDeleteToggle}
+              sx={(theme) => ({
+                color: theme.palette.error.main,
+                '&.Mui-checked': {
+                  color: theme.palette.error.main,
+                },
+              })}
+            />
+          </StyledSelector>
+        )}
+        <StyledCardContent>
+          <StyledChip label={toArabicNumerals(academicShortName)} />
+          {/* Price tag with master indicator and group count badge */}
+          <Tooltip
+            title={
+              hasStackedItems
+                ? `${translate('resources.publications.messages.collection_items')}: ${toArabicNumerals(relatedItems.length + 1)}`
+                : ''
+            }
+          >
             <Badge
-              badgeContent={toArabicNumerals(relatedCount + 1)}
+              badgeContent={hasStackedItems ? toArabicNumerals(relatedItems.length + 1) : 0}
               color="secondary"
               sx={{
                 position: 'absolute',
                 top: 8,
-                left: 8,
+                right: 8,
                 '& .MuiBadge-badge': {
-                  fontSize: '0.65rem',
-                  minWidth: 18,
-                  height: 18,
+                  fontSize: '0.7rem',
+                  fontWeight: 'bold',
+                  minWidth: 20,
+                  height: 20,
                 },
               }}
             >
-              <GroupWork fontSize="small" color="secondary" />
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                }}
+              >
+                {/* Master indicator */}
+                {isMaster && (
+                  <Tooltip
+                    title={translate('resources.publications.messages.is_collection_master')}
+                  >
+                    <Star fontSize="small" sx={{ color: 'warning.main' }} />
+                  </Tooltip>
+                )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontFamily: 'inherit',
+                    lineHeight: 1,
+                  }}
+                >
+                  {toArabicNumerals(groupPrice)} {translate('custom.currency.short')}
+                </Typography>
+              </Box>
             </Badge>
           </Tooltip>
-        )}
-        <StyledTag>
-          <span>{toArabicNumerals(prices.price.twoFacesPrice)}</span>
-          <span>{translate('custom.currency.short')}</span>
-        </StyledTag>
-        <CoverImage src={cover_url || DEFAULT_COVER_URL} alt={title} />
-        <Typography variant="body2" noWrap>
-          {`${subject.name}${additional_data ? ` (${additional_data})` : ''}`}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" noWrap>
-          {publisher.name}
-        </Typography>
-      </StyledCardContent>
-    </StyledCard>
+          <CoverImage src={cover_url || DEFAULT_COVER_URL} alt={title} />
+          <Typography variant="body2" noWrap>
+            {`${subject.name}${additional_data ? ` (${additional_data})` : ''}`}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {publisher.name}
+          </Typography>
+        </StyledCardContent>
+      </StyledCard>
+
+      {/* Collection Preview Modal */}
+      {hasStackedItems && (
+        <CollectionModal
+          open={showCollectionModal}
+          onClose={() => setShowCollectionModal(false)}
+          masterPublication={record}
+          relatedItems={relatedItems}
+        />
+      )}
+    </Box>
   );
 };

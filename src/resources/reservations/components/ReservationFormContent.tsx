@@ -1,13 +1,20 @@
-import { Box, Divider, Typography } from '@mui/material';
-import { FormDataConsumer, NumberInput, maxValue, required, useTranslate } from 'react-admin';
-import { useFormContext } from 'react-hook-form';
+import { Box, Divider, Typography, Button } from '@mui/material';
+import {
+  FormDataConsumer,
+  NumberInput,
+  maxValue,
+  required,
+  useTranslate,
+  useGetOne,
+} from 'react-admin';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
-import { RefObject } from 'react';
-import { GroupWork } from '@mui/icons-material';
+import { RefObject, useState } from 'react';
+import { Star, Receipt } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -18,6 +25,7 @@ import { ReservationRecord } from 'store/slices/reserviationSlice';
 import { ReservedItem } from './ReservedItem';
 import { AddCustomPublicationButton } from './AddCustomPublicationButton';
 import { ReservationCTA } from './ReservationCTA';
+import { ReceiptPreview } from './ReceiptPreview';
 
 interface GroupedItems {
   groupId: string;
@@ -50,6 +58,14 @@ export const ReservationFormContent = ({
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
   const { setValue } = useFormContext();
+  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+
+  // Watch form values for receipt preview
+  const clientId = useWatch({ name: 'client_id' });
+  const paidAmount = useWatch({ name: 'paid_amount' });
+
+  // Fetch client data for receipt
+  const { data: clientData } = useGetOne('users', { id: clientId }, { enabled: !!clientId });
 
   const handleInstantDelivery = () => {
     setValue('paid_amount', total_price);
@@ -63,9 +79,39 @@ export const ReservationFormContent = ({
       const individualSum = group.items.reduce((sum, item) => sum + item.totalPrice, 0);
       const savings = individualSum - group.groupTotal;
 
+      // Find the master item in the group (if any)
+      const masterItem = group.items.find((item) => item.is_collection_master === true);
+      const nonMasterItems = group.items.filter((item) => item.is_collection_master !== true);
+
+      // Sort items: master first, then by additional_data
+      const sortedItems = masterItem ? [masterItem, ...nonMasterItems] : group.items;
+
       return (
         <Box key={group.groupId}>
-          {isGrouped && (
+          {isGrouped && masterItem && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                color: 'warning.main',
+                mb: 0.5,
+                backgroundColor: 'warning.light',
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+              }}
+            >
+              <Star fontSize="small" />
+              <Typography variant="body2" sx={{ fontFamily: 'inherit', fontWeight: 'bold' }}>
+                {masterItem.title}
+              </Typography>
+              <Typography variant="caption" sx={{ mr: 'auto' }}>
+                ({toArabicNumerals(group.items.length)} {translate('custom.labels.item')})
+              </Typography>
+            </Box>
+          )}
+          {isGrouped && !masterItem && (
             <Box
               sx={{
                 display: 'flex',
@@ -75,22 +121,27 @@ export const ReservationFormContent = ({
                 mb: 0.5,
               }}
             >
-              <GroupWork fontSize="small" />
               <Typography variant="caption" color="secondary">
-                مجموعة مرتبطة ({toArabicNumerals(group.items.length)} عناصر)
+                {translate('resources.publications.messages.collection_items')}:{' '}
+                {toArabicNumerals(group.items.length)}
               </Typography>
             </Box>
           )}
           <Box
             sx={{
               borderRight: isGrouped ? '3px solid' : 'none',
-              borderColor: 'secondary.main',
+              borderColor: masterItem ? 'warning.main' : 'secondary.main',
               pr: isGrouped ? 1.5 : 0,
               mb: 1,
             }}
           >
-            {group.items.map((item) => (
-              <ReservedItem item={item} key={item.id} />
+            {sortedItems.map((item) => (
+              <ReservedItem
+                item={item}
+                key={item.id}
+                isGroupMember={isGrouped}
+                isMaster={item.is_collection_master === true}
+              />
             ))}
             {isGrouped && (
               <Box
@@ -98,8 +149,8 @@ export const ReservationFormContent = ({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: 'secondary.light',
-                  color: 'secondary.contrastText',
+                  backgroundColor: masterItem ? 'warning.light' : 'secondary.light',
+                  color: masterItem ? 'warning.contrastText' : 'secondary.contrastText',
                   px: 1.5,
                   py: 0.5,
                   borderRadius: 1,
@@ -107,12 +158,13 @@ export const ReservationFormContent = ({
                 }}
               >
                 <Typography variant="caption">
-                  إجمالي المجموعة: {toArabicNumerals(group.groupTotal)}{' '}
-                  {translate('custom.currency.short')}
+                  {translate('resources.publications.messages.group_total')}:{' '}
+                  {toArabicNumerals(group.groupTotal)} {translate('custom.currency.short')}
                 </Typography>
                 {savings > 0 && (
                   <Typography variant="caption" sx={{ color: 'success.main' }}>
-                    (وفرت {toArabicNumerals(savings)} {translate('custom.currency.short')})
+                    ({translate('resources.publications.messages.saved')}{' '}
+                    {toArabicNumerals(savings)} {translate('custom.currency.short')})
                   </Typography>
                 )}
               </Box>
@@ -123,6 +175,23 @@ export const ReservationFormContent = ({
       );
     });
   };
+
+  // Show receipt preview
+  if (showReceiptPreview) {
+    return (
+      <ModalContent sx={{ gap: 1.5 }}>
+        <ReceiptPreview
+          clientName={clientData?.full_name || translate('custom.labels.client')}
+          clientPhone={clientData?.phone_number}
+          groupedItems={groupedItems}
+          totalPrice={total_price}
+          paidAmount={Number(paidAmount) || 0}
+          deadLine={deadLine}
+          onBack={() => setShowReceiptPreview(false)}
+        />
+      </ModalContent>
+    );
+  }
 
   return (
     <ModalContent sx={{ gap: 1.5 }}>
@@ -171,6 +240,16 @@ export const ReservationFormContent = ({
           disablePast
         />
       </LocalizationProvider>
+      {/* Receipt Preview Button */}
+      <Button
+        variant="outlined"
+        startIcon={<Receipt />}
+        onClick={() => setShowReceiptPreview(true)}
+        disabled={reserved_items.length === 0 || !clientId}
+        sx={{ fontFamily: 'inherit' }}
+      >
+        معاينة الإيصال
+      </Button>
       <FormDataConsumer>
         {({ formData }) => (
           <ReservationCTA
