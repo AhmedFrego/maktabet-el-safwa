@@ -1,4 +1,9 @@
-import { DailyRevenueChart, OrdersBarChart, PaymentStatusPie, CHART_COLORS } from 'components/charts';
+import {
+  DailyRevenueChart,
+  OrdersBarChart,
+  PaymentStatusPie,
+  CHART_COLORS,
+} from 'components/charts';
 
 interface ChartsSectionProps {
   financialStats: {

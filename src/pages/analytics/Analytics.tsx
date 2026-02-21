@@ -163,12 +163,8 @@ export const Analytics = () => {
                               size="small"
                             />
                           </TableCell>
-                          <TableCell align="center">
-                            {toArabicNumerals(item.orderCount)}
-                          </TableCell>
-                          <TableCell align="center">
-                            {formatCurrency(item.totalRevenue)}
-                          </TableCell>
+                          <TableCell align="center">{toArabicNumerals(item.orderCount)}</TableCell>
+                          <TableCell align="center">{formatCurrency(item.totalRevenue)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -333,9 +329,7 @@ export const Analytics = () => {
                               size="small"
                             />
                           </TableCell>
-                          <TableCell align="center">
-                            {formatCurrency(client.totalSpent)}
-                          </TableCell>
+                          <TableCell align="center">{formatCurrency(client.totalSpent)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
