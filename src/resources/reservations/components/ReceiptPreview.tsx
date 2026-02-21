@@ -22,7 +22,7 @@ interface ReceiptPreviewProps {
   totalPrice: number;
   paidAmount: number;
   deadLine: PickerValue;
-  reservationId?: string;
+  reservationCode?: string;
   onBack: () => void;
   autoDownloadPdf?: boolean;
   autoDownloadImage?: boolean;
@@ -30,10 +30,12 @@ interface ReceiptPreviewProps {
   onClose?: () => void; // Called after auto-download to close the modal
 }
 
-// Shared text styles for receipt
+// Shared text styles for receipt - optimized for thermal printers
 const textStyle = {
   fontFamily: 'Cairo, Tahoma, sans-serif',
-  lineHeight: 1.4,
+  lineHeight: 1.5,
+  color: '#000', // Always black for thermal printer compatibility
+  fontWeight: 500, // Slightly bolder for better visibility
 };
 
 export const ReceiptPreview = ({
@@ -43,7 +45,7 @@ export const ReceiptPreview = ({
   totalPrice,
   paidAmount,
   deadLine,
-  reservationId,
+  reservationCode,
   onBack,
   autoDownloadPdf,
   autoDownloadImage,
@@ -59,7 +61,7 @@ export const ReceiptPreview = ({
 
   const handlePrint = useReactToPrint({
     contentRef: receiptRef,
-    documentTitle: `receipt-${reservationId || 'new'}`,
+    documentTitle: `receipt-${reservationCode || 'new'}`,
   });
 
   // Download receipt as image
@@ -261,7 +263,7 @@ export const ReceiptPreview = ({
             sx={{
               mb: 1.5,
               pb: 1,
-              borderBottom: groupIndex < groupedItems.length - 1 ? '1px dotted #999' : 'none',
+              borderBottom: groupIndex < groupedItems.length - 1 ? '2px dotted #000' : 'none',
             }}
           >
             {/* Collection header */}
@@ -276,10 +278,11 @@ export const ReceiptPreview = ({
               <Typography
                 sx={{
                   ...textStyle,
-                  fontSize: '13px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                   flex: 1,
                   pl: 1,
+                  color: '#000 !important',
                 }}
               >
                 {collectionTitle}
@@ -287,13 +290,14 @@ export const ReceiptPreview = ({
               <Typography
                 sx={{
                   ...textStyle,
-                  fontSize: '13px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                   minWidth: 55,
                   textAlign: 'center',
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: '#e0e0e0',
                   borderRadius: '4px',
                   px: 0.5,
+                  color: '#000 !important',
                 }}
               >
                 {toArabicNumerals(group.groupTotal)}
@@ -301,7 +305,7 @@ export const ReceiptPreview = ({
             </Box>
 
             {/* Children items */}
-            <Box sx={{ borderRight: '2px solid #ccc', pr: 1, mr: 0.5 }}>
+            <Box sx={{ borderRight: '3px solid #000', pr: 1, mr: 0.5 }}>
               {sortedItems.map((item, idx) => {
                 const displayName = item.additional_data || item.title.split(' ')[0];
                 const isLast = idx === sortedItems.length - 1;
@@ -317,9 +321,10 @@ export const ReceiptPreview = ({
                       <Typography
                         sx={{
                           ...textStyle,
-                          fontSize: '11px',
-                          color: '#555',
+                          fontSize: '13px',
+                          color: '#000 !important',
                           flex: 1,
+                          fontWeight: 600,
                         }}
                       >
                         • {displayName}
@@ -327,9 +332,10 @@ export const ReceiptPreview = ({
                       <Typography
                         sx={{
                           ...textStyle,
-                          fontSize: '10px',
-                          color: '#777',
+                          fontSize: '12px',
+                          color: '#000 !important',
                           direction: 'rtl',
+                          fontWeight: 600,
                         }}
                       >
                         {toArabicNumerals(item.quantity)}×{toArabicNumerals(item.price)}
@@ -339,8 +345,8 @@ export const ReceiptPreview = ({
                       <Typography
                         sx={{
                           ...textStyle,
-                          fontSize: '10px',
-                          color: '#888',
+                          fontSize: '12px',
+                          color: '#000 !important',
                           pr: 2,
                           fontStyle: 'italic',
                         }}
@@ -363,7 +369,7 @@ export const ReceiptPreview = ({
             sx={{
               mb: 1.5,
               pb: 1,
-              borderBottom: groupIndex < groupedItems.length - 1 ? '1px dotted #999' : 'none',
+              borderBottom: groupIndex < groupedItems.length - 1 ? '2px dotted #000' : 'none',
             }}
           >
             <Box
@@ -377,7 +383,9 @@ export const ReceiptPreview = ({
                 <Typography
                   sx={{
                     ...textStyle,
-                    fontSize: '12px',
+                    fontSize: '14px',
+                    color: '#000 !important',
+                    fontWeight: 600,
                   }}
                 >
                   {item.title}
@@ -385,8 +393,9 @@ export const ReceiptPreview = ({
                 <Typography
                   sx={{
                     ...textStyle,
-                    fontSize: '10px',
-                    color: '#777',
+                    fontSize: '12px',
+                    color: '#000 !important',
+                    fontWeight: 600,
                   }}
                 >
                   {toArabicNumerals(item.quantity)} × {toArabicNumerals(item.price)}
@@ -395,13 +404,14 @@ export const ReceiptPreview = ({
               <Typography
                 sx={{
                   ...textStyle,
-                  fontSize: '13px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                   minWidth: 55,
                   textAlign: 'center',
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: '#e0e0e0',
                   borderRadius: '4px',
                   px: 0.5,
+                  color: '#000 !important',
                 }}
               >
                 {toArabicNumerals(item.totalPrice)}
@@ -411,8 +421,8 @@ export const ReceiptPreview = ({
               <Typography
                 sx={{
                   ...textStyle,
-                  fontSize: '10px',
-                  color: '#888',
+                  fontSize: '12px',
+                  color: '#000 !important',
                   pr: 1,
                   fontStyle: 'italic',
                 }}
@@ -427,11 +437,18 @@ export const ReceiptPreview = ({
   };
 
   // Receipt content component to avoid duplication
-  const ReceiptContent = ({ copyLabel }: { copyLabel?: string }) => (
+  const ReceiptContent = ({
+    copyLabel,
+    showItems = true,
+  }: {
+    copyLabel?: string;
+    showItems?: boolean;
+  }) => (
     <Box
       dir="rtl"
       sx={{
         backgroundColor: '#fff',
+        color: '#000', // Explicit black text for dark theme compatibility
         p: 2,
         border: '1px solid #ddd',
         borderRadius: 1,
@@ -439,6 +456,10 @@ export const ReceiptPreview = ({
         maxWidth: 300,
         mx: 'auto',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        // Ensure all child text inherits black color
+        '& *': {
+          color: 'inherit',
+        },
         // Print styles
         '@media print': {
           width: '72mm',
@@ -457,9 +478,9 @@ export const ReceiptPreview = ({
         <Typography
           sx={{
             ...textStyle,
-            fontSize: '10px',
+            fontSize: '12px',
             textAlign: 'center',
-            color: '#999',
+            color: '#333 !important',
             mb: 0.5,
             display: 'none',
             '@media print': {
@@ -476,8 +497,9 @@ export const ReceiptPreview = ({
         <Typography
           sx={{
             ...textStyle,
-            fontSize: '16px',
+            fontSize: '18px',
             fontWeight: 'bold',
+            color: '#000 !important',
           }}
         >
           {translate('custom.messages.store_name')}
@@ -485,7 +507,15 @@ export const ReceiptPreview = ({
       </Box>
 
       {/* ═══════════ Separator ═══════════ */}
-      <Box sx={{ textAlign: 'center', my: 1, color: '#999', fontSize: '10px' }}>
+      <Box
+        sx={{
+          textAlign: 'center',
+          my: 1,
+          color: '#000 !important',
+          fontSize: '12px',
+          fontWeight: 'bold',
+        }}
+      >
         ════════════════════════
       </Box>
 
@@ -493,17 +523,20 @@ export const ReceiptPreview = ({
       <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between' }}>
         {/* Client name and phone */}
         <Box>
-          <Typography sx={{ ...textStyle, fontSize: '12px', fontWeight: 'bold' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '14px', fontWeight: 'bold', color: '#000 !important' }}
+          >
             {clientName}
           </Typography>
           {clientPhone && (
             <Typography
               sx={{
                 ...textStyle,
-                fontSize: '11px',
-                color: '#666',
+                fontSize: '13px',
+                color: '#000 !important',
                 direction: 'ltr',
                 textAlign: 'right',
+                fontWeight: 600,
               }}
             >
               📞 {clientPhone}
@@ -512,56 +545,66 @@ export const ReceiptPreview = ({
         </Box>
         {/* Date and time */}
         <Box sx={{ textAlign: 'left' }}>
-          <Typography sx={{ ...textStyle, fontSize: '11px', color: '#666' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '13px', color: '#000 !important', fontWeight: 600 }}
+          >
             {formatCurrentDate()}
           </Typography>
-          <Typography sx={{ ...textStyle, fontSize: '11px', color: '#666' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '13px', color: '#000 !important', fontWeight: 600 }}
+          >
             {formatCurrentTime()}
           </Typography>
         </Box>
       </Box>
 
-      {/* ═══════════ Items Header ═══════════ */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          borderTop: '2px solid #333',
-          borderBottom: '1px solid #333',
-          py: 0.5,
-          mb: 1,
-        }}
-      >
-        <Typography
-          sx={{
-            ...textStyle,
-            fontSize: '12px',
-            fontWeight: 'bold',
-            flex: 1,
-          }}
-        >
-          {translate('custom.messages.item_name')}
-        </Typography>
-        <Typography
-          sx={{
-            ...textStyle,
-            fontSize: '12px',
-            fontWeight: 'bold',
-            minWidth: 55,
-            textAlign: 'center',
-          }}
-        >
-          {translate('custom.messages.total')}
-        </Typography>
-      </Box>
+      {showItems && (
+        <>
+          {/* ═══════════ Items Header ═══════════ */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              borderTop: '3px solid #000',
+              borderBottom: '2px solid #000',
+              py: 0.5,
+              mb: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                ...textStyle,
+                fontSize: '14px',
+                fontWeight: 'bold',
+                flex: 1,
+                color: '#000 !important',
+              }}
+            >
+              {translate('custom.messages.item_name')}
+            </Typography>
+            <Typography
+              sx={{
+                ...textStyle,
+                fontSize: '14px',
+                fontWeight: 'bold',
+                minWidth: 55,
+                textAlign: 'center',
+                color: '#000 !important',
+              }}
+            >
+              {translate('custom.messages.total')}
+            </Typography>
+          </Box>
 
-      {/* ═══════════ Items List ═══════════ */}
-      <Box sx={{ minHeight: 50 }}>{renderReceiptItems()}</Box>
+          {/* ═══════════ Items List ═══════════ */}
+          <Box sx={{ minHeight: 50 }}>{renderReceiptItems()}</Box>
+        </>
+      )}
 
       {/* ═══════════ Summary ═══════════ */}
       <Box
         sx={{
-          borderTop: '2px solid #333',
+          borderTop: '3px solid #000',
           pt: 1,
           mt: 1,
         }}
@@ -574,10 +617,14 @@ export const ReceiptPreview = ({
             mb: 0.5,
           }}
         >
-          <Typography sx={{ ...textStyle, fontSize: '12px' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+          >
             {translate('custom.labels.total_price')}
           </Typography>
-          <Typography sx={{ ...textStyle, fontSize: '13px', fontWeight: 'bold' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '15px', fontWeight: 'bold', color: '#000 !important' }}
+          >
             {toArabicNumerals(totalPrice)} {translate('custom.currency.short')}
           </Typography>
         </Box>
@@ -590,10 +637,14 @@ export const ReceiptPreview = ({
             mb: 0.5,
           }}
         >
-          <Typography sx={{ ...textStyle, fontSize: '12px' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+          >
             {translate('custom.labels.paid_amount')}
           </Typography>
-          <Typography sx={{ ...textStyle, fontSize: '12px' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+          >
             {toArabicNumerals(paidAmount)} {translate('custom.currency.short')}
           </Typography>
         </Box>
@@ -604,17 +655,21 @@ export const ReceiptPreview = ({
             display: 'flex',
             justifyContent: 'space-between',
             backgroundColor: remainAmount > 0 ? '#fff3cd' : '#d4edda',
-            border: remainAmount > 0 ? '1px solid #ffc107' : '1px solid #28a745',
+            border: remainAmount > 0 ? '2px solid #000' : '2px solid #000',
             borderRadius: '4px',
             px: 1,
             py: 0.5,
             mt: 0.5,
           }}
         >
-          <Typography sx={{ ...textStyle, fontSize: '12px', fontWeight: 'bold' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '14px', fontWeight: 'bold', color: '#000 !important' }}
+          >
             {translate('custom.labels.remain_amount')}
           </Typography>
-          <Typography sx={{ ...textStyle, fontSize: '13px', fontWeight: 'bold' }}>
+          <Typography
+            sx={{ ...textStyle, fontSize: '15px', fontWeight: 'bold', color: '#000 !important' }}
+          >
             {remainAmount === 0
               ? translate('custom.labels.no_remain_amount')
               : `${toArabicNumerals(remainAmount)} ${translate('custom.currency.short')}`}
@@ -623,7 +678,15 @@ export const ReceiptPreview = ({
       </Box>
 
       {/* ═══════════ Separator ═══════════ */}
-      <Box sx={{ textAlign: 'center', my: 1.5, color: '#999', fontSize: '10px' }}>
+      <Box
+        sx={{
+          textAlign: 'center',
+          my: 1.5,
+          color: '#000 !important',
+          fontSize: '12px',
+          fontWeight: 'bold',
+        }}
+      >
         ────────────────────────
       </Box>
 
@@ -631,29 +694,44 @@ export const ReceiptPreview = ({
       <Box
         sx={{
           textAlign: 'center',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: '#e0e0e0',
           borderRadius: '4px',
           py: 0.75,
           mb: 1.5,
+          border: '2px solid #000',
         }}
       >
-        <Typography sx={{ ...textStyle, fontSize: '11px', color: '#666' }}>
+        <Typography
+          sx={{ ...textStyle, fontSize: '13px', color: '#000 !important', fontWeight: 600 }}
+        >
           {translate('custom.messages.delivery_date')}
         </Typography>
-        <Typography sx={{ ...textStyle, fontSize: '13px', fontWeight: 'bold' }}>
+        <Typography
+          sx={{ ...textStyle, fontSize: '15px', fontWeight: 'bold', color: '#000 !important' }}
+        >
           {formatDeliveryDate(deadLine)}
         </Typography>
       </Box>
 
       {/* ═══════════ Footer ═══════════ */}
       <Box sx={{ textAlign: 'center' }}>
-        <Typography sx={{ ...textStyle, fontSize: '12px', mb: 0.5 }}>
+        <Typography
+          sx={{
+            ...textStyle,
+            fontSize: '14px',
+            mb: 0.5,
+            color: '#000 !important',
+            fontWeight: 600,
+          }}
+        >
           {translate('custom.messages.thank_you')}
         </Typography>
 
-        {reservationId && (
-          <Typography sx={{ ...textStyle, fontSize: '10px', color: '#888' }}>
-            {translate('custom.messages.reservation_id')}: {reservationId}
+        {reservationCode && (
+          <Typography
+            sx={{ ...textStyle, fontSize: '12px', color: '#000 !important', fontWeight: 600 }}
+          >
+            {translate('custom.messages.reservation_id')}: {reservationCode}
           </Typography>
         )}
 
@@ -663,7 +741,7 @@ export const ReceiptPreview = ({
             sx={{
               mt: 1,
               pt: 1,
-              borderTop: '1px dotted #ccc',
+              borderTop: '2px dotted #000',
               display: 'flex',
               justifyContent: 'center',
               gap: 1.5,
@@ -675,9 +753,10 @@ export const ReceiptPreview = ({
                 key={idx}
                 sx={{
                   ...textStyle,
-                  fontSize: '11px',
-                  color: '#555',
+                  fontSize: '13px',
+                  color: '#000 !important',
                   direction: 'ltr',
+                  fontWeight: 600,
                 }}
               >
                 📱 {phone.phone_number}
@@ -706,7 +785,7 @@ export const ReceiptPreview = ({
         {onClose ? (
           // After reservation created - show close button
           <Button variant="contained" color="error" startIcon={<Close />} onClick={onClose}>
-            إغلاق
+            {translate('ra.action.close')}
           </Button>
         ) : (
           // Preview mode - show back button
@@ -718,10 +797,10 @@ export const ReceiptPreview = ({
           {translate('ra.action.print')}
         </Button>
         <Button variant="outlined" startIcon={<Download />} onClick={handleDownloadImage}>
-          تحميل صورة
+          {translate('custom.messages.download_image')}
         </Button>
         <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => handleDownloadPdf()}>
-          تحميل PDF
+          {translate('custom.messages.download_pdf')}
         </Button>
       </Box>
 
@@ -740,7 +819,10 @@ export const ReceiptPreview = ({
         }}
       >
         {/* First copy - Customer */}
-        <ReceiptContent copyLabel="نسخة العميل" />
+        <ReceiptContent
+          copyLabel={translate('custom.messages.receipt_copy_customer')}
+          showItems={false}
+        />
 
         {/* Page break for print */}
         <Box
@@ -763,7 +845,7 @@ export const ReceiptPreview = ({
             },
           }}
         >
-          <ReceiptContent copyLabel="نسخة المحل" />
+          <ReceiptContent copyLabel={translate('custom.messages.receipt_copy_store')} showItems />
         </Box>
       </Box>
     </Box>

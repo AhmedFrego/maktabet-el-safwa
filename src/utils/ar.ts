@@ -464,6 +464,10 @@ export const arabicMessages: TranslationMessages = {
       item_name: 'الصنف',
       total: 'الإجمالي',
       note: 'ملاحظة',
+      download_image: 'تحميل صورة',
+      download_pdf: 'تحميل PDF',
+      receipt_copy_customer: 'نسخة العميل',
+      receipt_copy_store: 'نسخة المحل',
     },
   },
 };

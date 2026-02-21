@@ -83,7 +83,7 @@ export const ReservationCreate = () => {
   const [receiptData, setReceiptData] = useState<{
     clientName: string;
     clientPhone?: string;
-    reservationId: string;
+    reservationCode: string;
     paidAmount: number;
   } | null>(null);
 
@@ -165,7 +165,7 @@ export const ReservationCreate = () => {
       setReceiptData({
         clientName: client?.full_name || 'العميل',
         clientPhone: client?.phone_number || undefined,
-        reservationId: data.id,
+        reservationCode: data.reservation_code,
         paidAmount: data.paid_amount,
       });
 
@@ -281,7 +281,7 @@ export const ReservationCreate = () => {
             totalPrice={total_price}
             paidAmount={receiptData.paidAmount}
             deadLine={deadLine}
-            reservationId={receiptData.reservationId}
+            reservationCode={receiptData.reservationCode}
             onBack={() => {}}
             autoDownloadPdf={receiptFormat === 'pdf'}
             autoDownloadImage={receiptFormat === 'jpg'}

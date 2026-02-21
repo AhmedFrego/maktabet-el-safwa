@@ -15,9 +15,10 @@ interface ReceiptData {
   totalPrice: number;
   paidAmount: number;
   deadLine: Date;
-  reservationId: string;
+  reservationCode: string;
   storeName: string;
   branchPhoneNumbers?: string[];
+  translate?: (key: string, options?: { _: string }) => string;
 }
 
 // Format date for receipt
@@ -59,10 +60,15 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
     totalPrice,
     paidAmount,
     deadLine,
-    reservationId,
+    reservationCode,
     storeName,
     branchPhoneNumbers,
+    translate,
   } = data;
+
+  const t = (key: string, fallback: string) =>
+    translate ? translate(key, { _: fallback }) : fallback;
+  const currencyShort = t('custom.currency.short', 'ج.م');
 
   const remainAmount = totalPrice - paidAmount;
   const now = new Date();
@@ -110,7 +116,7 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
   };
 
   // Function to render one receipt page
-  const renderReceipt = (copyLabel: string) => {
+  const renderReceipt = (copyLabel: string, showItems = true) => {
     y = 5;
 
     // Copy label
@@ -129,80 +135,97 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
     addTextPair(formatTime(now), clientPhone || '', 9);
     y += 2;
 
-    // Items header
-    pdf.setDrawColor(0);
-    pdf.setLineWidth(0.3);
-    pdf.line(margin, y, pageWidth - margin, y);
-    y += 2;
+    if (showItems) {
+      // Items header
+      pdf.setDrawColor(0);
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, y, pageWidth - margin, y);
+      y += 2;
 
-    addTextPair('المجموع', 'الصنف', 9);
+      addTextPair(
+        t('custom.messages.total', 'الإجمالي'),
+        t('custom.messages.item_name', 'الصنف'),
+        9
+      );
 
-    pdf.setLineWidth(0.1);
-    pdf.line(margin, y, pageWidth - margin, y);
-    y += 2;
+      pdf.setLineWidth(0.1);
+      pdf.line(margin, y, pageWidth - margin, y);
+      y += 2;
 
-    // Items
-    groupedItems.forEach((group) => {
-      const isCollection = group.items.length > 1;
+      // Items
+      groupedItems.forEach((group) => {
+        const isCollection = group.items.length > 1;
 
-      if (isCollection) {
-        const title = getCollectionTitle(group);
-        addTextPair(toArabicNumerals(group.groupTotal), title, 9);
+        if (isCollection) {
+          const title = getCollectionTitle(group);
+          addTextPair(toArabicNumerals(group.groupTotal), title, 9);
 
-        const masterItem = group.items.find((item) => item.is_collection_master === true);
-        const nonMasterItems = group.items.filter((item) => item.is_collection_master !== true);
-        const sortedItems = masterItem ? [masterItem, ...nonMasterItems] : group.items;
+          const masterItem = group.items.find((item) => item.is_collection_master === true);
+          const nonMasterItems = group.items.filter((item) => item.is_collection_master !== true);
+          const sortedItems = masterItem ? [masterItem, ...nonMasterItems] : group.items;
 
-        sortedItems.forEach((item) => {
-          const displayName = item.additional_data || item.title.split(' ')[0];
-          const priceInfo = `${toArabicNumerals(item.quantity)}×${toArabicNumerals(item.price)}`;
+          sortedItems.forEach((item) => {
+            const displayName = item.additional_data || item.title.split(' ')[0];
+            const priceInfo = `${toArabicNumerals(item.quantity)}×${toArabicNumerals(item.price)}`;
+            pdf.setFontSize(7);
+            pdf.text(`• ${displayName}`, pageWidth - margin - 5, y, { align: 'right' });
+            pdf.text(priceInfo, margin, y, { align: 'left' });
+            y += 3;
+          });
+        } else {
+          const item = group.items[0];
+          addTextPair(toArabicNumerals(item.totalPrice), item.title, 9);
           pdf.setFontSize(7);
-          pdf.text(`• ${displayName}`, pageWidth - margin - 5, y, { align: 'right' });
-          pdf.text(priceInfo, margin, y, { align: 'left' });
+          pdf.text(
+            `${toArabicNumerals(item.quantity)} × ${toArabicNumerals(item.price)}`,
+            pageWidth - margin - 3,
+            y,
+            { align: 'right' }
+          );
           y += 3;
-        });
-      } else {
-        const item = group.items[0];
-        addTextPair(toArabicNumerals(item.totalPrice), item.title, 9);
-        pdf.setFontSize(7);
-        pdf.text(
-          `${toArabicNumerals(item.quantity)} × ${toArabicNumerals(item.price)}`,
-          pageWidth - margin - 3,
-          y,
-          { align: 'right' }
-        );
-        y += 3;
-      }
-      y += 1;
-    });
+        }
+        y += 1;
+      });
+    }
 
     // Summary
     pdf.setLineWidth(0.3);
     pdf.line(margin, y, pageWidth - margin, y);
     y += 3;
 
-    addTextPair(`${toArabicNumerals(totalPrice)} ج.م`, 'الإجمالي', 10);
-    addTextPair(`${toArabicNumerals(paidAmount)} ج.م`, 'المدفوع', 9);
+    addTextPair(
+      `${toArabicNumerals(totalPrice)} ${currencyShort}`,
+      t('custom.labels.total_price', 'الإجمالي'),
+      10
+    );
+    addTextPair(
+      `${toArabicNumerals(paidAmount)} ${currencyShort}`,
+      t('custom.labels.paid_amount', 'المدفوع'),
+      9
+    );
 
     // Remaining - highlighted
-    const remainText = remainAmount === 0 ? 'تم السداد' : `${toArabicNumerals(remainAmount)} ج.م`;
-    addTextPair(remainText, 'المتبقي', 10);
+    const remainText =
+      remainAmount === 0
+        ? t('custom.labels.no_remain_amount', 'تم السداد')
+        : `${toArabicNumerals(remainAmount)} ${currencyShort}`;
+    addTextPair(remainText, t('custom.labels.remain_amount', 'المتبقي'), 10);
     y += 2;
 
     addSeparator();
 
     // Delivery date
-    addCenteredText('موعد الاستلام', 8);
+    addCenteredText(t('custom.messages.delivery_date', 'موعد الاستلام'), 8);
     addCenteredText(formatDeliveryDate(deadLine), 10);
     y += 2;
 
     addSeparator();
 
     // Footer
-    addCenteredText('شكراً لتعاملكم معنا', 9);
+    addCenteredText(t('custom.messages.thank_you', 'شكراً لتعاملكم معنا'), 9);
 
-    if (reservationId) {
-      addCenteredText(`رقم الحجز: ${reservationId}`, 7);
+    if (reservationCode) {
+      addCenteredText(`${t('custom.messages.reservation_id', 'رقم الحجز')}: ${reservationCode}`, 7);
     }
 
     // Phone numbers
@@ -214,11 +237,11 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
   };
 
   // Render first page (customer copy)
-  renderReceipt('نسخة العميل');
+  renderReceipt(t('custom.messages.receipt_copy_customer', 'نسخة العميل'), false);
 
   // Add second page (store copy)
   pdf.addPage([pageWidth, pageHeight]);
-  renderReceipt('نسخة المحل');
+  renderReceipt(t('custom.messages.receipt_copy_store', 'نسخة المحل'), true);
 
   // Save PDF
   const phoneForFilename = clientPhone ? `-${clientPhone.replace(/\s/g, '')}` : '';
