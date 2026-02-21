@@ -1,4 +1,15 @@
-import { Box, CircularProgress, Fab, Typography } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  Fab,
+  Typography,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Checkbox,
+} from '@mui/material';
 import {
   useStore,
   Title,
@@ -16,6 +27,12 @@ import { Save } from '@mui/icons-material';
 
 import { TermInput, YearInput } from 'resources/publications';
 import { Tables, PaperPricesType, Enums } from 'types';
+import { useAppDispatch, useAppSelector } from 'store';
+import {
+  setReservationReceiptFormat,
+  setReservationAutoPrint,
+  type ReceiptFormat,
+} from 'store/slices';
 
 import { PrintingPrices, CoversPrices, PhoneNumbersInputs } from '.';
 
@@ -23,8 +40,21 @@ export const Settings = () => {
   const translate = useTranslate();
   const [update, { isPending }] = useUpdate<Tables<'settings'>>();
   const redirect = useRedirect();
+  const dispatch = useAppDispatch();
 
   const [setting, setSetting] = useStore<Tables<'settings'>>('settings');
+
+  // Local settings from Redux (persisted to localStorage)
+  const receiptFormat = useAppSelector((state) => state.ui.reservationReceiptFormat);
+  const autoPrint = useAppSelector((state) => state.ui.reservationAutoPrint);
+
+  const handleReceiptFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setReservationReceiptFormat(event.target.value as ReceiptFormat));
+  };
+
+  const handleAutoPrintChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setReservationAutoPrint(event.target.checked));
+  };
 
   const submitHandler: SaveHandler<{
     paper_prices: PaperPricesPrimitiveShape;
@@ -113,6 +143,39 @@ export const Settings = () => {
           />
         </Box>
         <PhoneNumbersInputs />
+
+        {/* Local Settings (stored in browser) */}
+        <Typography
+          variant="h3"
+          color="primary"
+          sx={(theme) => ({
+            backgroundColor: theme.palette.secondary.light,
+            color: theme.palette.secondary.contrastText,
+            textAlign: 'center',
+            p: 1,
+            mt: 2,
+          })}
+        >
+          إعدادات الحجز (محلية)
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 4, mt: 3, flexWrap: 'wrap' }}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">تحميل الإيصال عند الحجز</FormLabel>
+            <RadioGroup row value={receiptFormat} onChange={handleReceiptFormatChange}>
+              <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+              <FormControlLabel value="jpg" control={<Radio />} label="صورة JPG" />
+              <FormControlLabel value="none" control={<Radio />} label="بدون تحميل" />
+            </RadioGroup>
+          </FormControl>
+
+          <FormControl component="fieldset">
+            <FormLabel component="legend">طباعة تلقائية</FormLabel>
+            <FormControlLabel
+              control={<Checkbox checked={autoPrint} onChange={handleAutoPrintChange} />}
+              label="طباعة الإيصال تلقائياً عند الحجز"
+            />
+          </FormControl>
+        </Box>
 
         <Fab
           variant="extended"

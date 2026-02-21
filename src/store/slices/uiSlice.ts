@@ -3,12 +3,21 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 // Keys for localStorage persistence
 const STORAGE_KEY = 'maktabet-ui-state';
 
+export type ReceiptFormat = 'pdf' | 'jpg' | 'none';
+
 // Helper to load from localStorage
 const loadPersistedState = (): UIState => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Ensure new fields have defaults if missing from old storage
+      return {
+        dashboardActiveTab: parsed.dashboardActiveTab ?? 0,
+        analyticsActiveTab: parsed.analyticsActiveTab ?? 0,
+        reservationReceiptFormat: parsed.reservationReceiptFormat ?? 'pdf',
+        reservationAutoPrint: parsed.reservationAutoPrint ?? false,
+      };
     }
   } catch (e) {
     console.warn('Failed to load persisted UI state:', e);
@@ -16,6 +25,8 @@ const loadPersistedState = (): UIState => {
   return {
     dashboardActiveTab: 0,
     analyticsActiveTab: 0,
+    reservationReceiptFormat: 'pdf',
+    reservationAutoPrint: false,
   };
 };
 
@@ -33,6 +44,10 @@ export interface UIState {
   dashboardActiveTab: number;
   /** Active tab index for Analytics page */
   analyticsActiveTab: number;
+  /** Receipt download format on reservation submit: 'pdf', 'jpg', or 'none' */
+  reservationReceiptFormat: ReceiptFormat;
+  /** Whether to automatically print receipt on reservation submit */
+  reservationAutoPrint: boolean;
 }
 
 const initialState: UIState = loadPersistedState();
@@ -49,9 +64,22 @@ const uiSlice = createSlice({
       state.analyticsActiveTab = action.payload;
       saveState(state);
     },
+    setReservationReceiptFormat: (state, action: PayloadAction<ReceiptFormat>) => {
+      state.reservationReceiptFormat = action.payload;
+      saveState(state);
+    },
+    setReservationAutoPrint: (state, action: PayloadAction<boolean>) => {
+      state.reservationAutoPrint = action.payload;
+      saveState(state);
+    },
   },
 });
 
-export const { setDashboardTab, setAnalyticsTab } = uiSlice.actions;
+export const {
+  setDashboardTab,
+  setAnalyticsTab,
+  setReservationReceiptFormat,
+  setReservationAutoPrint,
+} = uiSlice.actions;
 
 export default uiSlice.reducer;

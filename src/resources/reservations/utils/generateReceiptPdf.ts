@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { ReservationRecord } from 'store/slices/reserviationSlice';
+import { toArabicNumerals } from 'utils/helpers';
 
 interface GroupedItems {
   groupId: string;
@@ -18,12 +19,6 @@ interface ReceiptData {
   storeName: string;
   branchPhoneNumbers?: string[];
 }
-
-// Convert number to Arabic numerals
-const toArabicNumerals = (num: number | string): string => {
-  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return String(num).replace(/[0-9]/g, (d) => arabicNumerals[parseInt(d)]);
-};
 
 // Format date for receipt
 const formatDate = (date: Date): string => {
@@ -139,9 +134,9 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
     pdf.setLineWidth(0.3);
     pdf.line(margin, y, pageWidth - margin, y);
     y += 2;
-    
+
     addTextPair('المجموع', 'الصنف', 9);
-    
+
     pdf.setLineWidth(0.1);
     pdf.line(margin, y, pageWidth - margin, y);
     y += 2;

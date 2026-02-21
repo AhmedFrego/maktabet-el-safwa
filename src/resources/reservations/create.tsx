@@ -26,6 +26,10 @@ export const ReservationCreate = () => {
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const { groupRelatedItems } = useCalcGroupPrice();
 
+  // Receipt settings from Redux (persisted to localStorage)
+  const receiptFormat = useAppSelector((state) => state.ui.reservationReceiptFormat);
+  const autoPrint = useAppSelector((state) => state.ui.reservationAutoPrint);
+
   const {
     isReserving,
     reservedItems: reserved_items,
@@ -279,7 +283,9 @@ export const ReservationCreate = () => {
             deadLine={deadLine}
             reservationId={receiptData.reservationId}
             onBack={() => {}}
-            autoDownloadPdf
+            autoDownloadPdf={receiptFormat === 'pdf'}
+            autoDownloadImage={receiptFormat === 'jpg'}
+            autoPrint={autoPrint}
             onClose={handleReceiptClose}
           />
         </Box>

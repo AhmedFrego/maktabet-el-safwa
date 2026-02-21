@@ -25,6 +25,8 @@ interface ReceiptPreviewProps {
   reservationId?: string;
   onBack: () => void;
   autoDownloadPdf?: boolean;
+  autoDownloadImage?: boolean;
+  autoPrint?: boolean;
   onClose?: () => void; // Called after auto-download to close the modal
 }
 
@@ -44,6 +46,8 @@ export const ReceiptPreview = ({
   reservationId,
   onBack,
   autoDownloadPdf,
+  autoDownloadImage,
+  autoPrint,
   onClose,
 }: ReceiptPreviewProps) => {
   const translate = useTranslate();
@@ -59,7 +63,7 @@ export const ReceiptPreview = ({
   });
 
   // Download receipt as image
-  const handleDownloadImage = async () => {
+  const handleDownloadImage = useCallback(async () => {
     if (!receiptRef.current) return;
 
     try {
@@ -85,7 +89,7 @@ export const ReceiptPreview = ({
     } catch (error) {
       console.error('Error generating image:', error);
     }
-  };
+  }, [clientName, clientPhone]);
 
   // Download receipt as PDF
   const handleDownloadPdf = useCallback(async (): Promise<boolean> => {
@@ -157,23 +161,40 @@ export const ReceiptPreview = ({
     }
   }, [clientName, clientPhone]);
 
-  // Auto-download PDF when autoDownloadPdf is true, then auto-close
+  // Auto-download and/or auto-print when respective props are true
   useEffect(() => {
-    if (autoDownloadPdf && !pdfDownloaded && receiptRef.current) {
+    if (!pdfDownloaded && receiptRef.current && (autoDownloadPdf || autoDownloadImage || autoPrint)) {
       // Small delay to ensure the receipt is rendered
       const timer = setTimeout(async () => {
-        const success = await handleDownloadPdf();
-        if (success) {
+        let success = true;
+        
+        // Download PDF if requested
+        if (autoDownloadPdf) {
+          success = await handleDownloadPdf();
+        }
+        
+        // Download image if requested
+        if (autoDownloadImage) {
+          await handleDownloadImage();
+        }
+        
+        // Auto-print if requested
+        if (autoPrint) {
+          handlePrint();
+        }
+        
+        if (success || autoDownloadImage || autoPrint) {
           setPdfDownloaded(true);
-          // Auto-close after download if onClose is provided
+          // Auto-close after actions if onClose is provided
           if (onClose) {
-            onClose();
+            // Small delay to ensure print dialog opens before closing
+            setTimeout(() => onClose(), autoPrint ? 100 : 0);
           }
         }
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [autoDownloadPdf, pdfDownloaded, handleDownloadPdf, onClose]);
+  }, [autoDownloadPdf, autoDownloadImage, autoPrint, pdfDownloaded, handleDownloadPdf, handleDownloadImage, handlePrint, onClose]);
 
   // Format current date for display
   const formatCurrentDate = () => {
