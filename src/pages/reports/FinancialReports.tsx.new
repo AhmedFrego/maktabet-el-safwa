@@ -1,18 +1,30 @@
 import { useState } from 'react';
-import { Box, Typography, CircularProgress, Alert, Paper, Grid } from '@mui/material';
+import { Box, Grid, CircularProgress, Alert, Typography } from '@mui/material';
 import { Title } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ar';
 import { useFinancialStats } from 'hooks';
-import { toArabicNumerals, formatCurrency } from 'utils';
+import { toArabicNumerals } from 'utils';
+import { formatCurrency } from 'utils/helpers';
 import { DateRangeFilter, ColoredSummaryCard } from 'components/UI';
-import { DailyRevenueChart, OrdersBarChart, PaymentStatusPie } from 'components/charts';
+import {
+  DailyRevenueChart,
+  OrdersBarChart,
+  PaymentStatusPie,
+  CHART_COLORS,
+} from 'components/charts';
 
 export const FinancialReports = () => {
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
 
   const stats = useFinancialStats({ startDate, endDate });
+
+  const paymentStatusData = [
+    { name: 'مدفوع بالكامل', value: stats.paymentStatus.paid, color: CHART_COLORS[0] },
+    { name: 'مدفوع جزئياً', value: stats.paymentStatus.partiallyPaid, color: CHART_COLORS[1] },
+    { name: 'غير مدفوع', value: stats.paymentStatus.unpaid, color: CHART_COLORS[2] },
+  ];
 
   if (stats.error) {
     return (
@@ -38,10 +50,8 @@ export const FinancialReports = () => {
           if (range.from) setStartDate(range.from);
           if (range.to) setEndDate(range.to);
         }}
+        totalCount={stats.totalOrders}
       />
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, mt: -2 }}>
-        {toArabicNumerals(stats.totalOrders)} طلب إجمالي
-      </Typography>
 
       {stats.loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
@@ -51,17 +61,19 @@ export const FinancialReports = () => {
         <>
           {/* Summary Cards */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="إجمالي الإيرادات"
                 value={formatCurrency(stats.totalRevenue)}
-                subtitle={`من ${toArabicNumerals(stats.totalOrders)} طلب`}
+                subtitle="من"
+                count={stats.totalOrders}
+                countLabel="طلب"
                 bgcolor="success.light"
                 textColor="success.contrastText"
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="المبالغ المتبقية"
                 value={formatCurrency(stats.totalPending)}
@@ -71,7 +83,7 @@ export const FinancialReports = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="متوسط قيمة الطلب"
                 value={formatCurrency(stats.averageOrderValue)}
@@ -81,40 +93,23 @@ export const FinancialReports = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="الطلبات المكتملة"
                 value={toArabicNumerals(stats.completedOrders)}
-                subtitle={`من ${toArabicNumerals(stats.totalOrders)} طلب`}
+                subtitle="من"
+                count={stats.totalOrders}
+                countLabel="طلب"
                 bgcolor="primary.light"
                 textColor="primary.contrastText"
               />
             </Grid>
           </Grid>
 
-          {/* Daily Revenue Chart */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              الإيرادات اليومية
-            </Typography>
-            <DailyRevenueChart data={stats.dailyRevenue} />
-          </Paper>
-
-          {/* Orders per Day Chart */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              عدد الطلبات اليومية
-            </Typography>
-            <OrdersBarChart data={stats.dailyRevenue} />
-          </Paper>
-
-          {/* Payment Status Distribution */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              توزيع حالات الدفع
-            </Typography>
-            <PaymentStatusPie paymentStatus={stats.paymentStatus} />
-          </Paper>
+          {/* Charts */}
+          <DailyRevenueChart data={stats.dailyRevenue} />
+          <OrdersBarChart data={stats.dailyRevenue} />
+          <PaymentStatusPie data={paymentStatusData} />
         </>
       )}
     </Box>

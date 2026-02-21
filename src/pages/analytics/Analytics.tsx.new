@@ -20,7 +20,8 @@ import { Title } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ar';
 import { useAnalytics } from 'hooks';
-import { toArabicNumerals, formatCurrency } from 'utils';
+import { toArabicNumerals } from 'utils';
+import { formatCurrency } from 'utils/helpers';
 import { DateRangeFilter, TabPanel, ColoredSummaryCard } from 'components/UI';
 import { DistributionBarChart, DistributionPieChart, ANALYTICS_COLORS } from 'components/charts';
 import { useAppDispatch, useAppSelector } from 'store';
@@ -75,7 +76,7 @@ export const Analytics = () => {
         <>
           {/* Summary Cards */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="إجمالي العملاء"
                 value={toArabicNumerals(analytics.clientAnalytics.totalClients)}
@@ -85,7 +86,7 @@ export const Analytics = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="التسليم في الموعد"
                 value={toArabicNumerals(analytics.deliveryMetrics.onTime)}
@@ -95,7 +96,7 @@ export const Analytics = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="التسليم المتأخر"
                 value={toArabicNumerals(analytics.deliveryMetrics.late)}
@@ -105,7 +106,7 @@ export const Analytics = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <ColoredSummaryCard
                 title="متوسط وقت التسليم"
                 value={toArabicNumerals(Math.round(analytics.deliveryMetrics.averageDeliveryTime))}
@@ -226,7 +227,7 @@ export const Analytics = () => {
                 <Alert severity="info">لا توجد بيانات لعرضها</Alert>
               ) : (
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid item xs={12} md={6}>
                     <DistributionPieChart
                       data={analytics.termDistribution}
                       labelKey="term"
@@ -234,7 +235,7 @@ export const Analytics = () => {
                       colors={ANALYTICS_COLORS}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid item xs={12} md={6}>
                     <TableContainer>
                       <Table>
                         <TableHead>
@@ -269,7 +270,7 @@ export const Analytics = () => {
                 <Alert severity="info">لا توجد بيانات لعرضها</Alert>
               ) : (
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid item xs={12} md={6}>
                     <DistributionPieChart
                       data={analytics.publicationTypeDistribution}
                       labelKey="type"
@@ -277,7 +278,7 @@ export const Analytics = () => {
                       colors={ANALYTICS_COLORS}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid item xs={12} md={6}>
                     <TableContainer>
                       <Table>
                         <TableHead>

@@ -24,7 +24,7 @@ export const PublicationsList = () => {
         actions={isReserving ? false : <ListActions />}
         aside={<CustomFilterSidebar />}
         queryOptions={{ meta: { columns: publicationsColumns } }}
-        sort={{ field: 'subject', order: 'ASC' }}
+        sort={{ field: 'subject_id', order: 'ASC' }}
       >
         <PublicationsContainer />
       </List>
