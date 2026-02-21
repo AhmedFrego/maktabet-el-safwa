@@ -1,4 +1,12 @@
-import { Box, Divider, Typography, Button } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Typography,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
 import {
   FormDataConsumer,
   NumberInput,
@@ -14,7 +22,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import { RefObject, useState } from 'react';
-import { Star, Receipt } from '@mui/icons-material';
+import { Star, Receipt, ExpandMore } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
 import { ClientInput } from 'components/form';
@@ -59,6 +67,7 @@ export const ReservationFormContent = ({
   const translate = useTranslate();
   const { setValue } = useFormContext();
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   // Watch form values for receipt preview
   const clientId = useWatch({ name: 'client_id' });
@@ -70,6 +79,18 @@ export const ReservationFormContent = ({
   const handleInstantDelivery = () => {
     setValue('paid_amount', total_price);
     onInstantDelivery();
+  };
+
+  const handleAccordionChange = (groupId: string) => {
+    setExpandedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupId)) {
+        newSet.delete(groupId);
+      } else {
+        newSet.add(groupId);
+      }
+      return newSet;
+    });
   };
 
   // Render items grouped by related publications
@@ -86,90 +107,74 @@ export const ReservationFormContent = ({
       // Sort items: master first, then by additional_data
       const sortedItems = masterItem ? [masterItem, ...nonMasterItems] : group.items;
 
-      return (
-        <Box key={group.groupId}>
-          {isGrouped && masterItem && (
-            <Box
+      // If grouped, render as accordion
+      if (isGrouped) {
+        return (
+          <Box key={group.groupId}>
+            <Accordion
+              expanded={expandedGroups.has(group.groupId)}
+              onChange={() => handleAccordionChange(group.groupId)}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                color: 'warning.main',
-                mb: 0.5,
-                backgroundColor: 'warning.light',
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
+                boxShadow: 1,
+                '&:before': { display: 'none' },
+                mb: groupIndex < groupedItems.length - 1 ? 1 : 0,
               }}
             >
-              <Star fontSize="small" />
-              <Typography variant="body2" sx={{ fontFamily: 'inherit', fontWeight: 'bold' }}>
-                {masterItem.title}
-              </Typography>
-              <Typography variant="caption" sx={{ mr: 'auto' }}>
-                ({toArabicNumerals(group.items.length)} {translate('custom.labels.item')})
-              </Typography>
-            </Box>
-          )}
-          {isGrouped && !masterItem && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                color: 'secondary.main',
-                mb: 0.5,
-              }}
-            >
-              <Typography variant="caption" color="secondary">
-                {translate('resources.publications.messages.collection_items')}:{' '}
-                {toArabicNumerals(group.items.length)}
-              </Typography>
-            </Box>
-          )}
-          <Box
-            sx={{
-              borderRight: isGrouped ? '3px solid' : 'none',
-              borderColor: masterItem ? 'warning.main' : 'secondary.main',
-              pr: isGrouped ? 1.5 : 0,
-              mb: 1,
-            }}
-          >
-            {sortedItems.map((item) => (
-              <ReservedItem
-                item={item}
-                key={item.id}
-                isGroupMember={isGrouped}
-                isMaster={item.is_collection_master === true}
-              />
-            ))}
-            {isGrouped && (
-              <Box
+              <AccordionSummary
+                expandIcon={<ExpandMore />}
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: masterItem ? 'warning.light' : 'secondary.light',
-                  color: masterItem ? 'warning.contrastText' : 'secondary.contrastText',
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: 1,
-                  mt: 0.5,
+                  fontFamily: 'inherit',
+                  '& .MuiAccordionSummary-content': {
+                    alignItems: 'center',
+                    gap: 1,
+                  },
                 }}
               >
-                <Typography variant="caption">
-                  {translate('resources.publications.messages.group_total')}:{' '}
+                {masterItem && <Star fontSize="small" sx={{ color: 'warning.main' }} />}
+                <Typography
+                  variant="body2"
+                  sx={{ fontFamily: 'inherit', fontWeight: 'bold', flex: 1 }}
+                >
+                  {masterItem
+                    ? toArabicNumerals(masterItem.title.split(' - ')[0])
+                    : `${translate('resources.publications.messages.collection_items')}`}
+                </Typography>
+                <Typography variant="caption" sx={{ mr: 1, fontFamily: 'inherit' }}>
+                  ({toArabicNumerals(group.items.length)} {translate('custom.labels.item')})
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', fontFamily: 'inherit' }}>
                   {toArabicNumerals(group.groupTotal)} {translate('custom.currency.short')}
                 </Typography>
                 {savings > 0 && (
-                  <Typography variant="caption" sx={{ color: 'success.main' }}>
-                    ({translate('resources.publications.messages.saved')}{' '}
-                    {toArabicNumerals(savings)} {translate('custom.currency.short')})
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'success.main', ml: 1, fontFamily: 'inherit' }}
+                  >
+                    (-{toArabicNumerals(savings)})
                   </Typography>
                 )}
-              </Box>
-            )}
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 1 }}>
+                {sortedItems.map((item) => (
+                  <ReservedItem
+                    item={item}
+                    key={item.id}
+                    isGroupMember={true}
+                    isMaster={item.is_collection_master === true}
+                  />
+                ))}
+              </AccordionDetails>
+            </Accordion>
           </Box>
+        );
+      }
+
+      // Non-grouped items render normally
+      return (
+        <Box key={group.groupId}>
+          {sortedItems.map((item) => (
+            <ReservedItem item={item} key={item.id} isGroupMember={false} isMaster={false} />
+          ))}
           {groupIndex < groupedItems.length - 1 && <Divider sx={{ my: 1 }} />}
         </Box>
       );
@@ -208,6 +213,7 @@ export const ReservationFormContent = ({
             color: 'secondary.contrastText',
             backgroundColor: 'secondary.main',
             borderRadius: 1,
+            fontFamily: 'inherit',
           }}
         >
           {translate('resources.reservations.messages.no_items')}
@@ -216,13 +222,17 @@ export const ReservationFormContent = ({
         renderGroupedItems()
       )}
       <AddCustomPublicationButton />
-      <Typography>
+      <Typography sx={{ fontFamily: 'inherit' }}>
         {`${translate('custom.labels.total_price')} : ${toArabicNumerals(total_price)} ${translate('custom.currency.long')}`}
       </Typography>
       <FormDataConsumer>
         {({ formData }) => {
           const remain_amount = total_price - (Number(formData.paid_amount) || 0);
-          return `${translate('custom.labels.remain_amount')} : ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`;
+          return (
+            <Typography sx={{ fontFamily: 'inherit' }}>
+              {`${translate('custom.labels.remain_amount')} : ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`}
+            </Typography>
+          );
         }}
       </FormDataConsumer>
       <NumberInput

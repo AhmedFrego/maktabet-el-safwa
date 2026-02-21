@@ -46,12 +46,8 @@ export const ReservedItem = ({
   const displayTitle = isGroupMember && item.additional_data ? item.additional_data : item.title;
 
   return (
-    <StyledReservedItem
-      expanded={expanded}
-      onChange={(_, next) => setExpanded(next)}
-      sx={isMaster ? { '& .MuiAccordionSummary-root': { backgroundColor: 'warning.light' } } : {}}
-    >
-      <AccordionSummary expandIcon={<ExpandMore />}>
+    <StyledReservedItem expanded={expanded} onChange={(_, next) => setExpanded(next)}>
+      <AccordionSummary expandIcon={<ExpandMore />} sx={{ fontFamily: 'inherit' }}>
         <Box
           sx={{
             display: 'flex',
@@ -71,11 +67,11 @@ export const ReservedItem = ({
                 sx={{ fontFamily: 'inherit', flexShrink: 0 }}
               />
             )}
-            <Typography noWrap sx={{ flex: 1 }}>
+            <Typography noWrap sx={{ flex: 1, fontFamily: 'inherit' }}>
               {`${toArabicNumerals(item.quantity)} × ${isGroupMember && item.additional_data ? '' : toArabicNumerals(displayTitle)}`}
             </Typography>
           </Box>
-          <Typography color="textSecondary" sx={{ flexShrink: 0 }}>
+          <Typography color="textSecondary" sx={{ flexShrink: 0, fontFamily: 'inherit' }}>
             {`${toArabicNumerals(item.totalPrice)} ${translate('custom.currency.short')}`}
           </Typography>
         </Box>
@@ -90,6 +86,7 @@ export const ReservedItem = ({
               source="paper_type_id"
               label={translate('resources.publications.fields.paper_type')}
               defaultValue={item.paper_type_id}
+              sx={{ fontFamily: 'inherit' }}
               onChange={(value) => {
                 const nextPaperTypeId = (value as string) || '';
                 const { price, cover } = calcPrice({
@@ -126,6 +123,7 @@ export const ReservedItem = ({
               source="cover_type_id"
               label={translate('resources.publications.fields.cover_type')}
               defaultValue={item.cover_type_id || covers?.[0]}
+              sx={{ fontFamily: 'inherit' }}
               onChange={(value) => {
                 const nextCoverId = value as string;
                 const { price, cover } = calcPrice({ record: recordForCalc, coverId: nextCoverId });
@@ -153,6 +151,7 @@ export const ReservedItem = ({
             source="is_duplix"
             label={translate('resources.publications.fields.dublix')}
             checked={item.isDublix}
+            sx={{ fontFamily: 'inherit' }}
             onChange={() => {
               const computedUnitPrice = calcPrice({ record: recordForCalc }).price[
                 !item.isDublix ? 'twoFacesPrice' : 'oneFacePrice'
@@ -194,7 +193,7 @@ export const ReservedItem = ({
                   })
                 );
               }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, fontFamily: 'inherit' }}
               inputProps={{ min: 1 }}
             />
 
@@ -231,7 +230,7 @@ export const ReservedItem = ({
                   })
                 );
               }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, fontFamily: 'inherit' }}
             />
           </Box>
 
@@ -245,7 +244,7 @@ export const ReservedItem = ({
             onChange={(e) => {
               dispatch(modifyItem({ id: item.id, note: e.target.value }));
             }}
-            sx={{ mt: 1 }}
+            sx={{ mt: 1, fontFamily: 'inherit' }}
           />
         </Box>
       </AccordionDetails>
