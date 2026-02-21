@@ -163,26 +163,30 @@ export const ReceiptPreview = ({
 
   // Auto-download and/or auto-print when respective props are true
   useEffect(() => {
-    if (!pdfDownloaded && receiptRef.current && (autoDownloadPdf || autoDownloadImage || autoPrint)) {
+    if (
+      !pdfDownloaded &&
+      receiptRef.current &&
+      (autoDownloadPdf || autoDownloadImage || autoPrint)
+    ) {
       // Small delay to ensure the receipt is rendered
       const timer = setTimeout(async () => {
         let success = true;
-        
+
         // Download PDF if requested
         if (autoDownloadPdf) {
           success = await handleDownloadPdf();
         }
-        
+
         // Download image if requested
         if (autoDownloadImage) {
           await handleDownloadImage();
         }
-        
+
         // Auto-print if requested
         if (autoPrint) {
           handlePrint();
         }
-        
+
         if (success || autoDownloadImage || autoPrint) {
           setPdfDownloaded(true);
           // Auto-close after actions if onClose is provided
@@ -194,7 +198,16 @@ export const ReceiptPreview = ({
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [autoDownloadPdf, autoDownloadImage, autoPrint, pdfDownloaded, handleDownloadPdf, handleDownloadImage, handlePrint, onClose]);
+  }, [
+    autoDownloadPdf,
+    autoDownloadImage,
+    autoPrint,
+    pdfDownloaded,
+    handleDownloadPdf,
+    handleDownloadImage,
+    handlePrint,
+    onClose,
+  ]);
 
   // Format current date for display
   const formatCurrentDate = () => {
