@@ -13,7 +13,7 @@ import {
   Chip,
   Button,
 } from '@mui/material';
-import { Title, useTranslate } from 'react-admin';
+import { Title, useTranslate, useNotify } from 'react-admin';
 import { Print, PrintOutlined } from '@mui/icons-material';
 import { useReactToPrint } from 'react-to-print';
 import dayjs, { Dayjs } from 'dayjs';
@@ -21,21 +21,20 @@ import dayjs, { Dayjs } from 'dayjs';
 import { supabase } from 'lib';
 import { ReservationRecord, IsDefaultValue } from 'store';
 import { toArabicNumerals } from 'utils';
+import { Enums } from 'types';
 import { DateRangeFilter } from 'components/UI';
 
 interface GroupedPublication {
   publicationId: string;
   title: string;
-  paperType: string;
-  coverType: string;
+  paperTypeId: string;
+  coverTypeId: string | null;
   isDublix: boolean;
   pages: number;
   quantity: number;
-  reservations: string[]; // Reservation codes
+  reservationIds: string[]; // Reservation IDs for updates
   additional_data?: string;
-  notes: string[]; // Array of unique notes for this group
   isDefault: IsDefaultValue; // true = default, or object with customizations
-  customizations: Array<Record<string, unknown>>; // All unique customization objects
 }
 
 export const ProductionSummary = () => {
@@ -44,7 +43,9 @@ export const ProductionSummary = () => {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
+  const [updating, setUpdating] = useState<string | null>(null);
   const translate = useTranslate();
+  const notify = useNotify();
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
@@ -65,7 +66,7 @@ export const ProductionSummary = () => {
       // Fetch all in-progress reservations filtered by deadline
       const { data: reservations, error: reservationError } = await supabase
         .from('reservations')
-        .select('reservation_code, reserved_items')
+        .select('id, reserved_items')
         .eq('reservation_status', 'in-progress')
         .gte('dead_line', startDate.toISOString())
         .lte('dead_line', endDate.toISOString())
@@ -89,45 +90,28 @@ export const ProductionSummary = () => {
           // Only include in-progress items
           if (item.status !== 'in-progress') return;
 
-          // Create unique key for grouping - specs + customizations (including notes)
-          // Items with different notes will be in separate groups since note is tracked in isDefault
+          // Create unique key for grouping
           const isDefaultKey = item.isDefault === true ? 'default' : JSON.stringify(item.isDefault);
           const key = `${item.id}_${item.paper_type_id}_${item.cover_type_id || 'none'}_${item.isDublix}_${item.additional_data || 'none'}_${isDefaultKey}`;
 
           if (publicationMap.has(key)) {
             const existing = publicationMap.get(key)!;
             existing.quantity += item.quantity;
-            if (!existing.reservations.includes(reservation.reservation_code)) {
-              existing.reservations.push(reservation.reservation_code);
-            }
-            // Add note to array if it exists and not already in array
-            if (item.note && !existing.notes.includes(item.note)) {
-              existing.notes.push(item.note);
-            }
-            // Track unique customizations
-            if (item.isDefault !== true) {
-              const customStr = JSON.stringify(item.isDefault);
-              const alreadyTracked = existing.customizations.some(
-                (c) => JSON.stringify(c) === customStr
-              );
-              if (!alreadyTracked) {
-                existing.customizations.push(item.isDefault);
-              }
+            if (!existing.reservationIds.includes(reservation.id)) {
+              existing.reservationIds.push(reservation.id);
             }
           } else {
             publicationMap.set(key, {
               publicationId: item.id,
               title: item.title,
-              paperType: item.paper_type?.name || 'غير محدد',
-              coverType: item.cover_type?.name || 'بدون غلاف',
+              paperTypeId: item.paper_type_id,
+              coverTypeId: item.cover_type_id || null,
               isDublix: item.isDublix,
               pages: item.pages,
               quantity: item.quantity,
-              reservations: [reservation.reservation_code],
+              reservationIds: [reservation.id],
               additional_data: item.additional_data || undefined,
-              notes: item.note ? [item.note] : [],
               isDefault: item.isDefault ?? true,
-              customizations: item.isDefault === true ? [] : [item.isDefault],
             });
           }
         });
@@ -142,6 +126,129 @@ export const ProductionSummary = () => {
       setError(translate('custom.production_summary.error'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSetPublicationReady = async (
+    publicationId: string,
+    paperTypeId: string,
+    coverTypeId: string | null,
+    isDublix: boolean,
+    additionalData: string | undefined,
+    isDefaultKey: string,
+    reservationIds: string[]
+  ) => {
+    try {
+      // Create unique key for this publication variant
+      const updateKey = `${publicationId}_${paperTypeId}_${coverTypeId || 'none'}_${isDublix}_${additionalData || 'none'}_${isDefaultKey}`;
+      setUpdating(updateKey);
+
+      // Fetch only the specific reservations that contain this publication
+      const { data: reservations, error: fetchError } = await supabase
+        .from('reservations')
+        .select('id, reserved_items, reservation_status')
+        .in('id', reservationIds)
+        .eq('reservation_status', 'in-progress');
+
+      if (fetchError) throw fetchError;
+      if (!reservations || reservations.length === 0) {
+        notify('لا توجد حجوزات للتحديث', { type: 'info' });
+        return;
+      }
+
+      // Filter reservations containing this specific publication variant with in-progress status
+      const reservationsToUpdate = reservations.filter((reservation) => {
+        const items = reservation.reserved_items as unknown as ReservationRecord[];
+        return items.some((item) => {
+          if (item.status !== 'in-progress') return false;
+          if (item.id !== publicationId) return false;
+          if (item.paper_type_id !== paperTypeId) return false;
+          if ((item.cover_type_id || null) !== coverTypeId) return false;
+          if (item.isDublix !== isDublix) return false;
+          if ((item.additional_data || undefined) !== additionalData) return false;
+
+          const itemIsDefaultKey =
+            item.isDefault === true ? 'default' : JSON.stringify(item.isDefault);
+          return itemIsDefaultKey === isDefaultKey;
+        });
+      });
+
+      if (reservationsToUpdate.length === 0) {
+        notify('لا توجد عناصر مطابقة للتحديث', { type: 'info' });
+        return;
+      }
+
+      // Update each reservation
+      const updates = reservationsToUpdate.map(async (reservation) => {
+        const items = reservation.reserved_items as unknown as ReservationRecord[];
+
+        // Update matching items to 'ready' status
+        const updatedItems = items.map((item) => {
+          const itemIsDefaultKey =
+            item.isDefault === true ? 'default' : JSON.stringify(item.isDefault);
+          const matches =
+            item.id === publicationId &&
+            item.paper_type_id === paperTypeId &&
+            (item.cover_type_id || null) === coverTypeId &&
+            item.isDublix === isDublix &&
+            (item.additional_data || undefined) === additionalData &&
+            itemIsDefaultKey === isDefaultKey &&
+            item.status === 'in-progress';
+
+          if (matches) {
+            return {
+              ...item,
+              status: 'ready' as Enums<'reservation_state'>,
+            };
+          }
+          return item;
+        });
+
+        // Recalculate reservation status
+        const allDelivered = updatedItems.every((item) => item.status === 'delivered');
+        const allReady = updatedItems.every(
+          (item) => item.status === 'ready' || item.status === 'delivered'
+        );
+        const hasInProgress = updatedItems.some((item) => item.status === 'in-progress');
+
+        let newReservationStatus: Enums<'reservation_state'> = 'in-progress';
+        if (allDelivered) {
+          newReservationStatus = 'delivered';
+        } else if (allReady && !hasInProgress) {
+          newReservationStatus = 'ready';
+        }
+
+        // Update reservation in database
+        return supabase
+          .from('reservations')
+          .update({
+            reserved_items: updatedItems as unknown as ReservationRecord[],
+            reservation_status: newReservationStatus,
+          })
+          .eq('id', reservation.id);
+      });
+
+      // Execute all updates in parallel
+      const results = await Promise.all(updates);
+
+      // Check for errors
+      const failed = results.filter((r) => r.error);
+      if (failed.length > 0) {
+        console.error('Some updates failed:', failed);
+        notify('حدث خطأ أثناء التحديث', { type: 'error' });
+      } else {
+        notify(`تم تحديث ${toArabicNumerals(reservationsToUpdate.length)} حجز بنجاح`, {
+          type: 'success',
+        });
+      }
+
+      // Refresh production data
+      await fetchProductionData();
+    } catch (err) {
+      console.error('Error updating reservations:', err);
+      notify('حدث خطأ أثناء التحديث', { type: 'error' });
+    } finally {
+      setUpdating(null);
     }
   };
 
@@ -310,163 +417,200 @@ export const ProductionSummary = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {publications.map((pub) => (
-                    <TableRow
-                      key={`${pub.publicationId}_${pub.paperType}_${pub.coverType}_${pub.isDublix}_${pub.additional_data}_${pub.isDefault === true ? 'default' : JSON.stringify(pub.isDefault)}`}
-                      sx={{
-                        '&:nth-of-type(odd)': { backgroundColor: 'action.hover' },
-                        '&:hover': { backgroundColor: 'action.selected' },
-                        '@media print': {
-                          pageBreakInside: 'avoid',
-                          '&:hover': { backgroundColor: 'transparent' },
-                          '&:nth-of-type(odd)': { backgroundColor: 'transparent' },
-                        },
-                      }}
-                    >
-                      <TableCell sx={{ fontFamily: 'inherit', maxWidth: 400 }}>
-                        <Box>
-                          {/* Title with inline customizations and quantity (print) */}
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 0.3,
-                              flexWrap: 'wrap',
-                              direction: 'ltr',
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                fontFamily: 'inherit',
-                                fontWeight: 'bold',
-                              }}
-                            >
-                              {pub.title}
-                            </Typography>
+                  {publications.map((pub) => {
+                    const isDefaultKey =
+                      pub.isDefault === true ? 'default' : JSON.stringify(pub.isDefault);
+                    const rowKey = `${pub.publicationId}_${pub.paperTypeId}_${pub.coverTypeId || 'none'}_${pub.isDublix}_${pub.additional_data || 'none'}_${isDefaultKey}`;
+                    const isUpdating = updating === rowKey;
 
-                            {/* Quantity - visible only in print, inline with title */}
-                            <Typography
+                    return (
+                      <TableRow
+                        key={rowKey}
+                        sx={{
+                          '&:nth-of-type(odd)': { backgroundColor: 'action.hover' },
+                          '&:hover': { backgroundColor: 'action.selected' },
+                          '@media print': {
+                            pageBreakInside: 'avoid',
+                            '&:hover': { backgroundColor: 'transparent' },
+                            '&:nth-of-type(odd)': { backgroundColor: 'transparent' },
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ fontFamily: 'inherit', maxWidth: 400 }}>
+                          <Box>
+                            {/* Title with inline customizations and quantity (print) */}
+                            <Box
+                              onClick={() => {
+                                if (!isUpdating) {
+                                  handleSetPublicationReady(
+                                    pub.publicationId,
+                                    pub.paperTypeId,
+                                    pub.coverTypeId,
+                                    pub.isDublix,
+                                    pub.additional_data,
+                                    isDefaultKey,
+                                    pub.reservationIds
+                                  );
+                                }
+                              }}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.3,
+                                flexWrap: 'wrap',
+                                direction: 'ltr',
+                                cursor: 'pointer',
+                                p: 0.5,
+                                borderRadius: 1,
+                                transition: 'background-color 0.2s',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light',
+                                },
+                                '@media print': {
+                                  cursor: 'default',
+                                  p: 0,
+                                  '&:hover': {
+                                    backgroundColor: 'transparent',
+                                  },
+                                },
+                              }}
+                              title="انقر لتعيين هذا المنشور كجاهز في جميع الحجوزات"
+                            >
+                              <Typography
+                                sx={{
+                                  fontFamily: 'inherit',
+                                  fontWeight: 'bold',
+                                  opacity: isUpdating ? 0.5 : 1,
+                                }}
+                              >
+                                {isUpdating ? '⏳ ' : ''}
+                                {pub.title}
+                              </Typography>
+
+                              {/* Quantity - visible only in print, inline with title */}
+                              <Typography
+                                className="print-only"
+                                sx={{
+                                  display: 'none',
+                                  '@media print': {
+                                    display: 'inline-block !important',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    color: '#000',
+                                    px: 0.75,
+                                    py: 0.25,
+                                    border: '1.5px solid #000',
+                                    borderRadius: '3px',
+                                    mx: 0.5,
+                                  },
+                                }}
+                              >
+                                ({toArabicNumerals(pub.quantity)})
+                              </Typography>
+
+                              {pub.isDefault !== true && (
+                                <Box
+                                  sx={{
+                                    display: 'inline-flex',
+                                    flexWrap: 'wrap',
+                                    gap: 0.5,
+                                    '@media print': {
+                                      gap: 0.3,
+                                    },
+                                  }}
+                                >
+                                  {Object.entries(pub.isDefault as Record<string, unknown>).map(
+                                    ([key, value]) => {
+                                      const fieldLabel = translate(
+                                        `custom.production_summary.fields.${key}`,
+                                        { _: key }
+                                      );
+                                      return (
+                                        <Chip
+                                          key={key}
+                                          label={`${fieldLabel}: ${String(value)}`}
+                                          size="small"
+                                          color="warning"
+                                          sx={{ fontFamily: 'inherit' }}
+                                        />
+                                      );
+                                    }
+                                  )}
+                                </Box>
+                              )}
+                            </Box>
+
+                            {/* Print-only: Checkboxes and Cover Box */}
+                            <Box
                               className="print-only"
                               sx={{
                                 display: 'none',
+                                mt: 2,
                                 '@media print': {
-                                  display: 'inline-block !important',
-                                  fontFamily: 'inherit',
-                                  fontWeight: 'bold',
-                                  fontSize: '0.95rem',
-                                  color: '#000',
-                                  px: 0.75,
-                                  py: 0.25,
-                                  border: '1.5px solid #000',
-                                  borderRadius: '3px',
-                                  mx: 0.5,
+                                  display: 'flex !important',
+                                  alignItems: 'center',
+                                  gap: 1,
+                                  flexWrap: 'wrap',
+                                  mt: 0.5,
                                 },
                               }}
                             >
-                              ({toArabicNumerals(pub.quantity)})
-                            </Typography>
+                              {/* Tracking Checkboxes - No label */}
+                              <Box sx={{ flex: '1 1 auto' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'inherit',
+                                    fontSize: '14pt',
+                                    letterSpacing: '1px',
+                                    direction: 'ltr',
+                                    '@media print': {
+                                      fontSize: '11pt',
+                                    },
+                                  }}
+                                >
+                                  {Array.from(
+                                    { length: Math.min(pub.quantity, 50) },
+                                    () => '☐ '
+                                  ).join('')}
+                                  {pub.quantity > 50 && ` + ${toArabicNumerals(pub.quantity - 50)}`}
+                                </Typography>
+                              </Box>
 
-                            {pub.isDefault !== true && (
+                              {/* Printed Covers Box - No label */}
                               <Box
                                 sx={{
-                                  display: 'inline-flex',
-                                  flexWrap: 'wrap',
-                                  gap: 0.5,
+                                  border: '2px solid #000',
+                                  minHeight: '35px',
+                                  width: '120px',
+                                  backgroundColor: '#fff',
+                                  flexShrink: 0,
                                   '@media print': {
-                                    gap: 0.3,
+                                    minHeight: '25px',
+                                    width: '100px',
+                                    border: '1.5px solid #000',
                                   },
                                 }}
-                              >
-                                {Object.entries(pub.isDefault as Record<string, unknown>).map(
-                                  ([key, value]) => {
-                                    const fieldLabel = translate(
-                                      `custom.production_summary.fields.${key}`,
-                                      { _: key }
-                                    );
-                                    return (
-                                      <Chip
-                                        key={key}
-                                        label={`${fieldLabel}: ${String(value)}`}
-                                        size="small"
-                                        color="warning"
-                                        sx={{ fontFamily: 'inherit' }}
-                                      />
-                                    );
-                                  }
-                                )}
-                              </Box>
-                            )}
-                          </Box>
-
-                          {/* Print-only: Checkboxes and Cover Box */}
-                          <Box
-                            className="print-only"
-                            sx={{
-                              display: 'none',
-                              mt: 2,
-                              '@media print': {
-                                display: 'flex !important',
-                                alignItems: 'center',
-                                gap: 1,
-                                flexWrap: 'wrap',
-                                mt: 0.5,
-                              },
-                            }}
-                          >
-                            {/* Tracking Checkboxes - No label */}
-                            <Box sx={{ flex: '1 1 auto' }}>
-                              <Typography
-                                component="span"
-                                sx={{
-                                  fontFamily: 'inherit',
-                                  fontSize: '14pt',
-                                  letterSpacing: '1px',
-                                  direction: 'ltr',
-                                  '@media print': {
-                                    fontSize: '11pt',
-                                  },
-                                }}
-                              >
-                                {Array.from(
-                                  { length: Math.min(pub.quantity, 50) },
-                                  () => '☐ '
-                                ).join('')}
-                                {pub.quantity > 50 && ` + ${toArabicNumerals(pub.quantity - 50)}`}
-                              </Typography>
+                              />
                             </Box>
-
-                            {/* Printed Covers Box - No label */}
-                            <Box
-                              sx={{
-                                border: '2px solid #000',
-                                minHeight: '35px',
-                                width: '120px',
-                                backgroundColor: '#fff',
-                                flexShrink: 0,
-                                '@media print': {
-                                  minHeight: '25px',
-                                  width: '100px',
-                                  border: '1.5px solid #000',
-                                },
-                              }}
-                            />
                           </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        className="no-print"
-                        sx={{
-                          fontFamily: 'inherit',
-                          fontWeight: 'bold',
-                          fontSize: '1.2rem',
-                          color: 'primary.main',
-                        }}
-                      >
-                        {toArabicNumerals(pub.quantity)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          className="no-print"
+                          sx={{
+                            fontFamily: 'inherit',
+                            fontWeight: 'bold',
+                            fontSize: '1.2rem',
+                            color: 'primary.main',
+                          }}
+                        >
+                          {toArabicNumerals(pub.quantity)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
