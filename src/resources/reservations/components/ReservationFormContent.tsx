@@ -18,7 +18,7 @@ import {
 import { useFormContext, useWatch } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import { RefObject, useState } from 'react';
@@ -242,9 +242,10 @@ export const ReservationFormContent = ({
         helperText={false}
       />
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
-        <MobileDateTimePicker
+        <MobileDatePicker
           label={translate('resources.reservations.fields.dead_line')}
           value={deadLine || dayjs()}
+          format="dddd DD/MM/YYYY"
           orientation="landscape"
           onChange={(v) => setDeadLine(v)}
           disablePast
