@@ -417,6 +417,37 @@ export const arabicMessages: TranslationMessages = {
       year: 'السنة',
       term_id: 'الترم',
     },
+    production_summary: {
+      title: 'ملخص الإنتاج',
+      subtitle: 'ملخص الإنتاج - المطبوعات قيد التنفيذ',
+      loading: 'جاري التحميل...',
+      error: 'حدث خطأ أثناء جلب البيانات',
+      no_publications: 'لا توجد مطبوعات قيد التنفيذ حالياً',
+      total_unique: 'إجمالي المطبوعات الفريدة',
+      total_quantity: 'إجمالي الكمية',
+      paper: 'ورقة',
+      filters: {
+        deadline_from: 'موعد التسليم من',
+        deadline_to: 'موعد التسليم إلى',
+      },
+      print: {
+        button: 'طباعة الملخص',
+        tracking: 'التتبع',
+        printed_covers: 'الأغلفة المطبوعة',
+      },
+      table: {
+        number: '#',
+        publication_name: 'اسم المطبوعة',
+        quantity_required: 'الكمية المطلوبة',
+      },
+      fields: {
+        paper_type_id: 'نوع الورق',
+        cover_type_id: 'نوع الغلاف',
+        isDublix: 'دوبلكس',
+        manualPrice: 'سعر يدوي',
+        note: 'ملاحظة',
+      },
+    },
     labels: {
       client: 'العميل',
       paper_size: 'حجم الورق',

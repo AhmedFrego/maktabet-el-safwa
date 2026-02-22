@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { BranchSelector } from 'components';
 import { Layout } from 'components/layout';
 import { myProvider as dataProvider, authProvider } from 'lib';
-import { Dashboard, NotFound, Settings } from 'pages';
+import { Dashboard, NotFound, Settings, ProductionSummary } from 'pages';
 import { FinancialReports } from 'pages/reports';
 import { Analytics } from 'pages/analytics';
 import { store } from 'store';
@@ -62,6 +62,7 @@ export const App = () => (
             <Route path={'settings'} element={<Settings />} />
             <Route path={'reports'} element={<FinancialReports />} />
             <Route path={'analytics'} element={<Analytics />} />
+            <Route path={'production-summary'} element={<ProductionSummary />} />
             <Route
               path={'publications/:id/create-related'}
               element={<CreateRelatedPublication />}

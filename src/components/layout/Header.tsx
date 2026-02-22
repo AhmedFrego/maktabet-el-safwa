@@ -19,17 +19,21 @@ import { toArabicNumerals } from 'utils';
 
 export const Header = () => {
   const reDirect = useRedirect();
+  const { isReserving } = useAppSelector((state) => state.reservation);
+
   return (
     <StyledAppBar
       toolbar={
         <>
-          <DirectReservationButton />
+          {!isReserving && <DirectReservationButton />}
           <ReservationButton />
-          <ToggleThemeButton />
+          {!isReserving && <ToggleThemeButton />}
           <LoadingIndicator />
-          <IconButton onClick={() => reDirect(`/settings`)}>
-            <Settings />
-          </IconButton>
+          {!isReserving && (
+            <IconButton onClick={() => reDirect(`/settings`)}>
+              <Settings />
+            </IconButton>
+          )}
         </>
       }
     >

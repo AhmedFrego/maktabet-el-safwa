@@ -2,6 +2,20 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { Enums } from 'types';
 
 export type ReservationStatus = Enums<'reservation_state'>;
+
+// Tracks customized fields: true = all defaults, or object with changed field names and values
+// Tracked fields: paper_type_id, cover_type_id, isDublix, manualPrice, note
+export type IsDefaultValue = true | Record<string, unknown>;
+
+// Store original values of tracked fields for comparison
+export interface OriginalValues {
+  paper_type_id: string;
+  cover_type_id: string | null | undefined;
+  isDublix: boolean;
+  manualPrice: number | null;
+  note: string | null;
+}
+
 export interface ReservationBase {
   quantity: number;
   totalPrice: number;
@@ -12,6 +26,8 @@ export interface ReservationBase {
   groupId?: string; // ID to track related publication groups
   note?: string | null;
   manualPrice?: number | null; // Unit price override (when set, don't auto-calc)
+  isDefault: IsDefaultValue; // true = default specs, or object with changed field names/values (including note)
+  _originalValues: OriginalValues; // Store original values for comparison
 }
 
 // Keep this local to avoid recursive Json types from Supabase-generated definitions
@@ -91,6 +107,14 @@ export const reservationSlice = createSlice({
           deliveredBy: null,
           note: null,
           manualPrice: null,
+          isDefault: true,
+          _originalValues: {
+            paper_type_id: action.payload.paper_type_id,
+            cover_type_id: action.payload.cover_type_id,
+            isDublix: true,
+            manualPrice: null,
+            note: null,
+          },
         };
         state.reservedItems = [...state.reservedItems, newItem];
       }
@@ -99,7 +123,44 @@ export const reservationSlice = createSlice({
       const index = state.reservedItems.findIndex((item) => item.id === action.payload.id);
 
       if (index !== -1) {
-        Object.assign(state.reservedItems[index], action.payload);
+        const item = state.reservedItems[index];
+        const trackedFields = [
+          'paper_type_id',
+          'cover_type_id',
+          'isDublix',
+          'manualPrice',
+          'note',
+        ] as const;
+        const changes: Record<string, unknown> =
+          item.isDefault === true ? {} : { ...item.isDefault };
+
+        // Track changes compared to original values
+        for (const field of trackedFields) {
+          if (field in action.payload) {
+            const newVal = action.payload[field as keyof typeof action.payload];
+            const originalVal = item._originalValues[field];
+
+            // Normalize values for comparison (treat null, undefined, empty string as equivalent)
+            const normalizedNew =
+              newVal === null || newVal === undefined || newVal === '' ? null : newVal;
+            const normalizedOriginal =
+              originalVal === null || originalVal === undefined || originalVal === ''
+                ? null
+                : originalVal;
+
+            // If value differs from original, track it; if same as original, remove it
+            if (normalizedNew !== normalizedOriginal) {
+              changes[field] = newVal;
+            } else {
+              delete changes[field];
+            }
+          }
+        }
+
+        Object.assign(item, action.payload);
+
+        // Update isDefault: true if no changes, otherwise object with changes
+        item.isDefault = Object.keys(changes).length === 0 ? true : changes;
       }
     },
     clearItems: () => initialState,
@@ -126,7 +187,18 @@ export const reservationSlice = createSlice({
     },
     // Set reserved items (used for editing existing reservations)
     setReservedItems(state, action: PayloadAction<ReservationRecord[]>) {
-      state.reservedItems = action.payload;
+      // Ensure all items have isDefault property and originalValues
+      state.reservedItems = action.payload.map((item) => ({
+        ...item,
+        isDefault: item.isDefault ?? {},
+        _originalValues: item._originalValues ?? {
+          paper_type_id: item.paper_type_id,
+          cover_type_id: item.cover_type_id,
+          isDublix: item.isDublix,
+          manualPrice: item.manualPrice ?? null,
+          note: item.note ?? null,
+        },
+      }));
     },
     // Set editing reservation context (client_id, paid_amount, reservation_id)
     setEditingReservation(
@@ -166,6 +238,14 @@ export const reservationSlice = createSlice({
             groupId,
             note: null,
             manualPrice: null,
+            isDefault: true,
+            _originalValues: {
+              paper_type_id: item.paper_type_id,
+              cover_type_id: item.cover_type_id,
+              isDublix: true,
+              manualPrice: null,
+              note: null,
+            },
           };
           state.reservedItems = [...state.reservedItems, newItem];
         }

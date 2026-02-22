@@ -1,6 +1,7 @@
 import { Menu as RAMenu, useStore } from 'react-admin';
 
 import { styled, Avatar } from '@mui/material';
+import { Print } from '@mui/icons-material';
 import { Tables } from 'types/supabase-generated.types';
 import { useAppSelector } from 'store';
 
@@ -21,6 +22,7 @@ export const Menu = () => {
         primaryText={setting?.branch_name}
       />
       <RAMenu.ResourceItems />
+      <RAMenu.Item to="/production-summary" primaryText="ملخص الإنتاج" leftIcon={<Print />} />
     </StyledRAMenu>
   );
 };
