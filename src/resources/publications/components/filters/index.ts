@@ -1,6 +1,7 @@
 export * from './AcademicYearFilterSelect';
 export * from './CustomFilterSidebar';
 export * from './PublicationsTypeFilterSelect';
+export * from './PublisherFilterSelect';
 export * from './SubjectFilterSelect';
 export * from './TermFilterSelect';
 export * from './YearFilterSelect';

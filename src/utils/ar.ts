@@ -414,6 +414,7 @@ export const arabicMessages: TranslationMessages = {
     filters: {
       academic_year: 'السنة الدراسية',
       subject: 'المادة',
+      publisher: 'الناشر',
       year: 'السنة',
       term_id: 'الترم',
     },

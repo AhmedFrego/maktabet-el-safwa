@@ -8,6 +8,7 @@ import {
   TermFilterSelect,
   SubjectFilterSelect,
   PublicationsTypeFilterSelect,
+  PublisherFilterSelect,
 } from '.';
 import { Enums, idName } from 'types';
 
@@ -15,6 +16,7 @@ interface FilterColumns {
   id: Identifier;
   academic_year: Enums<'academic_years'>;
   subjects: idName;
+  publishers: idName;
   year: string;
 }
 
@@ -30,12 +32,17 @@ export const CustomFilterSidebar = () => {
 
   const { data } = useGetList<FilterColumns>('publications', {
     meta: {
-      columns: ['id,year,academic_year', 'subjects:subjects(id,name)'],
+      columns: [
+        'id,year,academic_year',
+        'subjects:subjects(id,name)',
+        'publishers:publishers(id,name)',
+      ],
     },
   });
 
   let uniqueAcademicYears: Enums<'academic_years'>[] = [];
   let uniqueSubjects: idName[] = [];
+  let uniquePublishers: idName[] = [];
   let uniqueYears: string[] = [];
 
   if (data) {
@@ -43,6 +50,7 @@ export const CustomFilterSidebar = () => {
       ...new Map(data.map((x) => [x.academic_year, x.academic_year])).values(),
     ];
     uniqueSubjects = [...new Map(data.map((x) => [x.subjects.id, x.subjects])).values()];
+    uniquePublishers = [...new Map(data.map((x) => [x.publishers.id, x.publishers])).values()];
     uniqueYears = [...new Map(data.map((x) => [x.year, x.year])).values()];
   }
 
@@ -70,6 +78,7 @@ export const CustomFilterSidebar = () => {
           <PublicationsTypeFilterSelect />
           <AcademicYearFilterSelect uniqueAcademicYears={uniqueAcademicYears} />
           <SubjectFilterSelect uniqueSubjects={uniqueSubjects} />
+          <PublisherFilterSelect uniquePublishers={uniquePublishers} />
           <YearFilterSelect uniqueYears={uniqueYears} />
           <TermFilterSelect />
         </Box>
