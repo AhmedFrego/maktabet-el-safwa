@@ -12,6 +12,11 @@ import {
   CircularProgress,
   Chip,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from '@mui/material';
 import { Title, useTranslate, useNotify } from 'react-admin';
 import { Print, PrintOutlined } from '@mui/icons-material';
@@ -44,6 +49,17 @@ export const ProductionSummary = () => {
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
   const [updating, setUpdating] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{
+    publicationId: string;
+    paperTypeId: string;
+    coverTypeId: string | null;
+    isDublix: boolean;
+    additionalData: string | undefined;
+    isDefaultKey: string;
+    reservationIds: string[];
+    title: string;
+  } | null>(null);
   const translate = useTranslate();
   const notify = useNotify();
   const printRef = useRef<HTMLDivElement>(null);
@@ -127,6 +143,50 @@ export const ProductionSummary = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenConfirmation = (
+    publicationId: string,
+    paperTypeId: string,
+    coverTypeId: string | null,
+    isDublix: boolean,
+    additionalData: string | undefined,
+    isDefaultKey: string,
+    reservationIds: string[],
+    title: string
+  ) => {
+    setPendingAction({
+      publicationId,
+      paperTypeId,
+      coverTypeId,
+      isDublix,
+      additionalData,
+      isDefaultKey,
+      reservationIds,
+      title,
+    });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (pendingAction) {
+      handleSetPublicationReady(
+        pendingAction.publicationId,
+        pendingAction.paperTypeId,
+        pendingAction.coverTypeId,
+        pendingAction.isDublix,
+        pendingAction.additionalData,
+        pendingAction.isDefaultKey,
+        pendingAction.reservationIds
+      );
+    }
+    setConfirmOpen(false);
+    setPendingAction(null);
+  };
+
+  const handleCancel = () => {
+    setConfirmOpen(false);
+    setPendingAction(null);
   };
 
   const handleSetPublicationReady = async (
@@ -442,14 +502,15 @@ export const ProductionSummary = () => {
                             <Box
                               onClick={() => {
                                 if (!isUpdating) {
-                                  handleSetPublicationReady(
+                                  handleOpenConfirmation(
                                     pub.publicationId,
                                     pub.paperTypeId,
                                     pub.coverTypeId,
                                     pub.isDublix,
                                     pub.additional_data,
                                     isDefaultKey,
-                                    pub.reservationIds
+                                    pub.reservationIds,
+                                    pub.title
                                   );
                                 }
                               }}
@@ -617,6 +678,37 @@ export const ProductionSummary = () => {
           )}
         </Box>
       </Box>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmOpen}
+        onClose={handleCancel}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title" sx={{ fontFamily: 'inherit' }}>
+          تأكيد تعيين المنشور كجاهز
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-dialog-description" sx={{ fontFamily: 'inherit' }}>
+            هل أنت متأكد من تعيين المنشور <strong>&quot;{pendingAction?.title}&quot;</strong> كجاهز{' '}
+            <strong>{toArabicNumerals(pendingAction?.reservationIds.length || 0)}</strong> في حجز؟
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} sx={{ fontFamily: 'inherit' }}>
+            إلغاء
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            variant="contained"
+            autoFocus
+            sx={{ fontFamily: 'inherit' }}
+          >
+            تأكيد
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
