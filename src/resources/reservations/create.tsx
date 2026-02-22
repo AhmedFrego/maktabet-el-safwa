@@ -174,6 +174,7 @@ export const ReservationCreate = () => {
       console.error('Error fetching client:', error);
       notify('تم إنشاء الحجز بنجاح', { type: 'success' });
       // Close even if client fetch failed
+      setInstantDelivery(false);
       dispatch(clearItems());
       dispatch(setEditingReservation(null));
     }
@@ -182,6 +183,7 @@ export const ReservationCreate = () => {
   // Called after PDF is auto-downloaded
   const handleReceiptClose = () => {
     setReceiptData(null);
+    setInstantDelivery(false);
     dispatch(clearItems());
     dispatch(setEditingReservation(null));
   };
@@ -201,6 +203,7 @@ export const ReservationCreate = () => {
               transform={confirmReserve}
               mutationOptions={{
                 onSuccess: () => {
+                  setInstantDelivery(false);
                   dispatch(clearItems());
                   dispatch(setEditingReservation(null));
                 },
