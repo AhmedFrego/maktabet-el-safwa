@@ -500,6 +500,7 @@ export const arabicMessages: TranslationMessages = {
     messages: {
       instant_delivery_warning: 'تأكد من تسليم جميع العناصر المحجوزة وتحصيل المبلغ الكامل',
       receipt_preview: 'معاينة الإيصال',
+      receipt_header: 'إيصال استلام',
       delivery_date: 'موعد التسليم',
       thank_you: 'شكراً لتعاملكم معنا',
       reservation_id: 'رقم الحجز',

@@ -3,6 +3,8 @@ import { Print, ArrowBack, Download, PictureAsPdf, Close } from '@mui/icons-mate
 import { useTranslate, useStore } from 'react-admin';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useReactToPrint } from 'react-to-print';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ar';
 
 import { toArabicNumerals } from 'utils';
 import { Tables } from 'types';
@@ -233,9 +235,8 @@ export const ReceiptPreview = ({
     const d = date.toDate();
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(hours)}:${toArabicNumerals(minutes)}`;
+    const dayName = dayjs(d).locale('ar').format('dddd');
+    return `${dayName} - ${toArabicNumerals(month)}/${toArabicNumerals(day)}`;
   };
 
   // Get collection title from master item
@@ -440,9 +441,11 @@ export const ReceiptPreview = ({
   const ReceiptContent = ({
     copyLabel,
     showItems = true,
+    showHeaderFooter = true,
   }: {
     copyLabel?: string;
     showItems?: boolean;
+    showHeaderFooter?: boolean;
   }) => (
     <Box
       dir="rtl"
@@ -473,51 +476,47 @@ export const ReceiptPreview = ({
         },
       }}
     >
-      {/* Copy label for print */}
-      {copyLabel && (
-        <Typography
-          sx={{
-            ...textStyle,
-            fontSize: '12px',
-            textAlign: 'center',
-            color: '#333 !important',
-            mb: 0.5,
-            display: 'none',
-            '@media print': {
-              display: 'block',
-            },
-          }}
-        >
-          ({copyLabel})
-        </Typography>
-      )}
-
       {/* ═══════════ Store Header ═══════════ */}
-      <Box sx={{ textAlign: 'center', mb: 1 }}>
-        <Typography
-          sx={{
-            ...textStyle,
-            fontSize: '18px',
-            fontWeight: 'bold',
-            color: '#000 !important',
-          }}
-        >
-          {translate('custom.messages.store_name')}
-        </Typography>
-      </Box>
+      {showHeaderFooter && (
+        <>
+          <Box sx={{ textAlign: 'center', mb: 1 }}>
+            <Typography
+              sx={{
+                ...textStyle,
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#000 !important',
+              }}
+            >
+              {translate('custom.messages.store_name')}
+            </Typography>
+            <Typography
+              sx={{
+                ...textStyle,
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#000 !important',
+                mt: 0.5,
+              }}
+            >
+              {translate('custom.messages.receipt_header')}
+            </Typography>
+          </Box>
 
-      {/* ═══════════ Separator ═══════════ */}
-      <Box
-        sx={{
-          textAlign: 'center',
-          my: 1,
-          color: '#000 !important',
-          fontSize: '12px',
-          fontWeight: 'bold',
-        }}
-      >
-        ════════════════════════
-      </Box>
+          {/* ═══════════ Separator ═══════════ */}
+          <Box
+            sx={{
+              textAlign: 'center',
+              my: 1,
+              color: '#000 !important',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            ════════════════════════
+          </Box>
+        </>
+      )}
 
       {/* ═══════════ Client Info ═══════════ */}
       <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between' }}>
@@ -629,59 +628,92 @@ export const ReceiptPreview = ({
           </Typography>
         </Box>
 
-        {/* Paid */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            mb: 0.5,
-          }}
-        >
-          <Typography
-            sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+        {/* Payment Status */}
+        {remainAmount === 0 ? (
+          // Fully paid - show centered text
+          <Box
+            sx={{
+              textAlign: 'center',
+              backgroundColor: '#d4edda',
+              border: '2px solid #000',
+              borderRadius: '4px',
+              px: 1,
+              py: 1,
+              mt: 0.5,
+            }}
           >
-            {translate('custom.labels.paid_amount')}
-          </Typography>
-          <Typography
-            sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
-          >
-            {toArabicNumerals(paidAmount)} {translate('custom.currency.short')}
-          </Typography>
-        </Box>
+            <Typography
+              sx={{ ...textStyle, fontSize: '16px', fontWeight: 'bold', color: '#000 !important' }}
+            >
+              {translate('custom.labels.no_remain_amount')}
+            </Typography>
+          </Box>
+        ) : (
+          // Partial payment - show paid and remaining
+          <>
+            {/* Paid */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                mb: 0.5,
+              }}
+            >
+              <Typography
+                sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+              >
+                {translate('custom.labels.paid_amount')}
+              </Typography>
+              <Typography
+                sx={{ ...textStyle, fontSize: '14px', color: '#000 !important', fontWeight: 600 }}
+              >
+                {toArabicNumerals(paidAmount)} {translate('custom.currency.short')}
+              </Typography>
+            </Box>
 
-        {/* Remaining */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            backgroundColor: remainAmount > 0 ? '#fff3cd' : '#d4edda',
-            border: remainAmount > 0 ? '2px solid #000' : '2px solid #000',
-            borderRadius: '4px',
-            px: 1,
-            py: 0.5,
-            mt: 0.5,
-          }}
-        >
-          <Typography
-            sx={{ ...textStyle, fontSize: '14px', fontWeight: 'bold', color: '#000 !important' }}
-          >
-            {translate('custom.labels.remain_amount')}
-          </Typography>
-          <Typography
-            sx={{ ...textStyle, fontSize: '15px', fontWeight: 'bold', color: '#000 !important' }}
-          >
-            {remainAmount === 0
-              ? translate('custom.labels.no_remain_amount')
-              : `${toArabicNumerals(remainAmount)} ${translate('custom.currency.short')}`}
-          </Typography>
-        </Box>
+            {/* Remaining */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                backgroundColor: '#fff3cd',
+                border: '2px solid #000',
+                borderRadius: '4px',
+                px: 1,
+                py: 0.5,
+                mt: 0.5,
+              }}
+            >
+              <Typography
+                sx={{
+                  ...textStyle,
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  color: '#000 !important',
+                }}
+              >
+                {translate('custom.labels.remain_amount')}
+              </Typography>
+              <Typography
+                sx={{
+                  ...textStyle,
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  color: '#000 !important',
+                }}
+              >
+                {toArabicNumerals(remainAmount)} {translate('custom.currency.short')}
+              </Typography>
+            </Box>
+          </>
+        )}
       </Box>
 
       {/* ═══════════ Separator ═══════════ */}
       <Box
         sx={{
           textAlign: 'center',
-          my: 1.5,
+          my: 0.5,
           color: '#000 !important',
           fontSize: '12px',
           fontWeight: 'bold',
@@ -693,10 +725,13 @@ export const ReceiptPreview = ({
       {/* ═══════════ Delivery Date ═══════════ */}
       <Box
         sx={{
-          textAlign: 'center',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           backgroundColor: '#e0e0e0',
           borderRadius: '4px',
           py: 0.75,
+          px: 1,
           mb: 1.5,
           border: '2px solid #000',
         }}
@@ -707,7 +742,7 @@ export const ReceiptPreview = ({
           {translate('custom.messages.delivery_date')}
         </Typography>
         <Typography
-          sx={{ ...textStyle, fontSize: '15px', fontWeight: 'bold', color: '#000 !important' }}
+          sx={{ ...textStyle, fontSize: '13px', color: '#000 !important', fontWeight: 600 }}
         >
           {formatDeliveryDate(deadLine)}
         </Typography>
@@ -715,17 +750,19 @@ export const ReceiptPreview = ({
 
       {/* ═══════════ Footer ═══════════ */}
       <Box sx={{ textAlign: 'center' }}>
-        <Typography
-          sx={{
-            ...textStyle,
-            fontSize: '14px',
-            mb: 0.5,
-            color: '#000 !important',
-            fontWeight: 600,
-          }}
-        >
-          {translate('custom.messages.thank_you')}
-        </Typography>
+        {showHeaderFooter && (
+          <Typography
+            sx={{
+              ...textStyle,
+              fontSize: '14px',
+              mb: 0.5,
+              color: '#000 !important',
+              fontWeight: 600,
+            }}
+          >
+            {translate('custom.messages.thank_you')}
+          </Typography>
+        )}
 
         {reservationCode && (
           <Typography
@@ -736,34 +773,36 @@ export const ReceiptPreview = ({
         )}
 
         {/* Branch Phone Numbers */}
-        {setting?.branch_phone_numbers && setting.branch_phone_numbers.length > 0 && (
-          <Box
-            sx={{
-              mt: 1,
-              pt: 1,
-              borderTop: '2px dotted #000',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 1.5,
-              flexWrap: 'wrap',
-            }}
-          >
-            {setting.branch_phone_numbers.map((phone, idx) => (
-              <Typography
-                key={idx}
-                sx={{
-                  ...textStyle,
-                  fontSize: '13px',
-                  color: '#000 !important',
-                  direction: 'ltr',
-                  fontWeight: 600,
-                }}
-              >
-                📱 {phone.phone_number}
-              </Typography>
-            ))}
-          </Box>
-        )}
+        {showHeaderFooter &&
+          setting?.branch_phone_numbers &&
+          setting.branch_phone_numbers.length > 0 && (
+            <Box
+              sx={{
+                mt: 1,
+                pt: 1,
+                borderTop: '2px dotted #000',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 1.5,
+                flexWrap: 'wrap',
+              }}
+            >
+              {setting.branch_phone_numbers.map((phone, idx) => (
+                <Typography
+                  key={idx}
+                  sx={{
+                    ...textStyle,
+                    fontSize: '13px',
+                    color: '#000 !important',
+                    direction: 'ltr',
+                    fontWeight: 600,
+                  }}
+                >
+                  📱 {phone.phone_number}
+                </Typography>
+              ))}
+            </Box>
+          )}
       </Box>
     </Box>
   );
@@ -845,7 +884,11 @@ export const ReceiptPreview = ({
             },
           }}
         >
-          <ReceiptContent copyLabel={translate('custom.messages.receipt_copy_store')} showItems />
+          <ReceiptContent
+            copyLabel={translate('custom.messages.receipt_copy_store')}
+            showItems
+            showHeaderFooter={false}
+          />
         </Box>
       </Box>
     </Box>

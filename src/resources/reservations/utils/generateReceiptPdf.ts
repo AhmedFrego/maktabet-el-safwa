@@ -198,26 +198,37 @@ export const generateReceiptPdf = async (data: ReceiptData): Promise<void> => {
       t('custom.labels.total_price', 'الإجمالي'),
       10
     );
-    addTextPair(
-      `${toArabicNumerals(paidAmount)} ${currencyShort}`,
-      t('custom.labels.paid_amount', 'المدفوع'),
-      9
-    );
 
-    // Remaining - highlighted
-    const remainText =
-      remainAmount === 0
-        ? t('custom.labels.no_remain_amount', 'تم السداد')
-        : `${toArabicNumerals(remainAmount)} ${currencyShort}`;
-    addTextPair(remainText, t('custom.labels.remain_amount', 'المتبقي'), 10);
-    y += 2;
+    // Payment status - conditional rendering
+    if (remainAmount === 0) {
+      // Fully paid - show centered text
+      y += 1;
+      addCenteredText(t('custom.labels.no_remain_amount', 'خالص الثمن'), 12);
+      y += 1;
+    } else {
+      // Partial payment - show paid and remaining
+      addTextPair(
+        `${toArabicNumerals(paidAmount)} ${currencyShort}`,
+        t('custom.labels.paid_amount', 'المدفوع'),
+        9
+      );
+      addTextPair(
+        `${toArabicNumerals(remainAmount)} ${currencyShort}`,
+        t('custom.labels.remain_amount', 'المتبقي'),
+        10
+      );
+    }
+    y += 0.5;
 
     addSeparator();
 
     // Delivery date
-    addCenteredText(t('custom.messages.delivery_date', 'موعد الاستلام'), 8);
-    addCenteredText(formatDeliveryDate(deadLine), 10);
-    y += 2;
+    addTextPair(
+      t('custom.messages.delivery_date', 'موعد الاستلام'),
+      formatDeliveryDate(deadLine),
+      10
+    );
+    y += 1;
 
     addSeparator();
 
