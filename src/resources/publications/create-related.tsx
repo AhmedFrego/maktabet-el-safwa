@@ -1,28 +1,18 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Divider, Paper, IconButton } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
-import {
-  useTranslate,
-  useRedirect,
-  useGetOne,
-  useCreate,
-  useNotify,
-  Title,
-  Form,
-} from 'react-admin';
+import { Box, Typography, IconButton, Button } from '@mui/material';
+import { ArrowBack, Save, Visibility, Add } from '@mui/icons-material';
+import { Create, useTranslate, useRedirect, useGetOne, useNotify, useStore } from 'react-admin';
 
+import { StyledForm } from 'components/form';
 import { syncAddRelated } from 'utils/helpers/syncRelatedPublications';
 import { resizeToA4 } from 'utils/helpers/resizeToA4';
 import { supabase } from 'lib/supabase';
-import { STOREGE_URL, Tables } from 'types';
+import { STOREGE_URL, Tables, TablesInsert } from 'types';
 import { Loading } from 'components/UI';
 
-import {
-  ParentPublicationInfo,
-  RelatedPublicationFields,
-  RelatedPublicationFormActions,
-} from './components';
+import { PublicationForm } from './components';
+import { PublicationWithFileCover } from './types';
 
 export const CreateRelatedPublication = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,10 +20,9 @@ export const CreateRelatedPublication = () => {
   const translate = useTranslate();
   const redirect = useRedirect();
   const notify = useNotify();
-  const [create, { isPending: isCreating }] = useCreate();
+  const [setting] = useStore<Tables<'settings'>>('settings');
   const [createdCount, setCreatedCount] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [localRelatedIds, setLocalRelatedIds] = useState<string[]>([]);
+  const [saveAndAddAnother, setSaveAndAddAnother] = useState(false);
 
   // Fetch parent publication
   const { data: publicationData, isLoading } = useGetOne<Tables<'publications'>>(
@@ -55,135 +44,9 @@ export const CreateRelatedPublication = () => {
     { enabled: !!publicationData?.publisher_id }
   );
 
-  // Upload cover to Supabase storage
-  const uploadCover = useCallback(
-    async (coverData: { rawFile?: File } | string | null): Promise<string | null> => {
-      if (!coverData || typeof coverData === 'string') return null;
-      const file = coverData.rawFile;
-      if (!file) return null;
-
-      try {
-        const resizedBlob = await resizeToA4(file);
-        const fileName = `/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-        const { data: cover, error } = await supabase.storage
-          .from('covers')
-          .upload(fileName, resizedBlob);
-
-        if (error) {
-          console.error('Cover upload error:', error);
-          throw error;
-        }
-
-        return `${STOREGE_URL}${cover?.fullPath}`;
-      } catch (error) {
-        console.error('Cover resize/upload error:', error);
-        throw error;
-      }
-    },
-    []
-  );
-
-  const handleSubmit = useCallback(
-    async (formData: Record<string, unknown>, keepOpen: boolean = false) => {
-      if (!publicationData) return;
-
-      try {
-        setIsUploading(true);
-
-        // Upload cover if provided
-        let coverUrl: string | null = null;
-        if (!formData.coverless && formData.cover_url) {
-          try {
-            coverUrl = await uploadCover(formData.cover_url as { rawFile?: File } | string | null);
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'خطأ في تحميل الصورة';
-            notify(errorMessage, { type: 'error' });
-            setIsUploading(false);
-            return;
-          }
-        }
-
-        // Get all existing related publications in the group
-        const existingRelated = [
-          ...((publicationData.related_publications as string[]) || []),
-          ...localRelatedIds,
-        ];
-        // New publication should be linked to original + all its existing related publications
-        const allGroupIds = [...new Set([publicationData.id, ...existingRelated])];
-
-        // Create new publication with form data + inherited shared fields
-        const newPublicationData = {
-          // Shared fields from parent (cannot be changed)
-          publication_type: publicationData.publication_type,
-          subject_id: publicationData.subject_id,
-          publisher_id: publicationData.publisher_id,
-          academic_year: publicationData.academic_year,
-          term: publicationData.term,
-          year: publicationData.year,
-          created_by: publicationData.created_by,
-          // Editable fields from form
-          pages: formData.pages,
-          paper_type_id: formData.paper_type_id,
-          additional_data: formData.additional_data,
-          do_round: formData.do_round || false,
-          coverless: formData.coverless || false,
-          two_faces_cover: formData.coverless ? false : formData.two_faces_cover || false,
-          cover_url: coverUrl,
-          created_at: new Date().toISOString(),
-          related_publications: allGroupIds,
-        };
-
-        create(
-          'publications',
-          { data: newPublicationData },
-          {
-            onSuccess: async (newPublication) => {
-              // Use syncAddRelated to update ALL existing group members with the new publication
-              // Pass parentId to auto-set parent as master if no master exists in group
-              const syncResult = await syncAddRelated(
-                newPublication.id,
-                allGroupIds,
-                publicationData.id
-              );
-
-              if (!syncResult.success) {
-                notify(translate('resources.publications.messages.update_original_error'), {
-                  type: 'error',
-                });
-                setIsUploading(false);
-                return;
-              }
-
-              notify(translate('resources.publications.messages.create_related_success'), {
-                type: 'success',
-              });
-              setIsUploading(false);
-
-              if (keepOpen) {
-                // Update local state for chain creation
-                setCreatedCount((prev) => prev + 1);
-                setLocalRelatedIds((prev) => [...prev, newPublication.id]);
-              } else {
-                // Navigate back to the parent publication
-                redirect('show', 'publications', publicationData.id);
-              }
-            },
-            onError: () => {
-              notify(translate('resources.publications.messages.create_related_error'), {
-                type: 'error',
-              });
-              setIsUploading(false);
-            },
-          }
-        );
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
-        notify(errorMessage, { type: 'error' });
-        setIsUploading(false);
-      }
-    },
-    [publicationData, localRelatedIds, uploadCover, create, notify, translate, redirect]
-  );
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const handleViewPublication = () => {
     if (publicationData) {
@@ -191,8 +54,97 @@ export const CreateRelatedPublication = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate(-1);
+  // Transform function similar to create.tsx but with inherited fields
+  const transform = async (
+    data: PublicationWithFileCover | TablesInsert<'publications'>
+  ): Promise<TablesInsert<'publications'>> => {
+    if (!publicationData) return Promise.reject('Parent publication not found');
+
+    const { data: session } = await supabase.auth.getSession();
+    if (!session.session) return Promise.reject('no logged in user');
+
+    // Handle cover upload (same logic as create.tsx)
+    const file = typeof data.cover_url === 'string' ? null : data.cover_url?.rawFile;
+    if (file) {
+      const resizedBlob = await resizeToA4(file);
+      const { data: cover, error } = await supabase.storage
+        .from('covers')
+        .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, resizedBlob);
+      if (error) throw error;
+      const fullPath = `${STOREGE_URL}${cover?.fullPath}`;
+      data.cover_url = fullPath;
+    } else {
+      data.cover_url = null;
+    }
+
+    // Get all existing related publications in the group
+    const existingRelated = (publicationData.related_publications as string[]) || [];
+    const allGroupIds = [...new Set([publicationData.id, ...existingRelated])];
+
+    // Merge inherited fields from parent with form data
+    const transformedData: TablesInsert<'publications'> = {
+      // Inherited fields from parent (cannot be changed)
+      publication_type: publicationData.publication_type,
+      subject_id: publicationData.subject_id,
+      publisher_id: publicationData.publisher_id,
+      academic_year: publicationData.academic_year,
+      term: publicationData.term,
+      year: publicationData.year,
+      // User provided fields
+      pages: data.pages ?? 0,
+      paper_type_id: data.paper_type_id ?? '',
+      additional_data: data.additional_data ?? '',
+      do_round: data.do_round || false,
+      coverless: data.coverless || false,
+      two_faces_cover: data.coverless ? false : data.two_faces_cover || false,
+      cover_url: data.cover_url,
+      related_publications: allGroupIds,
+      created_by: session.session.user.id,
+      created_at: new Date().toISOString(),
+      change_price: { oneFacePrice: 0, twoFacesPrice: 0 },
+    };
+
+    return transformedData;
+  };
+
+  // Handle success after creation
+  const handleSuccess = async (createdPublication: Tables<'publications'>) => {
+    if (!publicationData) return;
+
+    try {
+      // Get all existing related publications in the group
+      const existingRelated = (publicationData.related_publications as string[]) || [];
+      const allGroupIds = [...new Set([publicationData.id, ...existingRelated])];
+
+      // Sync the new publication with all group members
+      const syncResult = await syncAddRelated(
+        createdPublication.id,
+        allGroupIds,
+        publicationData.id
+      );
+
+      if (!syncResult.success) {
+        notify(translate('resources.publications.messages.update_original_error'), {
+          type: 'warning',
+        });
+      } else {
+        notify(translate('resources.publications.messages.create_related_success'), {
+          type: 'success',
+        });
+      }
+
+      if (saveAndAddAnother) {
+        // Reset for next creation
+        setCreatedCount((prev) => prev + 1);
+        setSaveAndAddAnother(false);
+      } else {
+        // Navigate back to parent publication
+        redirect('show', 'publications', publicationData.id);
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      notify(translate('resources.publications.messages.unexpected_error'), { type: 'error' });
+    }
   };
 
   if (isLoading) {
@@ -209,10 +161,9 @@ export const CreateRelatedPublication = () => {
     );
   }
 
-  // Default values from parent publication
+  // Default values from parent publication + settings
   const defaultValues = {
-    pages: 0,
-    paper_type_id: publicationData.paper_type_id || '',
+    paper_type_id: publicationData.paper_type_id || setting?.default_paper_size || '',
     additional_data: '',
     do_round: true,
     coverless: false,
@@ -221,64 +172,106 @@ export const CreateRelatedPublication = () => {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Title title={translate('resources.publications.messages.create_related_title')} />
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, maxWidth: 800, mx: 'auto' }}>
+        <IconButton onClick={handleBack}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontFamily: 'inherit', flex: 1 }}>
+          {translate('resources.publications.messages.create_related_title')}
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<Visibility />}
+          onClick={handleViewPublication}
+          sx={{ fontFamily: 'inherit' }}
+        >
+          {translate('resources.publications.messages.view_publication')}
+        </Button>
+      </Box>
 
-      <Paper
-        sx={{
-          maxWidth: 800,
-          mx: 'auto',
-          p: 3,
-          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <IconButton onClick={handleBack}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h5" sx={{ fontFamily: 'inherit' }}>
-            {translate('resources.publications.messages.create_related_title')}
+      {/* Success counter */}
+      {createdCount > 0 && (
+        <Box sx={{ maxWidth: 800, mx: 'auto', mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: 'inherit',
+              color: 'success.main',
+              textAlign: 'center',
+              p: 1,
+              backgroundColor: 'success.light',
+              borderRadius: 1,
+            }}
+          >
+            {translate('resources.publications.messages.created_related_count', {
+              count: createdCount,
+            })}
           </Typography>
         </Box>
+      )}
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Parent publication info (read-only) */}
-        <ParentPublicationInfo
-          publication={publicationData}
-          subjectName={subject?.name}
-          publisherName={publisher?.name}
-        />
-
-        <Form defaultValues={defaultValues} key={createdCount}>
-          <RelatedPublicationFields />
-
-          <Divider sx={{ my: 3 }} />
-
-          {createdCount > 0 && (
-            <Typography
-              variant="body2"
+      {/* Use React Admin Create component */}
+      <Create
+        resource="publications"
+        transform={transform}
+        mutationOptions={{ onSuccess: handleSuccess }}
+        redirect={false}
+        actions={false}
+        key={createdCount} // Reset form when count changes
+      >
+        <StyledForm
+          defaultValues={defaultValues}
+          toolbar={
+            <Box
               sx={{
-                fontFamily: 'inherit',
-                color: 'success.main',
-                textAlign: 'center',
-                mb: 2,
+                display: 'flex',
+                gap: 1,
+                justifyContent: 'center',
+                position: 'fixed',
+                bottom: 10,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
               }}
             >
-              {translate('resources.publications.messages.created_related_count', {
-                count: createdCount,
-              })}
-            </Typography>
-          )}
-
-          <RelatedPublicationFormActions
-            isLoading={isCreating || isUploading}
-            onBack={handleBack}
-            onViewPublication={handleViewPublication}
-            onSaveAndAddAnother={(data) => handleSubmit(data, true)}
-            onSave={(data) => handleSubmit(data, false)}
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Save />}
+                type="submit"
+                sx={{ fontFamily: 'inherit' }}
+              >
+                {translate('resources.publications.messages.save_related_publication')}
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<Add />}
+                onClick={() => {
+                  setSaveAndAddAnother(true);
+                  // Trigger form submission
+                  const form = document.querySelector('form');
+                  if (form) {
+                    const event = new Event('submit', { cancelable: true, bubbles: true });
+                    form.dispatchEvent(event);
+                  }
+                }}
+                sx={{ fontFamily: 'inherit' }}
+              >
+                {translate('resources.publications.messages.save_and_add_another')}
+              </Button>
+            </Box>
+          }
+        >
+          <PublicationForm
+            mode="related"
+            parentPublication={publicationData}
+            parentSubjectName={subject?.name}
+            parentPublisherName={publisher?.name}
           />
-        </Form>
-      </Paper>
+        </StyledForm>
+      </Create>
     </Box>
   );
 };

@@ -9,4 +9,5 @@ export * from './YearInput';
 export * from './PriceDisplay';
 export * from './PublicationForm';
 export * from './RelatedPublicationButton';
-export * from './RelatedPublicationFields';
+// No longer used - unified into PublicationForm with mode prop
+// export * from './RelatedPublicationFields';

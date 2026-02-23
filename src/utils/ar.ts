@@ -332,6 +332,7 @@ export const arabicMessages: TranslationMessages = {
         publication_data: 'بيانات المنشور',
         yes: 'نعم',
         no: 'لا',
+        inherited_from_parent: 'الحقول الموروثة من المنشور الأصلي',
         // Collection master messages
         is_collection_master: 'المنشور الرئيسي للمجموعة',
         set_as_master: 'تعيين كرئيسي للمجموعة',

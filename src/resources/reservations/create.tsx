@@ -34,7 +34,11 @@ export const ReservationCreate = () => {
     isReserving,
     reservedItems: reserved_items,
     editingReservation,
-  } = useAppSelector((state) => state.reservation);
+  } = useAppSelector((state) => state.reservation) as {
+    isReserving: boolean | 'confirming';
+    reservedItems: ReservationRecord[];
+    editingReservation: Tables<'reservations'> | null;
+  };
 
   // Calculate total price from reserved items (reflects any manual/unit price edits)
   const { total_price, groupedItems } = useMemo(() => {
@@ -199,7 +203,7 @@ export const ReservationCreate = () => {
           {editingReservation ? (
             <Edit
               resource="reservations"
-              id={editingReservation.reservation_id}
+              id={editingReservation.reservation_code}
               transform={confirmReserve}
               mutationOptions={{
                 onSuccess: () => {

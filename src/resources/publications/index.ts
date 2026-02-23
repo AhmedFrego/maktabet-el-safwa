@@ -7,5 +7,4 @@ export * from './edit';
 export * from './styles';
 export * from './hooks';
 export * from './types';
-
 export * from './resource';

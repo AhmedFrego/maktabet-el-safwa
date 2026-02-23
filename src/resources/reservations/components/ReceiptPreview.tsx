@@ -439,7 +439,6 @@ export const ReceiptPreview = ({
 
   // Receipt content component to avoid duplication
   const ReceiptContent = ({
-    copyLabel,
     showItems = true,
     showHeaderFooter = true,
   }: {
