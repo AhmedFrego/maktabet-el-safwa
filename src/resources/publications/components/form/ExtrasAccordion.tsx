@@ -108,7 +108,7 @@ export const ExtrasAccordion = ({
   onRelatedPublicationSuccess,
 }: ExtrasAccordionProps) => {
   return (
-    <Accordion sx={{ '&.Mui-expanded': { m: 0 } }}>
+    <Accordion sx={{ width: '100%', '&.Mui-expanded': { m: 0 } }}>
       <AccordionSummary
         expandIcon={<KeyboardDoubleArrowDown />}
         sx={(theme) => ({

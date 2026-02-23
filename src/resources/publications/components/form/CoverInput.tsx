@@ -42,7 +42,7 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
   }, [field]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <ImageInput
         source={source}
         accept={{ 'image/*': ['.png', '.jpg'] }}
