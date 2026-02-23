@@ -4,7 +4,7 @@ import { ControlPoint } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
-import { STOREGE_URL, Tables, TablesInsert } from 'types';
+import { DEFAULT_COVER_URL, STOREGE_URL, Tables, TablesInsert } from 'types';
 import { resizeToA4 } from 'utils';
 
 import { PublicationForm } from './components';
@@ -51,6 +51,7 @@ export const PublicationCreate = () => {
           year: setting?.current_year,
           term: setting?.current_term,
           paper_type_id: setting?.default_paper_size,
+          cover_url: DEFAULT_COVER_URL,
         }}
         toolbar={
           <Fab

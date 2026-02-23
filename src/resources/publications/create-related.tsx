@@ -8,7 +8,7 @@ import { StyledForm } from 'components/form';
 import { syncAddRelated } from 'utils/helpers/syncRelatedPublications';
 import { resizeToA4 } from 'utils/helpers/resizeToA4';
 import { supabase } from 'lib/supabase';
-import { STOREGE_URL, Tables, TablesInsert } from 'types';
+import { DEFAULT_COVER_URL, STOREGE_URL, Tables, TablesInsert } from 'types';
 import { Loading } from 'components/UI';
 
 import { PublicationForm } from './components';
@@ -164,6 +164,7 @@ export const CreateRelatedPublication = () => {
   // Default values from parent publication + settings
   const defaultValues = {
     paper_type_id: publicationData.paper_type_id || setting?.default_paper_size || '',
+    cover_url: publicationData.cover_url || DEFAULT_COVER_URL,
     additional_data: '',
     do_round: true,
     coverless: false,
