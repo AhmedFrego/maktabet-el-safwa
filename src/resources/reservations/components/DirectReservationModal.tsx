@@ -23,21 +23,15 @@ import {
 } from 'react-admin';
 import { ModalContent, ModalWrapper } from 'components/UI';
 import { Tables } from 'types';
-import { useCalcPrice, useGetCovers } from 'hooks';
+import { useDirectReservationPricing, ReservationItemData } from 'hooks';
 import { supabase } from 'lib';
 import { toArabicNumerals } from 'utils';
 
-// Types
-export interface DirectReservationItem {
+type CoverType = Tables<'cover_types'>;
+
+// Re-export for compatibility
+export interface DirectReservationItem extends ReservationItemData {
   id: string;
-  pages: number;
-  paperTypeId: string;
-  coverless: boolean;
-  coverId: string;
-  isDublix: boolean;
-  doRound: boolean;
-  paperPriceOverride: number | null; // Override for paper price per 100 pages
-  itemPriceOverride: number | null; // Override for total item price
 }
 
 interface DirectReservationModalProps {
@@ -51,8 +45,9 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
   const notify = useNotify();
   const [setting] = useStore<Tables<'settings'>>('settings');
   const [directPrintClientId] = useStore<string>('directPrintClientId');
-  const { calcRawPrice, getRoundTo } = useCalcPrice();
-  const { getCovers } = useGetCovers();
+  const { calculateItemPrice, getAvailableCovers, getDefaultCoverId } = useDirectReservationPricing(
+    { setting }
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totalOverride, setTotalOverride] = useState<number | null>(null);
 
@@ -63,8 +58,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
   // Create default item
   const createDefaultItem = useCallback((): DirectReservationItem => {
     const defaultPaperTypeId = setting?.default_paper_size || '';
-    const defaultCovers = defaultPaperTypeId ? getCovers(defaultPaperTypeId).covers : [];
-    const defaultCoverId = defaultCovers?.[0]?.id || '';
+    const defaultCoverId = getDefaultCoverId(defaultPaperTypeId);
 
     return {
       id: `direct-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
@@ -77,78 +71,15 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
       paperPriceOverride: null,
       itemPriceOverride: null,
     };
-  }, [setting?.default_paper_size, getCovers]);
+  }, [setting?.default_paper_size, getDefaultCoverId]);
 
   const [items, setItems] = useState<DirectReservationItem[]>(() => [createDefaultItem()]);
 
-  // Calculate price for a single item
-  const calcItemPrice = useCallback(
-    (item: DirectReservationItem): number => {
-      if (item.itemPriceOverride !== null) {
-        return item.itemPriceOverride;
-      }
-
-      if (item.pages <= 0) return 0;
-
-      const record = {
-        pages: item.pages,
-        paper_type_id: item.paperTypeId,
-        coverless: item.coverless,
-        two_faces_cover: true,
-        do_round: false, // We'll apply rounding manually
-        change_price: { oneFacePrice: 0, twoFacesPrice: 0 },
-      };
-
-      // Use paper price override if set, otherwise calculate from settings
-      let paperPrice: number;
-      if (item.paperPriceOverride !== null) {
-        paperPrice = item.paperPriceOverride;
-      } else {
-        const rawPrice = calcRawPrice({
-          record,
-          paperTypeId: item.paperTypeId,
-          coverId: item.coverless ? undefined : item.coverId,
-        });
-        // Get base paper price (without cover)
-        paperPrice = item.isDublix ? rawPrice.twoFacesPrice : rawPrice.oneFacePrice;
-        if (!item.coverless) {
-          paperPrice -= rawPrice.coverPrice;
-        }
-        // Convert to per 100 pages rate
-        paperPrice = item.pages > 0 ? (paperPrice * 100) / item.pages : 0;
-      }
-
-      // Calculate total print price from paper price
-      const printPrice = (paperPrice * item.pages) / 100;
-
-      // Add cover price if not coverless
-      let totalPrice = printPrice;
-      if (!item.coverless) {
-        const { covers } = getCovers(item.paperTypeId);
-        const cover = covers?.find((c) => c.id === item.coverId);
-        const coverPrice = Number(cover?.twoFacesPrice || cover?.oneFacePrice || 0);
-        totalPrice += coverPrice;
-      }
-
-      // Always ceil the base price first
-      totalPrice = Math.ceil(totalPrice);
-
-      // Apply additional rounding if enabled
-      if (item.doRound) {
-        const roundTo = getRoundTo();
-        totalPrice = Math.ceil(totalPrice / roundTo) * roundTo;
-      }
-
-      return totalPrice;
-    },
-    [calcRawPrice, getRoundTo, getCovers]
-  );
-
-  // Calculate totals
+  // Calculate totals using shared pricing logic
   const { itemPrices, calculatedTotal, finalTotal } = useMemo(() => {
     const prices = items.map((item) => ({
       id: item.id,
-      price: calcItemPrice(item),
+      price: calculateItemPrice(item),
       isOverridden: item.itemPriceOverride !== null,
     }));
 
@@ -156,13 +87,13 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
 
     // Apply group rounding if any item has doRound and no total override
     const shouldRound = items.some((item) => item.doRound) && totalOverride === null;
-    const roundTo = shouldRound ? getRoundTo() : 1;
+    const roundTo = shouldRound ? setting?.price_ceil_to || 1 : 1;
     const rounded = Math.ceil(calculated / roundTo) * roundTo;
 
     const final = totalOverride !== null ? totalOverride : rounded;
 
     return { itemPrices: prices, calculatedTotal: rounded, finalTotal: final };
-  }, [items, calcItemPrice, totalOverride, getRoundTo]);
+  }, [items, calculateItemPrice, totalOverride, setting?.price_ceil_to]);
 
   // Handlers
   const handleAddItem = () => {
@@ -184,8 +115,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
 
         // If paper type changed, update cover to first available
         if (updates.paperTypeId && updates.paperTypeId !== item.paperTypeId) {
-          const newCovers = getCovers(updates.paperTypeId).covers;
-          updated.coverId = newCovers?.[0]?.id || '';
+          updated.coverId = getDefaultCoverId(updates.paperTypeId);
         }
 
         // Clear price override when other fields change (except itemPriceOverride itself)
@@ -227,7 +157,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
       const reservedItems = items.map((item, index) => {
         const itemPrice = itemPrices.find((p) => p.id === item.id);
         const paperType = paperTypes?.find((pt) => pt.id === item.paperTypeId);
-        const covers = item.coverless ? null : getCovers(item.paperTypeId).covers;
+        const covers = item.coverless ? null : getAvailableCovers(item.paperTypeId);
         const cover = covers?.find((c) => c.id === item.coverId);
 
         return {
@@ -334,7 +264,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
                 onRemove={() => handleRemoveItem(item.id)}
                 onResetPrice={() => handleResetItemPrice(item.id)}
                 canRemove={items.length > 1}
-                getCovers={getCovers}
+                getCovers={(paperTypeId) => getAvailableCovers(paperTypeId) || []}
                 setting={setting}
               />
             ))}
@@ -427,7 +357,7 @@ interface DirectReservationItemRowProps {
   onRemove: () => void;
   onResetPrice: () => void;
   canRemove: boolean;
-  getCovers: ReturnType<typeof useGetCovers>['getCovers'];
+  getCovers: (paperTypeId: string) => CoverType[] | null;
   setting: Tables<'settings'> | undefined;
 }
 
@@ -445,7 +375,7 @@ const DirectReservationItemRow = ({
   setting,
 }: DirectReservationItemRowProps) => {
   const translate = useTranslate();
-  const availableCovers = item.paperTypeId ? getCovers(item.paperTypeId).covers : [];
+  const availableCovers = getCovers(item.paperTypeId);
 
   return (
     <Box
@@ -492,10 +422,13 @@ const DirectReservationItemRow = ({
             if (item.itemPriceOverride !== null && item.pages > 0) {
               let paperPrice = item.itemPriceOverride;
               // Subtract cover price if not coverless
-              if (!item.coverless) {
-                const covers = getCovers(item.paperTypeId).covers;
-                const cover = covers?.find((c) => c.id === item.coverId);
-                const coverPrice = Number(cover?.twoFacesPrice || cover?.oneFacePrice || 0);
+              if (!item.coverless && setting?.paper_prices) {
+                const paperPrice_ = setting.paper_prices.find(
+                  (p: { id: string }) => p.id === item.paperTypeId
+                );
+                const coverPrice = item.isDublix
+                  ? Number(paperPrice_?.twoFacesPrice || 0)
+                  : Number(paperPrice_?.oneFacePrice || 0);
                 paperPrice -= coverPrice;
               }
               return Math.round((paperPrice * 100) / item.pages);
@@ -614,18 +547,6 @@ const DirectReservationItemRow = ({
             />
           }
           label={translate('resources.publications.fields.dublix')}
-          sx={{ '& .MuiTypography-root': { fontFamily: 'inherit', fontSize: '0.875rem' } }}
-        />
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={item.doRound}
-              onChange={(e) => onUpdate({ doRound: e.target.checked })}
-              size="small"
-            />
-          }
-          label={translate('resources.publications.fields.do_round')}
           sx={{ '& .MuiTypography-root': { fontFamily: 'inherit', fontSize: '0.875rem' } }}
         />
       </Box>

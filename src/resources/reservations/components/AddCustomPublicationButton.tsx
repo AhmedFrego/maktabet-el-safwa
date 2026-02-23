@@ -1,73 +1,108 @@
 import { useState } from 'react';
-import { Box, Modal, Typography } from '@mui/material';
 import {
-  Button,
-  useTranslate,
-  TextInput,
-  AutocompleteInput,
-  useGetList,
-  NumberInput,
-  useStore,
-} from 'react-admin';
+  Box,
+  Modal,
+  Typography,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Divider,
+  IconButton,
+  Autocomplete,
+} from '@mui/material';
+import { Button, useTranslate, TextInput, useGetList, NumberInput, useStore } from 'react-admin';
+import { Close, Restore } from '@mui/icons-material';
 import { ModalContent, ModalWrapper } from 'components/UI';
 import { addOrIncreaseItem, useAppDispatch } from 'store';
 import { Tables } from 'types';
 import { ReservationMustKeys } from 'store/slices/reserviationSlice';
-import { useGetCovers } from 'hooks';
+import { useDirectReservationPricing, ReservationItemData } from 'hooks';
+import { createDefaultItemData, updateItemData, generateItemId } from 'utils';
+
+interface CustomPublicationFormData extends ReservationItemData {
+  title: string;
+  quantity: number;
+}
 
 export const AddCustomPublicationButton = () => {
   const translate = useTranslate();
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
+  const [, setKey] = useState(0);
   const [setting] = useStore<Tables<'settings'>>('settings');
-  const [key, setKey] = useState(0);
 
   const { data: paperTypes } = useGetList('paper_types', {
     pagination: { page: 1, perPage: 100 },
   });
 
-  const { getCovers } = useGetCovers();
+  const { calculateItemPrice, getAvailableCovers, getDefaultCoverId } = useDirectReservationPricing(
+    { setting }
+  );
 
-  const getDefaultFormData = () => {
-    const defaultPaperTypeId = setting?.default_paper_size || '';
-    const defaultCovers = defaultPaperTypeId ? getCovers(defaultPaperTypeId).covers : [];
-    const defaultCoverId = defaultCovers?.[0]?.id || '';
-
-    return {
-      title: '',
-      price: 0,
-      quantity: 1,
-      paper_type_id: defaultPaperTypeId,
-      cover_type_id: defaultCoverId,
-      coverless: false,
-    };
-  };
+  const getDefaultFormData = (): CustomPublicationFormData => ({
+    ...createDefaultItemData(setting, getDefaultCoverId, false),
+    title: '',
+    quantity: 1,
+  });
 
   const [formData, setFormData] = useState(getDefaultFormData());
-  const availableCovers = formData.paper_type_id ? getCovers(formData.paper_type_id).covers : [];
+  const availableCovers = getAvailableCovers(formData.paperTypeId);
+  const calculatedPrice = calculateItemPrice(formData);
+
+  // Helper to calculate paper price from settings or override
+  const getPaperPrice = (): number => {
+    if (formData.paperPriceOverride !== null) {
+      return formData.paperPriceOverride;
+    }
+
+    // Calculate from item price override if set
+    if (formData.itemPriceOverride !== null && formData.pages > 0) {
+      let paperPrice = formData.itemPriceOverride;
+      if (!formData.coverless) {
+        const cover = availableCovers?.find((c) => c.id === formData.coverId);
+        const coverPrice = Number(cover?.twoFacesPrice || cover?.oneFacePrice || 0);
+        paperPrice -= coverPrice;
+      }
+      return Math.round((paperPrice * 100) / formData.pages);
+    }
+
+    // Return 0 if no pages
+    if (formData.pages <= 0) return 0;
+
+    // Calculate from settings
+    const paperPriceSettings = (
+      setting?.paper_prices as Array<{ id: string; twoFacesPrice: number; oneFacePrice: number }>
+    )?.find((p) => p.id === formData.paperTypeId);
+    if (!paperPriceSettings) return 0;
+
+    return formData.isDublix ? paperPriceSettings.twoFacesPrice : paperPriceSettings.oneFacePrice;
+  };
+
+  const paperPrice = getPaperPrice();
 
   const handleSubmit = () => {
     if (
       formData.title &&
-      formData.price > 0 &&
-      formData.paper_type_id &&
-      (formData.coverless || formData.cover_type_id)
+      formData.pages > 0 &&
+      formData.paperTypeId &&
+      (formData.coverless || formData.coverId) &&
+      calculatedPrice > 0
     ) {
-      const selectedPaperType = paperTypes?.find((pt) => pt.id === formData.paper_type_id);
-      const selectedCoverType = availableCovers?.find((ct) => ct.id === formData.cover_type_id);
+      const selectedPaperType = paperTypes?.find((pt) => pt.id === formData.paperTypeId);
+      const selectedCoverType = availableCovers?.find((ct) => ct.id === formData.coverId);
 
       const customPublication = {
-        id: `custom-${Date.now()}`,
+        id: generateItemId('custom'),
         title: formData.title,
-        price: formData.price,
-        cover_type_id: formData.coverless ? null : formData.cover_type_id,
+        pages: formData.pages,
+        price: calculatedPrice,
+        cover_type_id: formData.coverless ? null : formData.coverId,
         cover_type: formData.coverless ? null : { name: selectedCoverType?.name },
         paper_type: { name: selectedPaperType?.name },
-        paper_type_id: formData.paper_type_id,
+        paper_type_id: formData.paperTypeId,
         coverless: formData.coverless,
-        pages: 0,
-        two_faces_cover: false,
-        do_round: false,
+        two_faces_cover: formData.isDublix,
+        do_round: formData.doRound,
         change_price: { oneFacePrice: 0, twoFacesPrice: 0 },
       } as ReservationMustKeys;
 
@@ -109,15 +144,27 @@ export const AddCustomPublicationButton = () => {
               p: 3,
               backgroundColor: theme.palette.grey[100],
               border: `2px solid ${theme.palette.primary.main}`,
-              maxWidth: 400,
-              gap: 1,
+              maxWidth: 550,
+              maxHeight: '90vh',
+              overflow: 'auto',
+              gap: 1.5,
             })}
           >
-            <Typography variant="h6" gutterBottom sx={{ fontFamily: 'inherit' }}>
-              {translate('resources.reservations.actions.add_custom')}
-            </Typography>
+            {/* Header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="h6" sx={{ fontFamily: 'inherit', flex: 1 }}>
+                {translate('resources.reservations.actions.add_custom')}
+              </Typography>
+              <IconButton onClick={handleClose} size="small">
+                <Close />
+              </IconButton>
+            </Box>
+
+            <Divider />
+
             {open && (
-              <Box key={key} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {/* Title Field */}
                 <TextInput
                   source="custom_title"
                   label={translate('custom.labels.title')}
@@ -127,75 +174,235 @@ export const AddCustomPublicationButton = () => {
                   helperText={false}
                   fullWidth
                 />
-                <AutocompleteInput
-                  source="custom_paper_type"
-                  label={translate('resources.publications.fields.paper_type')}
-                  defaultValue={formData.paper_type_id}
-                  onChange={(value) => {
-                    const newPaperTypeId = value as string;
-                    const newAvailableCovers = getCovers(newPaperTypeId).covers;
-                    const firstCoverId = newAvailableCovers?.[0]?.id || '';
-                    setFormData({
-                      ...formData,
-                      paper_type_id: newPaperTypeId,
-                      cover_type_id: firstCoverId,
-                    });
-                  }}
-                  choices={paperTypes?.map((pt) => ({ id: pt.id, name: pt.name })) || []}
-                  size="small"
-                  helperText={false}
-                  fullWidth
-                />
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <input
-                    type="checkbox"
-                    id="custom_coverless"
-                    checked={formData.coverless}
-                    onChange={(e) => setFormData({ ...formData, coverless: e.target.checked })}
-                  />
-                  <Typography
-                    component="label"
-                    htmlFor="custom_coverless"
-                    sx={{ cursor: 'pointer', fontFamily: 'inherit' }}
-                  >
-                    {translate('resources.publications.fields.coverless')}
-                  </Typography>
-                </Box>
-                {!formData.coverless && (
-                  <AutocompleteInput
-                    source="custom_cover_type"
-                    label={translate('resources.publications.fields.cover_type')}
-                    defaultValue={formData.cover_type_id}
-                    onChange={(value) =>
-                      setFormData({ ...formData, cover_type_id: value as string })
-                    }
-                    choices={availableCovers?.map((ct) => ({ id: ct.id, name: ct.name })) || []}
+
+                {/* Paper Type and Pages Row */}
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <Autocomplete
                     size="small"
-                    helperText={false}
-                    fullWidth
+                    options={paperTypes || []}
+                    getOptionLabel={(option) => option.name || ''}
+                    value={paperTypes?.find((pt) => pt.id === formData.paperTypeId) || null}
+                    onChange={(_, newValue) => {
+                      const newPaperTypeId = newValue?.id || '';
+                      const updatedItemData = updateItemData(
+                        { ...formData, paperTypeId: newPaperTypeId },
+                        { paperTypeId: newPaperTypeId },
+                        getDefaultCoverId
+                      );
+                      setFormData({ ...formData, ...updatedItemData });
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={translate('resources.publications.fields.paper_type')}
+                      />
+                    )}
+                    sx={{ flex: 1 }}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                   />
-                )}
-                <NumberInput
-                  source="custom_price"
-                  label={translate('custom.labels.price')}
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                  size="small"
-                  helperText={false}
-                  fullWidth
-                />
+
+                  <TextField
+                    type="number"
+                    size="small"
+                    label={translate('custom.labels.pages_count')}
+                    value={formData.pages || ''}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        pages: parseInt(e.target.value) || 0,
+                        itemPriceOverride: null,
+                        paperPriceOverride: null,
+                      });
+                    }}
+                    sx={{ width: 120 }}
+                    inputProps={{ min: 1 }}
+                  />
+                </Box>
+
+                {/* Paper Price and Item Price Row */}
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <TextField
+                    type="text"
+                    size="small"
+                    label="سعر الورق/١٠٠"
+                    value={paperPrice || ''}
+                    onChange={(e) => {
+                      const input = e.target.value;
+                      if (input === '' || /^\d*\.?\d*$/.test(input)) {
+                        const val = parseFloat(input);
+                        if (input === '' || isNaN(val)) {
+                          // Clear override, revert to calculated
+                          setFormData({
+                            ...formData,
+                            paperPriceOverride: null,
+                            itemPriceOverride: null,
+                          });
+                        } else {
+                          // Set override and clear item price override to recalculate
+                          setFormData({
+                            ...formData,
+                            paperPriceOverride: val,
+                            itemPriceOverride: null,
+                          });
+                        }
+                      }
+                    }}
+                    sx={{ flex: 1 }}
+                    InputProps={{
+                      endAdornment: formData.paperPriceOverride !== null && (
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              paperPriceOverride: null,
+                              itemPriceOverride: null,
+                            })
+                          }
+                        >
+                          <Restore fontSize="small" />
+                        </IconButton>
+                      ),
+                    }}
+                  />
+
+                  <TextField
+                    type="text"
+                    size="small"
+                    label={translate('custom.labels.item_price')}
+                    value={
+                      formData.itemPriceOverride !== null
+                        ? formData.itemPriceOverride
+                        : calculatedPrice || ''
+                    }
+                    onChange={(e) => {
+                      const input = e.target.value;
+                      if (input === '' || /^\d*\.?\d*$/.test(input)) {
+                        const val = parseFloat(input);
+                        if (input === '' || isNaN(val)) {
+                          // Clear override, revert to calculated
+                          setFormData({
+                            ...formData,
+                            itemPriceOverride: null,
+                            paperPriceOverride: null,
+                          });
+                        } else {
+                          // Set override and clear paper price override to recalculate
+                          setFormData({
+                            ...formData,
+                            itemPriceOverride: val,
+                            paperPriceOverride: null,
+                          });
+                        }
+                      }
+                    }}
+                    sx={{ width: 130 }}
+                    InputProps={{
+                      endAdornment: formData.itemPriceOverride !== null && (
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              itemPriceOverride: null,
+                              paperPriceOverride: null,
+                            })
+                          }
+                        >
+                          <Restore fontSize="small" />
+                        </IconButton>
+                      ),
+                    }}
+                  />
+                </Box>
+
+                {/* Cover Options */}
+                <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.coverless}
+                        onChange={(e) => setFormData({ ...formData, coverless: e.target.checked })}
+                        size="small"
+                      />
+                    }
+                    label={translate('resources.publications.fields.coverless')}
+                    sx={{
+                      '& .MuiTypography-root': {
+                        fontFamily: 'inherit',
+                        fontSize: '0.875rem',
+                      },
+                    }}
+                  />
+
+                  {!formData.coverless && (
+                    <Autocomplete
+                      size="small"
+                      options={availableCovers || []}
+                      getOptionLabel={(option) => option.name || ''}
+                      value={availableCovers?.find((ct) => ct.id === formData.coverId) || null}
+                      onChange={(_, newValue) =>
+                        setFormData({ ...formData, coverId: newValue?.id || '' })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={translate('resources.publications.fields.cover_type')}
+                        />
+                      )}
+                      sx={{ flex: 1, minWidth: 150 }}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                    />
+                  )}
+                </Box>
+
+                {/* Additional Options */}
+                <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.isDublix}
+                        onChange={(e) => {
+                          setFormData({
+                            ...formData,
+                            isDublix: e.target.checked,
+                            itemPriceOverride: null,
+                            paperPriceOverride: null,
+                          });
+                        }}
+                        size="small"
+                      />
+                    }
+                    label={translate('resources.publications.fields.dublix')}
+                    sx={{
+                      '& .MuiTypography-root': {
+                        fontFamily: 'inherit',
+                        fontSize: '0.875rem',
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* Quantity Field */}
                 <NumberInput
                   source="custom_quantity"
                   label={translate('custom.labels.quantity')}
-                  value={formData.quantity}
-                  defaultValue={1}
-                  onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
+                  value={formData.quantity || 1}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setFormData({ ...formData, quantity: val || 1 });
+                  }}
                   size="small"
                   helperText={false}
                   fullWidth
+                  inputProps={{ min: 1, step: 1 }}
                 />
               </Box>
             )}
+
+            <Divider />
+
+            {/* Action Buttons */}
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
               <Button
                 variant="contained"
@@ -212,9 +419,10 @@ export const AddCustomPublicationButton = () => {
                 onClick={handleSubmit}
                 disabled={
                   !formData.title ||
-                  !formData.price ||
-                  !formData.paper_type_id ||
-                  !formData.cover_type_id
+                  formData.pages <= 0 ||
+                  !formData.paperTypeId ||
+                  (!formData.coverless && !formData.coverId) ||
+                  calculatedPrice <= 0
                 }
               >
                 {translate('ra.action.add')}

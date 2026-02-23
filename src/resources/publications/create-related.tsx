@@ -8,7 +8,7 @@ import { StyledForm } from 'components/form';
 import { syncAddRelated } from 'utils/helpers/syncRelatedPublications';
 import { resizeToA4 } from 'utils/helpers/resizeToA4';
 import { supabase } from 'lib/supabase';
-import { DEFAULT_COVER_URL, STOREGE_URL, Tables, TablesInsert } from 'types';
+import { STOREGE_URL, Tables, TablesInsert } from 'types';
 import { Loading } from 'components/UI';
 
 import { PublicationForm } from './components';

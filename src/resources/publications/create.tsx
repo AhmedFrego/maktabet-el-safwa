@@ -4,7 +4,7 @@ import { ControlPoint } from '@mui/icons-material';
 
 import { StyledForm } from 'components/form';
 import { supabase } from 'lib';
-import { DEFAULT_COVER_URL, STOREGE_URL, Tables, TablesInsert } from 'types';
+import { STOREGE_URL, Tables, TablesInsert } from 'types';
 import { resizeToA4 } from 'utils';
 
 import { PublicationForm } from './components';

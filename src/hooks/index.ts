@@ -3,3 +3,4 @@ export * from './useCalcGroupPrice';
 export * from './useGetCovers';
 export * from './useFinancialStats';
 export * from './useAnalytics';
+export * from './useDirectReservationPricing';
