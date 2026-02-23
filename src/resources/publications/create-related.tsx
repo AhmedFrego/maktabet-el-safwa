@@ -164,7 +164,7 @@ export const CreateRelatedPublication = () => {
   // Default values from parent publication + settings
   const defaultValues = {
     paper_type_id: publicationData.paper_type_id || setting?.default_paper_size || '',
-    cover_url: publicationData.cover_url || DEFAULT_COVER_URL,
+    cover_url: null,
     additional_data: '',
     do_round: true,
     coverless: false,

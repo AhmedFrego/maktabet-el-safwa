@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { ImageField, ImageInput, useInput } from 'react-admin';
-import { Box } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
+import { RemoveCircle } from '@mui/icons-material';
 
 export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
   const { field } = useInput({ source });
@@ -42,7 +43,7 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
   }, [field]);
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <ImageInput
         source={source}
         accept={{ 'image/*': ['.png', '.jpg'] }}
@@ -60,6 +61,14 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
           '& .RaFileInput-preview': {
             width: '210px !important',
             height: '297px !important',
+          },
+          '& .MuiTypography-body1': {
+            display: 'none',
+          },
+          '& .previews': {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           },
         })}
       >
@@ -86,10 +95,9 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
       {hasImage && typeof currentValue === 'string' && (
         <Box
           sx={{
-            mt: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            mt: 2,
+            position: 'relative',
+            display: 'inline-block',
           }}
         >
           <Box
@@ -106,6 +114,20 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
               display: 'block',
             }}
           />
+          <IconButton
+            onClick={() => field.onChange(null)}
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: -8,
+              right: -8,
+              backgroundColor: 'background.paper',
+              '&:hover': { backgroundColor: 'action.hover' },
+            }}
+            aria-label="Remove image"
+          >
+            <RemoveCircle color="error" />
+          </IconButton>
         </Box>
       )}
     </Box>

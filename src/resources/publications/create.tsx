@@ -51,7 +51,7 @@ export const PublicationCreate = () => {
           year: setting?.current_year,
           term: setting?.current_term,
           paper_type_id: setting?.default_paper_size,
-          cover_url: DEFAULT_COVER_URL,
+          cover_url: null,
         }}
         toolbar={
           <Fab

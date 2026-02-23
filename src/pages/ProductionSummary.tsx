@@ -46,8 +46,33 @@ export const ProductionSummary = () => {
   const [publications, setPublications] = useState<GroupedPublication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
-  const [endDate, setEndDate] = useState<Dayjs>(dayjs());
+
+  // Initialize date filter from localStorage or use defaults
+  const getInitialDateRange = () => {
+    const stored = localStorage.getItem('productionSummaryDateRange');
+    if (stored) {
+      try {
+        const { start, end } = JSON.parse(stored);
+        return {
+          start: dayjs(start),
+          end: dayjs(end),
+        };
+      } catch {
+        return {
+          start: dayjs().subtract(30, 'day'),
+          end: dayjs(),
+        };
+      }
+    }
+    return {
+      start: dayjs().subtract(30, 'day'),
+      end: dayjs(),
+    };
+  };
+
+  const initialRange = getInitialDateRange();
+  const [startDate, setStartDate] = useState<Dayjs>(initialRange.start);
+  const [endDate, setEndDate] = useState<Dayjs>(initialRange.end);
   const [updating, setUpdating] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
@@ -72,6 +97,17 @@ export const ProductionSummary = () => {
   useEffect(() => {
     fetchProductionData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate]);
+
+  // Persist date range to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(
+      'productionSummaryDateRange',
+      JSON.stringify({
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+      })
+    );
   }, [startDate, endDate]);
 
   const fetchProductionData = async () => {
