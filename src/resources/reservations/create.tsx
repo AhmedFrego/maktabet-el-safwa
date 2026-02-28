@@ -13,6 +13,7 @@ import {
   useAppSelector,
   ReservationRecord,
   setEditingReservation,
+  setFormData,
 } from 'store';
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
@@ -34,10 +35,12 @@ export const ReservationCreate = () => {
     isReserving,
     reservedItems: reserved_items,
     editingReservation,
+    formData,
   } = useAppSelector((state) => state.reservation) as {
     isReserving: boolean | 'confirming';
     reservedItems: ReservationRecord[];
     editingReservation: Tables<'reservations'> | null;
+    formData: { client_id: string; paid_amount: number } | null;
   };
 
   // Calculate total price from reserved items (reflects any manual/unit price edits)
@@ -177,6 +180,7 @@ export const ReservationCreate = () => {
       setInstantDelivery(false);
       dispatch(clearItems());
       dispatch(setEditingReservation(null));
+      dispatch(setFormData(null));
     }
   };
 
@@ -186,6 +190,7 @@ export const ReservationCreate = () => {
     setInstantDelivery(false);
     dispatch(clearItems());
     dispatch(setEditingReservation(null));
+    dispatch(setFormData(null));
   };
 
   return (
@@ -206,6 +211,7 @@ export const ReservationCreate = () => {
                   setInstantDelivery(false);
                   dispatch(clearItems());
                   dispatch(setEditingReservation(null));
+                  dispatch(setFormData(null));
                 },
               }}
               mutationMode="pessimistic"
@@ -244,6 +250,10 @@ export const ReservationCreate = () => {
             >
               <SimpleForm
                 toolbar={false}
+                defaultValues={{
+                  client_id: formData?.client_id || '',
+                  paid_amount: formData?.paid_amount ?? undefined,
+                }}
                 sx={(theme) => ({
                   backgroundColor: theme.palette.grey[50],
                   border: `2px solid ${theme.palette.info.dark}`,

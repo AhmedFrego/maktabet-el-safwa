@@ -21,7 +21,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
-import { RefObject, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { Star, Receipt, ExpandMore } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
@@ -29,6 +29,7 @@ import { ClientInput } from 'components/form';
 import { toArabicNumerals } from 'utils';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { ReservationRecord } from 'store/slices/reserviationSlice';
+import { setFormData, useAppDispatch } from 'store';
 
 import { ReservedItem } from './ReservedItem';
 import { AddCustomPublicationButton } from './AddCustomPublicationButton';
@@ -65,6 +66,7 @@ export const ReservationFormContent = ({
   onEdit,
 }: ReservationFormContentProps) => {
   const translate = useTranslate();
+  const dispatch = useAppDispatch();
   const { setValue } = useFormContext();
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -72,6 +74,18 @@ export const ReservationFormContent = ({
   // Watch form values for receipt preview
   const clientId = useWatch({ name: 'client_id' });
   const paidAmount = useWatch({ name: 'paid_amount' });
+
+  // Save form data to Redux when client_id or paid_amount changes
+  useEffect(() => {
+    if (clientId || paidAmount) {
+      dispatch(
+        setFormData({
+          client_id: clientId || '',
+          paid_amount: paidAmount || 0,
+        })
+      );
+    }
+  }, [clientId, paidAmount, dispatch]);
 
   // Fetch client data for receipt
   const { data: clientData } = useGetOne('users', { id: clientId }, { enabled: !!clientId });

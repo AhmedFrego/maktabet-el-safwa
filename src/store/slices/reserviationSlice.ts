@@ -77,6 +77,10 @@ export interface ReservationState {
     paid_amount: number;
     reservation_id: string;
   } | null;
+  formData: {
+    client_id: string;
+    paid_amount: number;
+  } | null;
 }
 
 const initialState: ReservationState = {
@@ -84,6 +88,7 @@ const initialState: ReservationState = {
   isReserving: false,
   pendingSuggestion: null,
   editingReservation: null,
+  formData: null,
 };
 
 export const reservationSlice = createSlice({
@@ -211,6 +216,16 @@ export const reservationSlice = createSlice({
     ) {
       state.editingReservation = action.payload;
     },
+    // Save form data (client_id, paid_amount) to preserve across edit flow
+    setFormData(
+      state,
+      action: PayloadAction<{
+        client_id: string;
+        paid_amount: number;
+      } | null>
+    ) {
+      state.formData = action.payload;
+    },
     // Set pending suggestion for showing related publications modal
     setPendingSuggestion(state, action: PayloadAction<PendingSuggestion | null>) {
       state.pendingSuggestion = action.payload;
@@ -263,6 +278,7 @@ export const {
   markAllAsDelivered,
   setReservedItems,
   setEditingReservation,
+  setFormData,
   setPendingSuggestion,
   addRelatedGroup,
 } = reservationSlice.actions;
