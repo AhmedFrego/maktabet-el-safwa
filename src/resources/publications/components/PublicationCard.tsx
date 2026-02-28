@@ -12,6 +12,7 @@ import {
   addItemToDelete,
   removeItemFromDelete,
   setPendingSuggestion,
+  addRelatedGroup,
 } from 'store';
 import { toArabicNumerals } from 'utils';
 import {
@@ -39,6 +40,8 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
   const navigate = useNavigate();
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addButtonClickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addButtonClickCountRef = useRef(0);
 
   const { additional_data, subject, term, cover_url, publisher } = record;
   const prices = calcPrice({ record });
@@ -69,7 +72,40 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
   const isMaster = record.is_collection_master === true;
   const hasStackedItems = relatedItems.length > 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Track clicks for double-click detection on collection masters
+    if (hasStackedItems) {
+      addButtonClickCountRef.current += 1;
+
+      // Clear existing timeout
+      if (addButtonClickTimeoutRef.current) {
+        clearTimeout(addButtonClickTimeoutRef.current);
+      }
+
+      // If this is the second click (double-click), add entire collection
+      if (addButtonClickCountRef.current === 2) {
+        addButtonClickCountRef.current = 0;
+        handleAddEntireCollection();
+        return;
+      }
+
+      // Set timeout to reset click count and execute single-click action
+      addButtonClickTimeoutRef.current = setTimeout(() => {
+        addButtonClickCountRef.current = 0;
+        addButtonClickTimeoutRef.current = null;
+        handleSingleAddToCart();
+      }, 300);
+
+      return;
+    }
+
+    // For non-collection items, add immediately
+    handleSingleAddToCart();
+  };
+
+  const handleSingleAddToCart = () => {
     const itemData = {
       ...record,
       title,
@@ -92,6 +128,45 @@ export const PublicationCard = ({ record, relatedItems = [], ...props }: Publica
 
     // Add the item to cart (only if no related items or already reserved)
     dispatch(addOrIncreaseItem(itemData));
+  };
+
+  const handleAddEntireCollection = () => {
+    const groupId = `group_${Date.now()}_${record.id}`;
+
+    // Prepare master item
+    const masterItem = {
+      ...record,
+      title,
+      price: prices?.price?.twoFacesPrice,
+      cover_type_id: prices?.cover?.id,
+      cover_type: { name: prices.cover?.name },
+      related_publications: (record.related_publications as string[]) || null,
+    };
+
+    // Prepare related items
+    const relatedItemsData = relatedItems.map((item) => {
+      const itemPrice = calcPrice({ record: item });
+      const itemTitle = `${item.subject.name} ${item.additional_data || ''} ${item.publisher.name} ${academicShortName} ${translate(
+        `custom.labels.terms.${item.term}.name`
+      )}`;
+
+      return {
+        ...item,
+        title: itemTitle,
+        price: itemPrice?.price?.twoFacesPrice,
+        cover_type_id: itemPrice?.cover?.id,
+        cover_type: { name: itemPrice.cover?.name },
+        related_publications: (item.related_publications as string[]) || null,
+      };
+    });
+
+    // Dispatch action to add all items as a group
+    dispatch(
+      addRelatedGroup({
+        items: [masterItem, ...relatedItemsData],
+        groupId,
+      })
+    );
   };
 
   const handleDeleteToggle = () => {
