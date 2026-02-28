@@ -25,7 +25,7 @@ import { ModalContent, ModalWrapper } from 'components/UI';
 import { Tables } from 'types';
 import { useDirectReservationPricing, ReservationItemData } from 'hooks';
 import { supabase } from 'lib';
-import { formatDateOnly } from 'utils/helpers';
+import { formatDateOnly, toArabicNumerals } from 'utils/helpers';
 
 type CoverType = Tables<'cover_types'>;
 

@@ -3,6 +3,7 @@ import {
   ReferenceInput,
   AutocompleteInput,
   SelectArrayInput,
+  TextInput,
   ListControllerResult,
 } from 'react-admin';
 import { useTranslate } from 'react-admin'; // make sure you have this
@@ -36,6 +37,14 @@ export const ReservationList = () => {
         }}
       />
     </ReferenceInput>,
+    <TextInput
+      key="codeFilter"
+      source="reservation_code"
+      label={translate('resources.reservations.fields.reservation_code')}
+      variant="standard"
+      alwaysOn
+      resettable
+    />,
     <SelectArrayInput
       variant="standard"
       key="statusFilter"

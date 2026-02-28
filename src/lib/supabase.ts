@@ -29,9 +29,19 @@ const applyFilters = (query: ReturnType<typeof supabase.from>, filter: Record<st
       else query.eq(key, value as unknown);
       return;
     }
-    if (value === undefined) return;
+    if (value === undefined || value === '' || value === null) {
+      return;
+    }
 
     const val = value as unknown;
+
+    // Special handling for reservation_code - use ILIKE for partial matching
+    if (key === 'reservation_code' && !op) {
+      const searchVal = typeof val === 'string' ? `%${val}%` : val;
+      query.ilike(key, searchVal);
+
+      return;
+    }
 
     switch (op) {
       case 'ilike':
@@ -122,7 +132,10 @@ export const myProvider: DataProvider = {
       applyPagination(query, pagination);
 
       const { data, error, count } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching users:', error);
+        throw error;
+      }
       return {
         data: (data ?? []) as unknown as RecordType[],
         total: count ?? (data ? data.length : 0),
@@ -145,7 +158,10 @@ export const myProvider: DataProvider = {
     applyPagination(query, pagination);
 
     const { data, error, count } = await query;
-    if (error) throw error;
+    if (error) {
+      console.error(`❌ Error fetching ${resource}:`, error);
+      throw error;
+    }
 
     return {
       data: (data ?? []) as unknown as RecordType[],

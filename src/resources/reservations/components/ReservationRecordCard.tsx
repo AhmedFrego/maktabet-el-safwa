@@ -42,6 +42,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     paid_amount,
     id,
     delivered_at,
+    reservation_code,
   } = reservation;
 
   // Calculate totals dynamically from reserved_items
@@ -125,7 +126,9 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
             },
           })}
         >
-          <Typography noWrap>{full_name}</Typography>
+          <Typography noWrap>
+            {full_name} ({reservation_code})
+          </Typography>
           <Typography noWrap>{phone_number ? toArabicNumerals(phone_number) : ''}</Typography>
         </AccordionSummary>
         <AccordionDetails>
