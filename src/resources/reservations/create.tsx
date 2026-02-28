@@ -125,10 +125,8 @@ export const ReservationCreate = () => {
     if (editingReservation) {
       const updateData: TablesUpdate<'reservations'> = {
         reserved_items,
-        total_price,
         paid_amount,
         client_id,
-        remain_amount: total_price - paid_amount,
         dead_line: `${deadLine?.toISOString()}`,
         reservation_status: calculatedStatus,
         delivered_by: allDelivered ? session.session.user.id : null,
@@ -141,10 +139,8 @@ export const ReservationCreate = () => {
     const data: TablesInsert<'reservations'> = {
       created_by: session.session.user.id,
       reserved_items,
-      total_price,
       paid_amount,
       client_id,
-      remain_amount: total_price - paid_amount,
       dead_line: `${deadLine?.toISOString()}`,
       branch: setting?.branch,
       reservation_status: calculatedStatus,

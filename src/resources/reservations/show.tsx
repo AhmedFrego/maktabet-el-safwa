@@ -1,22 +1,14 @@
-import {
-  ArrayField,
-  BooleanField,
-  DataTable,
-  DateField,
-  FunctionField,
-  ImageField,
-  NumberField,
-  ReferenceField,
-  Show,
-  SimpleShowLayout,
-  TextField,
-  Title,
-  useTranslate,
-} from 'react-admin';
+import { FunctionField, ReferenceField, Show, SimpleShowLayout, useTranslate } from 'react-admin';
 
 import { DividedContainer } from 'components/UI';
 import { Tables } from 'types';
-import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
+import {
+  formatDateTime,
+  toArabicNumerals,
+  translateDayToArabic,
+  calculateReservationTotal,
+  calculateRemaining,
+} from 'utils';
 import { Reservation } from './types';
 import { Box, Typography } from '@mui/material';
 import { ReservationRecord } from 'store';
@@ -111,12 +103,13 @@ export const ReservationShow = () => {
           />
         </DividedContainer>
         <DividedContainer>
-          {translate('resources.reservations.fields.total_price')}:
+          {translate('custom.labels.total_price')}:
           <FunctionField
-            source="paid_amount"
-            render={(record) =>
-              ` ${toArabicNumerals(record.total_price)} ${translate('custom.currency.long')}`
-            }
+            source="reserved_items"
+            render={(record) => {
+              const total = calculateReservationTotal(record.reserved_items);
+              return ` ${toArabicNumerals(total)} ${translate('custom.currency.long')}`;
+            }}
           />
         </DividedContainer>
         <DividedContainer>
@@ -129,12 +122,15 @@ export const ReservationShow = () => {
           />
         </DividedContainer>
         <DividedContainer>
-          {translate('resources.reservations.fields.remain_amount')}:
+          {translate('custom.labels.remain_amount')}:
           <FunctionField
-            source="remain_amount"
-            render={(record) =>
-              ` ${record.remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(record.remain_amount)} ${translate('custom.currency.long')}`}`
-            }
+            source="reserved_items"
+            render={(record) => {
+              const remaining = calculateRemaining(record.reserved_items, record.paid_amount);
+              return remaining === 0
+                ? ` ${translate('custom.labels.no_remain_amount')}`
+                : ` ${toArabicNumerals(remaining)} ${translate('custom.currency.long')}`;
+            }}
           />
         </DividedContainer>
         <Box>

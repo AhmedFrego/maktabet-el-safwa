@@ -62,7 +62,7 @@ export const ReservationList = () => {
       }}
       queryOptions={{
         meta: {
-          columns: ['*', 'client:users(full_name, phone_number)'],
+          columns: ['*', 'client:users(full_name, phone_number)', 'reserved_items'],
         },
       }}
       render={({

@@ -18,7 +18,13 @@ import { Identifier, useTranslate, useUpdate } from 'react-admin';
 import { Done, DoneAll, ExpandMore, HelpOutline, RotateRight } from '@mui/icons-material';
 
 import { ReservationRecord } from 'store';
-import { formatDateTime, toArabicNumerals, translateDayToArabic } from 'utils';
+import {
+  formatDateTime,
+  toArabicNumerals,
+  translateDayToArabic,
+  calculateReservationTotal,
+  calculateRemaining,
+} from 'utils';
 
 import { Reservation } from '..';
 import { ReservationItemCta } from '.';
@@ -33,12 +39,14 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     dead_line,
     reservation_status,
     reserved_items,
-    total_price,
     paid_amount,
-    remain_amount,
     id,
     delivered_at,
   } = reservation;
+
+  // Calculate totals dynamically from reserved_items
+  const total_price = calculateReservationTotal(reserved_items);
+  const remain_amount = calculateRemaining(reserved_items, paid_amount);
 
   const displayTime = reservation_status === 'delivered' && delivered_at ? delivered_at : dead_line;
   const { day, dayOfWeek, month, time } = formatDateTime(displayTime);

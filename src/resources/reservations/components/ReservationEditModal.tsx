@@ -126,10 +126,8 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
 
     const data: TablesUpdate<'reservations'> = {
       reserved_items,
-      total_price,
       paid_amount,
       client_id,
-      remain_amount: total_price - paid_amount,
       dead_line: `${deadLine?.toISOString()}`,
       reservation_status: calculatedStatus,
       delivered_by: allDelivered ? session.session.user.id : reservation.delivered_by,

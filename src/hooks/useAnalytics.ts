@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { supabase } from 'lib/supabase';
+import { calculateReservationTotal } from 'utils';
 
 export interface AnalyticsData {
   bestsellers: {
@@ -222,6 +223,7 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
           const clientId = reservation.client_id;
           const clientName = (reservation.client as any)?.full_name || 'غير معروف';
           const clientRole = (reservation.client as any)?.role || 'client';
+          const reservationTotal = calculateReservationTotal(reservation.reserved_items);
           const existing = clientMap.get(clientId) || {
             name: clientName,
             orders: 0,
@@ -232,7 +234,7 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
           clientMap.set(clientId, {
             ...existing,
             orders: existing.orders + 1,
-            spent: existing.spent + (reservation.total_price || 0),
+            spent: existing.spent + reservationTotal,
           });
         });
 

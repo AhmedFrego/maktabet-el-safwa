@@ -163,11 +163,9 @@ export type Database = {
           delivered_by: string | null;
           id: string;
           paid_amount: number;
-          remain_amount: number;
           reservation_code: string;
           reservation_status: Database['public']['Enums']['reservation_state'];
           reserved_items: Json[];
-          total_price: number;
         };
         Insert: {
           branch?: Database['public']['Enums']['branches'];
@@ -179,11 +177,9 @@ export type Database = {
           delivered_by?: string | null;
           id?: string;
           paid_amount: number;
-          remain_amount: number;
           reservation_code?: string;
           reservation_status?: Database['public']['Enums']['reservation_state'];
           reserved_items: Json[];
-          total_price: number;
         };
         Update: {
           branch?: Database['public']['Enums']['branches'];
@@ -195,11 +191,9 @@ export type Database = {
           delivered_by?: string | null;
           id?: string;
           paid_amount?: number;
-          remain_amount?: number;
           reservation_code?: string;
           reservation_status?: Database['public']['Enums']['reservation_state'];
           reserved_items?: Json[];
-          total_price?: number;
         };
         Relationships: [
           {

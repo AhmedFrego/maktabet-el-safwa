@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { supabase } from 'lib/supabase';
+import { calculateReservationTotal, calculateRemaining, isFullyPaid } from 'utils';
 
 export interface FinancialStats {
   totalRevenue: number;
@@ -48,10 +49,10 @@ export const useFinancialStats = ({
       try {
         setStats((prev) => ({ ...prev, loading: true, error: null }));
 
-        // Fetch reservations within date range
+        // Fetch reservations within date range with reserved_items
         const { data: reservations, error } = await supabase
           .from('reservations')
-          .select('*')
+          .select('id, created_at, reservation_status, paid_amount, reserved_items')
           .gte('created_at', startDate.startOf('day').toISOString())
           .lte('created_at', endDate.endOf('day').toISOString())
           .neq('reservation_status', 'canceled');
@@ -73,22 +74,39 @@ export const useFinancialStats = ({
           return;
         }
 
-        // Calculate totals
+        // Calculate totals dynamically from reserved_items
         const totalRevenue = reservations.reduce((sum, r) => sum + (r.paid_amount || 0), 0);
-        const totalPending = reservations.reduce((sum, r) => sum + (r.remain_amount || 0), 0);
+
+        // Calculate total order values and pending amounts from reserved_items
+        let totalOrderValue = 0;
+        let totalPending = 0;
+        let paidCount = 0;
+        let unpaidCount = 0;
+
+        reservations.forEach((r) => {
+          const reservationTotal = calculateReservationTotal(r.reserved_items);
+          totalOrderValue += reservationTotal;
+
+          const isPaid = isFullyPaid(r.reserved_items, r.paid_amount || 0);
+          const remaining = calculateRemaining(r.reserved_items, r.paid_amount || 0);
+
+          totalPending += remaining;
+
+          if (isPaid) {
+            paidCount++;
+          } else if (r.paid_amount === 0) {
+            unpaidCount++;
+          }
+        });
+
         const totalOrders = reservations.length;
         const completedOrders = reservations.filter(
           (r) => r.reservation_status === 'delivered'
         ).length;
-        const averageOrderValue =
-          totalOrders > 0
-            ? reservations.reduce((sum, r) => sum + (r.total_price || 0), 0) / totalOrders
-            : 0;
+        const averageOrderValue = totalOrders > 0 ? totalOrderValue / totalOrders : 0;
 
         // Calculate payment status
-        const paid = reservations.filter((r) => r.remain_amount === 0).length;
-        const unpaid = reservations.filter((r) => r.paid_amount === 0).length;
-        const partiallyPaid = totalOrders - paid - unpaid;
+        const partiallyPaid = totalOrders - paidCount - unpaidCount;
 
         // Calculate daily revenue
         const dailyRevenueMap = new Map<string, { revenue: number; orders: number }>();
@@ -125,9 +143,9 @@ export const useFinancialStats = ({
           averageOrderValue,
           dailyRevenue,
           paymentStatus: {
-            paid,
+            paid: paidCount,
             partiallyPaid,
-            unpaid,
+            unpaid: unpaidCount,
           },
           loading: false,
           error: null,

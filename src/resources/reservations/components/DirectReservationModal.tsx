@@ -188,10 +188,8 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
       const reservationData: Parameters<typeof dataProvider.create>[1]['data'] = {
         created_by: session.session.user.id,
         reserved_items: reservedItems,
-        total_price: finalTotal,
         paid_amount: finalTotal,
         client_id: directPrintClientId,
-        remain_amount: 0,
         dead_line: now,
         branch: setting?.branch,
         reservation_status: 'delivered',

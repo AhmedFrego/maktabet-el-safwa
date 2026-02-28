@@ -7,12 +7,14 @@ import { NestedModal } from 'components/UI';
 import { myProvider, supabase } from 'lib';
 import { ReservationRecord } from 'store';
 import { TablesUpdate } from 'types';
+import { calculateReservationTotal } from 'utils';
 
 import { Reservation } from '..';
 import { ReservationEditModal } from './ReservationEditModal';
 
 export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => {
-  const { id, total_price, reserved_items } = reservation;
+  const { id, reserved_items } = reservation;
+  const total_price = calculateReservationTotal(reserved_items);
   const redirect = useRedirect();
   const translate = useTranslate();
   const refresh = useRefresh();
@@ -30,7 +32,6 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
       dead_line: new Date().toISOString(),
       delivered_by: session.session.user.id,
       paid_amount: total_price,
-      remain_amount: 0,
       reserved_items: markItemsAsDelivered(reserved_items),
     };
 

@@ -20,10 +20,9 @@ export const ReservationEdit = () => {
     <Edit>
       <SimpleForm>
         <ClientInput />
-        <EditForm /> <TextInput source="reservation_status" />
-        <NumberInput source="total_price" />
+        <EditForm />
+        <TextInput source="reservation_status" />
         <NumberInput source="paid_amount" />
-        <NumberInput source="remain_amount" />
         <DateInput source="dead_line" />
       </SimpleForm>
     </Edit>
