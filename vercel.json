@@ -1,3 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [
+    { "source": "/publications/assets/:path*", "destination": "/publications/assets/:path*" },
+    { "source": "/publications/icons/:path*", "destination": "/publications/icons/:path*" },
+    { "source": "/publications/:path((?!assets|icons|manifest\\.webmanifest|favicon\\.ico|sw\\.js).)*", "destination": "/publications/index.html" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }
