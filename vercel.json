@@ -1,14 +1,14 @@
 ﻿{
   "rewrites": [
-    { "source": "/publications/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/publications/icons/:path*", "destination": "/icons/:path*" },
+    { "source": "/publications/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/publications/icons/(.*)", "destination": "/icons/$1" },
     { "source": "/publications/manifest.webmanifest", "destination": "/manifest.webmanifest" },
     { "source": "/publications/manifest.json", "destination": "/manifest.json" },
     { "source": "/publications/favicon.ico", "destination": "/favicon.ico" },
     { "source": "/publications/sw.js", "destination": "/sw.js" },
-    { "source": "/publications/workbox-:path*", "destination": "/workbox-:path*" },
+    { "source": "/publications/workbox-(.*)", "destination": "/workbox-$1" },
     { "source": "/publications", "destination": "/index.html" },
     { "source": "/publications/", "destination": "/index.html" },
-    { "source": "/publications/:path*", "destination": "/index.html" }
+    { "source": "/publications/((?!.*\\.).*)", "destination": "/index.html" }
   ]
 }
