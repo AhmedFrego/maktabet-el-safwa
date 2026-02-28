@@ -7,6 +7,7 @@ export * from './Loading';
 export * from './Modal';
 export * from './NestedModal';
 export * from './PaperBox';
+export * from './PersistentList';
 export * from './StatCard';
 export * from './StyledContainer';
 export * from './TabPanel';

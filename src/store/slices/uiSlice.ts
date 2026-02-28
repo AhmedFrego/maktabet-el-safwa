@@ -17,6 +17,7 @@ const loadPersistedState = (): UIState => {
         analyticsActiveTab: parsed.analyticsActiveTab ?? 0,
         reservationReceiptFormat: parsed.reservationReceiptFormat ?? 'pdf',
         reservationAutoPrint: parsed.reservationAutoPrint ?? false,
+        listPageSizes: parsed.listPageSizes ?? {},
       };
     }
   } catch (e) {
@@ -27,6 +28,7 @@ const loadPersistedState = (): UIState => {
     analyticsActiveTab: 0,
     reservationReceiptFormat: 'pdf',
     reservationAutoPrint: false,
+    listPageSizes: {},
   };
 };
 
@@ -48,6 +50,8 @@ export interface UIState {
   reservationReceiptFormat: ReceiptFormat;
   /** Whether to automatically print receipt on reservation submit */
   reservationAutoPrint: boolean;
+  /** Per-resource list page size preferences: { resourceName: pageSize } */
+  listPageSizes: Record<string, number>;
 }
 
 const initialState: UIState = loadPersistedState();
@@ -72,6 +76,10 @@ const uiSlice = createSlice({
       state.reservationAutoPrint = action.payload;
       saveState(state);
     },
+    setListPageSize: (state, action: PayloadAction<{ resource: string; pageSize: number }>) => {
+      state.listPageSizes[action.payload.resource] = action.payload.pageSize;
+      saveState(state);
+    },
   },
 });
 
@@ -80,6 +88,7 @@ export const {
   setAnalyticsTab,
   setReservationReceiptFormat,
   setReservationAutoPrint,
+  setListPageSize,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
