@@ -348,6 +348,9 @@ export const arabicMessages: TranslationMessages = {
         group_total: 'إجمالي المجموعة',
         saved: 'وفرت',
       },
+      filters: {
+        show_separately: 'ضم المجموعة',
+      },
     },
     users: {
       name: 'العملاء |||| عميل',

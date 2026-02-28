@@ -9,6 +9,7 @@ import {
   SubjectFilterSelect,
   PublicationsTypeFilterSelect,
   PublisherFilterSelect,
+  ShowSeparatelyToggle,
 } from '.';
 import { Enums, idName } from 'types';
 
@@ -79,8 +80,9 @@ export const CustomFilterSidebar = () => {
           <AcademicYearFilterSelect uniqueAcademicYears={uniqueAcademicYears} />
           <SubjectFilterSelect uniqueSubjects={uniqueSubjects} />
           <PublisherFilterSelect uniquePublishers={uniquePublishers} />
-          <YearFilterSelect uniqueYears={uniqueYears} />
           <TermFilterSelect />
+          <YearFilterSelect uniqueYears={uniqueYears} />
+          <ShowSeparatelyToggle />
         </Box>
       </CardContent>
     </Card>

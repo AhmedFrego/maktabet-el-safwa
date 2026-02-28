@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Button, List, useListContext, useTranslate, useGetMany } from 'react-admin';
+import { Button, List, useListContext, useTranslate, useGetMany, useStore } from 'react-admin';
 import { Box, Typography } from '@mui/material';
 
 import { StyledContainer, ListActions, Loading } from 'components/UI';
@@ -46,6 +46,7 @@ export const PublicationsList = () => {
 const PublicationsContainer = () => {
   const { data: publications, isLoading, setFilters } = useListContext<Publication>();
   const translate = useTranslate();
+  const [showGrouped] = useStore<boolean>('publications.showGrouped', true);
 
   // Collect all related publication IDs that need to be fetched for stacked display
   const relatedIdsToFetch = useMemo(() => {
@@ -84,8 +85,12 @@ const PublicationsContainer = () => {
   // 1. Masters (is_collection_master = true)
   // 2. Standalone publications (no related_publications or empty array)
   // Hide non-master items that belong to a group (they'll be shown as stacked cards under their master)
+  // UNLESS showGrouped is disabled, then show all items without grouping
   const filteredPublications = useMemo(() => {
     if (!publications) return [];
+
+    // If "show grouped" is disabled, show all publications without grouping
+    if (!showGrouped) return publications;
 
     return publications.filter((pub) => {
       const hasRelated =
@@ -109,10 +114,12 @@ const PublicationsContainer = () => {
       // If no master in group, show all items individually
       return !groupHasMaster;
     });
-  }, [publications]);
+  }, [publications, showGrouped]);
 
   // Get related items for a master publication
+  // Don't stack items if "show grouped" is disabled
   const getRelatedItems = (publication: Publication): Publication[] => {
+    if (!showGrouped) return [];
     if (!publication.is_collection_master || !publication.related_publications) return [];
 
     const relatedIds = publication.related_publications as string[];
