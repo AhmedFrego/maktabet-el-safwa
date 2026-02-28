@@ -120,8 +120,8 @@ export const ProductionSummary = () => {
         .from('reservations')
         .select('id, reserved_items')
         .eq('reservation_status', 'in-progress')
-        .gte('dead_line', startDate.toISOString())
-        .lte('dead_line', endDate.toISOString())
+        .gte('dead_line', startDate.format('YYYY-MM-DD') + 'T00:00:00Z')
+        .lte('dead_line', endDate.format('YYYY-MM-DD') + 'T00:00:00Z')
         .order('created_at', { ascending: true });
 
       if (reservationError) throw reservationError;

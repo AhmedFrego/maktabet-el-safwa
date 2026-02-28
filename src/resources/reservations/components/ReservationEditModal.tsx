@@ -37,7 +37,7 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
 
   const { reservedItems: reserved_items } = useAppSelector((state) => state.reservation);
 
-  const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(reservation.dead_line));
+  const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(reservation.dead_line || undefined));
   const [instantDelivery, setInstantDelivery] = useState(false);
 
   // Initialize form with reservation data when modal opens
@@ -53,7 +53,7 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
           reservation_id: reservation.id,
         })
       );
-      setDeadLine(dayjs(reservation.dead_line));
+      setDeadLine(dayjs(reservation.dead_line || undefined));
       setInstantDelivery(false);
     }
   }, [open, reservation, dispatch]);

@@ -25,7 +25,7 @@ import { ModalContent, ModalWrapper } from 'components/UI';
 import { Tables } from 'types';
 import { useDirectReservationPricing, ReservationItemData } from 'hooks';
 import { supabase } from 'lib';
-import { toArabicNumerals } from 'utils';
+import { formatDateOnly } from 'utils/helpers';
 
 type CoverType = Tables<'cover_types'>;
 
@@ -183,7 +183,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
         };
       });
 
-      const now = new Date().toISOString();
+      const now = formatDateOnly(new Date());
 
       const reservationData: Parameters<typeof dataProvider.create>[1]['data'] = {
         created_by: session.session.user.id,

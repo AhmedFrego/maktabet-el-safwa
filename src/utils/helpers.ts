@@ -135,3 +135,5 @@ const dayTranslations: Record<string, string> = {
 export const translateDayToArabic = (enDay: string): string => {
   return dayTranslations[enDay] ?? enDay;
 };
+
+export { formatDateOnly } from './helpers/formatDateOnly';

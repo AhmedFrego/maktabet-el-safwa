@@ -235,8 +235,10 @@ export const ReceiptPreview = ({
     const d = date.toDate();
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
     const dayName = dayjs(d).locale('ar').format('dddd');
-    return `${dayName} - ${toArabicNumerals(month)}/${toArabicNumerals(day)}`;
+    return `${dayName} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(hours)}:${toArabicNumerals(minutes)}`;
   };
 
   // Get collection title from master item

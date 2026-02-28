@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { NestedModal } from 'components/UI';
 import { myProvider, supabase } from 'lib';
-import { ReservationRecord } from 'store';
+import { formatDateOnly } from 'utils/helpers';
 import { TablesUpdate } from 'types';
 import { calculateReservationTotal } from 'utils';
 
@@ -29,7 +29,7 @@ export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => 
     const payload: TablesUpdate<'reservations'> = {
       reservation_status: 'delivered',
       delivered_at: new Date().toISOString(),
-      dead_line: new Date().toISOString(),
+      dead_line: formatDateOnly(new Date()),
       delivered_by: session.session.user.id,
       paid_amount: total_price,
       reserved_items: markItemsAsDelivered(reserved_items),

@@ -20,6 +20,7 @@ import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
 
 import { ReservationFormContent, ReceiptPreview } from './components';
+import { formatDateOnly } from 'utils/helpers';
 
 export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
@@ -82,9 +83,15 @@ export const ReservationCreate = () => {
   }, [reserved_items, groupRelatedItems]);
 
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
-  const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(dead_line));
+  const [deadLine, setDeadLine] = useState(dayjs(dead_line));
   const [instantDelivery, setInstantDelivery] = useState(false);
   const notify = useNotify();
+
+  const handleSetDeadLine = (value: PickerValue) => {
+    if (value) {
+      setDeadLine(value);
+    }
+  };
 
   // State for receipt generation after successful creation
   const [receiptData, setReceiptData] = useState<{
@@ -130,7 +137,7 @@ export const ReservationCreate = () => {
         reserved_items,
         paid_amount,
         client_id,
-        dead_line: `${deadLine?.toISOString()}`,
+        dead_line: formatDateOnly(deadLine || dayjs(dead_line)),
         reservation_status: calculatedStatus,
         delivered_by: allDelivered ? session.session.user.id : null,
         delivered_at: allDelivered ? new Date().toISOString() : null,
@@ -144,7 +151,7 @@ export const ReservationCreate = () => {
       reserved_items,
       paid_amount,
       client_id,
-      dead_line: `${deadLine?.toISOString()}`,
+      dead_line: formatDateOnly(deadLine || dayjs(dead_line)),
       branch: setting?.branch,
       reservation_status: calculatedStatus,
       delivered_by: allDelivered ? session.session.user.id : null,
@@ -234,7 +241,7 @@ export const ReservationCreate = () => {
                   groupedItems={groupedItems}
                   total_price={total_price}
                   deadLine={deadLine}
-                  setDeadLine={setDeadLine}
+                  setDeadLine={handleSetDeadLine}
                   onInstantDelivery={handleInstantDelivery}
                   submitButtonRef={submitButtonRef}
                 />
@@ -266,7 +273,7 @@ export const ReservationCreate = () => {
                   groupedItems={groupedItems}
                   total_price={total_price}
                   deadLine={deadLine}
-                  setDeadLine={setDeadLine}
+                  setDeadLine={handleSetDeadLine}
                   onInstantDelivery={handleInstantDelivery}
                   submitButtonRef={submitButtonRef}
                 />
