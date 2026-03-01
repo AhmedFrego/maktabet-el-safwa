@@ -11,11 +11,11 @@ export default defineConfig(({ mode }) => ({
       injectRegister: false,
       includeAssets: ['favicon.ico'],
       manifest: {
-        id: '/publications/',
+        id: '/',
         name: 'مكتبة الصفوة',
         short_name: 'الصفوة',
-        start_url: '/publications/',
-        scope: '/publications/',
+        start_url: '/',
+        scope: '/',
         display: 'standalone',
         theme_color: '#283593',
         background_color: '#fafafa',
@@ -101,5 +101,5 @@ export default defineConfig(({ mode }) => ({
   build: {
     sourcemap: mode === 'development',
   },
-  base: '/publications/',
+  base: '/',
 }));
