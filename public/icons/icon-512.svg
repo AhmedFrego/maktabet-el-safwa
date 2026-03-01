@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="مكتبة الصفوة">
-  <rect width="512" height="512" rx="96" fill="#283593"/>
-  <circle cx="256" cy="256" r="154" fill="#fafafa" opacity="0.14"/>
-  <path d="M150 352V162c0-11.05 8.95-20 20-20h172c11.05 0 20 8.95 20 20v190H150z" fill="#fafafa"/>
-  <path d="M176 202h160M176 248h160M176 294h118" stroke="#283593" stroke-width="18" stroke-linecap="round"/>
-</svg>
