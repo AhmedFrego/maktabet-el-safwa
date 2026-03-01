@@ -1,4 +1,7 @@
 ﻿{
+  "redirects": [
+    { "source": "/", "destination": "/publications/", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/publications/assets/:file*", "destination": "/assets/:file*" },
     { "source": "/publications/icons/:file*", "destination": "/icons/:file*" },
