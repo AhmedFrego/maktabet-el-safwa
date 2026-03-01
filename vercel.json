@@ -1,13 +1,5 @@
 ﻿{
-  "redirects": [
-    { "source": "/", "destination": "/publications/", "permanent": false }
-  ],
   "rewrites": [
-    { "source": "/publications/assets/:file*", "destination": "/assets/:file*" },
-    { "source": "/publications/icons/:file*", "destination": "/icons/:file*" },
-    { "source": "/publications/manifest.webmanifest", "destination": "/manifest.webmanifest" },
-    { "source": "/publications/sw.js", "destination": "/sw.js" },
-    { "source": "/publications/workbox-:file*", "destination": "/workbox-:file*" },
-    { "source": "/publications/:path((?!assets|icons|manifest|sw\\.js|workbox).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

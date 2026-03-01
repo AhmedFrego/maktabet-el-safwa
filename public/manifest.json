@@ -1,5 +1,5 @@
 {
-  "id": "/publications/",
+  "id": "/",
   "short_name": "الصفوة",
   "name": "مكتبة الصفوة",
   "lang": "ar",
@@ -24,8 +24,8 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": "/publications/",
-  "scope": "/publications/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#283593",
   "background_color": "#fafafa"
