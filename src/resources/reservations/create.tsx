@@ -15,7 +15,7 @@ import {
   setEditingReservation,
   setFormData,
 } from 'store';
-import { Tables, TablesInsert, TablesUpdate } from 'types';
+import { Tables, TablesInsert, TablesUpdate, Enums } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
 
@@ -178,9 +178,30 @@ export const ReservationCreate = () => {
       // Fetch client data for the receipt
       const { data: client } = await supabase
         .from('users')
-        .select('full_name, phone_number')
+        .select('full_name, phone_number, academic_years')
         .eq('id', data.client_id)
         .single();
+
+      // Update client academic_years from reserved items
+      const itemYears = [
+        ...new Set(
+          reserved_items
+            .map(
+              (item) =>
+                (item as unknown as Record<string, unknown>).academic_year as
+                  | Enums<'academic_years'>
+                  | undefined
+            )
+            .filter((y): y is Enums<'academic_years'> => !!y)
+        ),
+      ];
+      if (itemYears.length > 0) {
+        const existing = (client?.academic_years as Enums<'academic_years'>[] | null) || [];
+        const merged = [...new Set([...existing, ...itemYears])];
+        if (merged.length > existing.length) {
+          await supabase.from('users').update({ academic_years: merged }).eq('id', data.client_id);
+        }
+      }
 
       // Set receipt data to trigger hidden receipt render + auto-download
       setReceiptData({
