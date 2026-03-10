@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Button, List, useListContext, useTranslate, useGetMany, useStore } from 'react-admin';
 import { Box, Typography } from '@mui/material';
 
-import { StyledContainer, ListActions, Loading, GridPagination } from 'components/UI';
+import { StyledContainer, Loading, GridPagination } from 'components/UI';
 import { useGridPageSize } from 'hooks';
 import { useAppSelector, useAppDispatch, setPendingSuggestion } from 'store';
 
@@ -23,11 +23,13 @@ export const PublicationsList = () => {
   return (
     <>
       <List
-        actions={isReserving ? false : <ListActions />}
+        actions={false}
         aside={<CustomFilterSidebar />}
         queryOptions={{ meta: { columns: publicationsColumns } }}
         sort={{ field: 'subject_id', order: 'ASC' }}
-        pagination={<GridPagination rows={rows} onRowsChange={setRows} />}
+        pagination={
+          <GridPagination rows={rows} onRowsChange={setRows} showActions={!isReserving} />
+        }
         sx={{ '& .RaList-content': { maxWidth: 'none', width: '100%' } }}
       >
         <PublicationsContainer rows={rows} />

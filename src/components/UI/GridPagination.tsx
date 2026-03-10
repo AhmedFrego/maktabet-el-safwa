@@ -1,14 +1,16 @@
 import { Pagination } from 'react-admin';
 import { Box, MenuItem, Select, Typography } from '@mui/material';
+import { ListActions } from './ListActions';
 
 const ROW_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 interface GridPaginationProps {
   rows: number;
   onRowsChange: (rows: number) => void;
+  showActions?: boolean;
 }
 
-export const GridPagination = ({ rows, onRowsChange }: GridPaginationProps) => (
+export const GridPagination = ({ rows, onRowsChange, showActions = true }: GridPaginationProps) => (
   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2 }}>
       <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
@@ -27,6 +29,7 @@ export const GridPagination = ({ rows, onRowsChange }: GridPaginationProps) => (
         ))}
       </Select>
     </Box>
+    {showActions && <ListActions />}
     <Pagination
       sx={{
         flex: 1,
