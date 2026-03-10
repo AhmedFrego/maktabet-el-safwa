@@ -123,3 +123,18 @@ export const isFullyPaid = (
 ): boolean => {
   return calculateRemaining(reservedItems, paidAmount) === 0;
 };
+
+/**
+ * Strip Redux-internal tracking fields before sending to Supabase.
+ * Removes `isDefault` and `_originalValues` which are only used
+ * client-side for change tracking.
+ */
+export const sanitizeReservedItems = <T extends object>(items: T[]): T[] => {
+  return items.map((item) => {
+    const { isDefault, _originalValues, ...rest } = item as T & {
+      isDefault?: unknown;
+      _originalValues?: unknown;
+    };
+    return rest as T;
+  });
+};

@@ -11,6 +11,7 @@ export const NestedModal = ({
   color = 'error',
   buttonSize = 'medium',
   maxWidth = 500,
+  buttonSx,
 }: NestedModalProps) => {
   const translate = useTranslate();
 
@@ -23,7 +24,7 @@ export const NestedModal = ({
       <Button
         variant="outlined"
         size={buttonSize}
-        sx={{ fontFamily: 'inherit' }}
+        sx={{ fontFamily: 'inherit', ...buttonSx }}
         onClick={handleOpen}
         color={color}
       >
@@ -78,4 +79,5 @@ interface NestedModalProps {
   color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
   buttonSize?: 'small' | 'medium' | 'large';
   maxWidth?: number;
+  buttonSx?: Record<string, unknown>;
 }

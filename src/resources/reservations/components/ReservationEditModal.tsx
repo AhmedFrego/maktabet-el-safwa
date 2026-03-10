@@ -20,6 +20,7 @@ import { Tables, TablesUpdate } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
 import { formatDateOnly } from 'utils/helpers';
+import { sanitizeReservedItems } from 'utils';
 
 import { ReservationFormContent } from './ReservationFormContent';
 import { ReceiptPreview } from './ReceiptPreview';
@@ -140,7 +141,7 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
     }
 
     const data: TablesUpdate<'reservations'> = {
-      reserved_items,
+      reserved_items: sanitizeReservedItems(reserved_items),
       paid_amount,
       client_id,
       dead_line: formatDateOnly(deadLine || dayjs()),

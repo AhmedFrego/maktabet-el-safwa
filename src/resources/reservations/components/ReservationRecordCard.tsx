@@ -1,9 +1,7 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Button,
+  IconButton,
   Paper,
   styled,
   Table,
@@ -13,10 +11,13 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from '@mui/material';
-import { Identifier, useTranslate, useUpdate } from 'react-admin';
-import { Done, DoneAll, ExpandMore, HelpOutline, RotateRight } from '@mui/icons-material';
+import { Identifier, useDelete, useRefresh, useTranslate, useUpdate } from 'react-admin';
+import { Cancel, Done, DoneAll, HelpOutline, RotateRight } from '@mui/icons-material';
+import { useState } from 'react';
 
+import { NestedModal } from 'components/UI';
 import { ReservationRecord } from 'store';
 import {
   formatDateTime,
@@ -24,15 +25,27 @@ import {
   translateDayToArabic,
   calculateReservationTotal,
   calculateRemaining,
+  isFullyPaid,
 } from 'utils';
+import { myProvider, supabase } from 'lib';
+import { formatDateOnly } from 'utils/helpers';
 
 import { Reservation } from '..';
-import { ReservationItemCta } from '.';
+import { ReservationEditModal } from './ReservationEditModal';
 import { Enums, TablesUpdate } from 'types/supabase-generated.types';
-import { supabase } from 'lib/supabase';
+
+const STATUS_COLOR_MAP: Record<Enums<'reservation_state'>, string> = {
+  'in-progress': 'warning.main',
+  ready: 'info.main',
+  delivered: 'success.main',
+  canceled: 'error.main',
+};
 
 export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => {
   const translate = useTranslate();
+  const refresh = useRefresh();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const theme = useTheme();
 
   const {
     client: { full_name, phone_number },
@@ -45,16 +58,32 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
     reservation_code,
   } = reservation;
 
-  // Calculate totals dynamically from reserved_items
-  const total_price = calculateReservationTotal(reserved_items);
-  const remain_amount = calculateRemaining(reserved_items, paid_amount);
+  const isDelivered = reservation_status === 'delivered';
 
-  const displayTime = reservation_status === 'delivered' && delivered_at ? delivered_at : dead_line;
+  // Normalize items for delivered reservations with stale item statuses
+  const normalizedItems = isDelivered
+    ? reserved_items.map((item) =>
+        item.status !== 'delivered'
+          ? { ...item, status: 'delivered' as Enums<'reservation_state'> }
+          : item
+      )
+    : reserved_items;
+
+  const total_price = calculateReservationTotal(normalizedItems);
+  const remain_amount = calculateRemaining(normalizedItems, paid_amount);
+  const fullyPaid = isFullyPaid(normalizedItems, paid_amount);
+
+  const displayTime = isDelivered && delivered_at ? delivered_at : dead_line;
   const { day, dayOfWeek, month, time } = formatDateTime(displayTime);
-  const timeLabel =
-    reservation_status === 'delivered'
-      ? translate('resources.reservations.fields.delivered_at')
-      : translate('resources.reservations.fields.dead_line');
+  const timeLabel = isDelivered
+    ? translate('resources.reservations.fields.delivered_at')
+    : translate('resources.reservations.fields.dead_line');
+
+  const [_palette, _shade] = STATUS_COLOR_MAP[reservation_status].split('.') as [
+    'warning' | 'info' | 'success' | 'error',
+    'main',
+  ];
+  const statusColor = theme.palette[_palette][_shade];
 
   const [update, { isLoading }] = useUpdate<
     Omit<TablesUpdate<'reservations'>, 'id'> & { id: Identifier }
@@ -97,60 +126,156 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
         reservation_status: newReservationStatus,
         delivered_at: allDelivered ? new Date().toISOString() : null,
         delivered_by: allDelivered ? session.session?.user.id : null,
+        ...(allDelivered && { paid_amount: total_price }),
       },
       previousData: reservation,
     });
   };
 
+  const handleDeliver = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session.session) return;
+
+    const payload: TablesUpdate<'reservations'> = {
+      reservation_status: 'delivered',
+      delivered_at: new Date().toISOString(),
+      dead_line: formatDateOnly(new Date()),
+      delivered_by: session.session.user.id,
+      paid_amount: total_price,
+      reserved_items: reserved_items.map((item) => ({ ...item, status: 'delivered' })),
+    };
+
+    await myProvider.update('reservations', { id, data: payload, previousData: reservation });
+    refresh();
+  };
+
   return (
-    <StyledReservationItem>
-      <Accordion sx={{ '&.MuiAccordion-root': { m: 0 } }}>
-        <AccordionSummary
-          expandIcon={<ExpandMore />}
-          sx={(theme) => ({
-            backgroundColor:
-              reservation_status === 'ready'
-                ? theme.palette.info.main
-                : reservation_status === 'delivered'
-                  ? theme.palette.success.light
-                  : theme.palette.warning.main,
-            '& .MuiAccordionSummary-content': {
-              justifyContent: 'space-between',
-              maxWidth: '95%',
-              gap: 1,
-              px: 1,
-              '& > *': {
-                fontSize: 22,
-                fontWeight: 900,
-              },
-            },
-          })}
+    <>
+      <Box
+        onDoubleClick={() => !isDelivered && setEditModalOpen(true)}
+        sx={{
+          position: 'relative',
+          ml: '12px',
+          cursor: isDelivered ? 'default' : 'pointer',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: '-8px',
+            top: '8%',
+            bottom: '8%',
+            width: '3px',
+            backgroundColor: statusColor,
+            borderRadius: '2px',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            border: `2px solid ${statusColor}`,
+            borderRadius: 1,
+            overflow: 'hidden',
+          }}
         >
-          <Typography noWrap>
-            {full_name} ({reservation_code})
-          </Typography>
-          <Typography noWrap>{phone_number ? toArabicNumerals(phone_number) : ''}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>{`${translate('resources.reservations.fields.total_price')}: ${toArabicNumerals(total_price)}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.paid_amount')}: ${toArabicNumerals(paid_amount)}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.remain_amount')}: ${remain_amount === 0 ? `${translate('custom.labels.no_remain_amount')}` : `${toArabicNumerals(remain_amount)} ${translate('custom.currency.long')}`}`}</Typography>
-          <Typography>{`${translate('resources.reservations.fields.reservation_status')}: ${translate(
-            `resources.reservations.status.${reservation_status}`
-          )}`}</Typography>
-          <Typography>{`${timeLabel}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}</Typography>
-          <ReservationItemCta reservation={reservation} />
-        </AccordionDetails>
-      </Accordion>
-      <Box>
-        <ReservedItems
-          reservedItems={reserved_items}
-          changeItemStatus={handleStatusChange}
-          loading={isLoading}
-          reservationStatus={reservation_status}
-        />
+          <CardWrapper elevation={0}>
+            {/* Row 1: Cancel + Name | Remaining + Deliver */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {!isDelivered && <CancelReservation id={id} />}
+              <Typography noWrap sx={{ fontWeight: 700, fontSize: 18, flex: 1 }}>
+                {full_name} ({toArabicNumerals(reservation_code)})
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: fullyPaid ? 'success.main' : 'error.main',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {fullyPaid
+                  ? translate('custom.labels.no_remain_amount')
+                  : `${translate('resources.reservations.fields.remain_amount')}: ${toArabicNumerals(remain_amount)} ${translate('custom.currency.short')}`}
+              </Typography>
+              {!isDelivered && (
+                <IconButton
+                  size="small"
+                  color="success"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeliver();
+                  }}
+                  title={translate('resources.reservations.actions.deliver')}
+                >
+                  <DoneAll fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+
+            {/* Row 2: Phone | Deadline */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pl: !isDelivered ? '28px' : 0,
+              }}
+            >
+              {phone_number && (
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
+                  {toArabicNumerals(phone_number)}
+                </Typography>
+              )}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: 14, whiteSpace: 'nowrap' }}
+              >
+                {`${timeLabel}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}
+              </Typography>
+            </Box>
+          </CardWrapper>
+
+          {/* Items table — always visible */}
+          <ReservedItems
+            reservedItems={normalizedItems}
+            changeItemStatus={handleStatusChange}
+            loading={isLoading}
+            reservationStatus={reservation_status}
+          />
+        </Box>
       </Box>
-    </StyledReservationItem>
+
+      {/* Edit modal — opened via double-click */}
+      <ReservationEditModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        reservation={reservation}
+      />
+    </>
+  );
+};
+
+const CancelReservation = ({ id }: { id: string }) => {
+  const translate = useTranslate();
+  const [deleteOne] = useDelete();
+  const refresh = useRefresh();
+
+  const handleDelete = () => deleteOne('reservations', { id }, { onSuccess: refresh });
+
+  return (
+    <NestedModal
+      confirmFn={handleDelete}
+      title={translate('resources.reservations.actions.cancel')}
+      buttonText={<Cancel fontSize="small" sx={{ color: 'error.main' }} />}
+      buttonSize="small"
+      color="error"
+      buttonSx={{
+        border: 'none',
+        padding: 0,
+        minWidth: 'auto',
+        '&:hover': { border: 'none', backgroundColor: 'transparent' },
+      }}
+    />
   );
 };
 
@@ -165,7 +290,7 @@ const ReservedItems = ({
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 196, borderRadius: 0 }}>
       <Table
-        aria-label="simple table"
+        aria-label="reserved items"
         stickyHeader
         sx={{
           width: '100%',
@@ -206,10 +331,10 @@ const ReservedItems = ({
                 '& > *': {
                   color:
                     item.status === 'ready'
-                      ? theme.palette.warning.light
+                      ? theme.palette.info.main
                       : item.status === 'delivered'
-                        ? theme.palette.success.light
-                        : '',
+                        ? theme.palette.success.main
+                        : theme.palette.warning.main,
                 },
               })}
             >
@@ -267,7 +392,12 @@ interface ReservedItemsProps {
   reservationStatus: Enums<'reservation_state'>;
 }
 
-const StyledReservationItem = styled(Box)({});
+const CardWrapper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(1.5, 2),
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(0.5),
+}));
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[200]}`,

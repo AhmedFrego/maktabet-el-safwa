@@ -11,7 +11,8 @@ import { Loading, StyledContainer } from 'components/UI';
 import { Reservation } from '.';
 import { ReservationRecordCard } from './components';
 import { Enums } from 'types/supabase-generated.types';
-import { Box } from '@mui/material';
+import { Box, Divider } from '@mui/material';
+import { Fragment } from 'react';
 
 export const ReservationList = () => {
   const translate = useTranslate();
@@ -24,7 +25,7 @@ export const ReservationList = () => {
       alwaysOn
     >
       <AutocompleteInput
-        sx={{ width: '100%' }}
+        sx={{ width: '100%', minWidth: 300 }}
         variant="standard"
         label={translate('custom.labels.client')}
         optionText={(record) => (record ? `${record.full_name} (${record.phone_number})` : '')}
@@ -84,9 +85,12 @@ export const ReservationList = () => {
         if (!reservations.length) return <div>No Items ...</div>;
 
         return (
-          <StyledContainer sx={{ gap: 2, flexDirection: 'column' }}>
-            {reservations?.map((reservation) => (
-              <ReservationRecordCard key={reservation.id} reservation={reservation} />
+          <StyledContainer sx={{ flexDirection: 'column' }}>
+            {reservations?.map((reservation, index) => (
+              <Fragment key={reservation.id}>
+                {index > 0 && <Divider sx={{ my: 1.5 }} />}
+                <ReservationRecordCard reservation={reservation} />
+              </Fragment>
             ))}
           </StyledContainer>
         );

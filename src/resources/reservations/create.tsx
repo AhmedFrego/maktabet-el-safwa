@@ -21,6 +21,7 @@ import { useCalcGroupPrice } from 'hooks';
 
 import { ReservationFormContent, ReceiptPreview } from './components';
 import { formatDateOnly } from 'utils/helpers';
+import { sanitizeReservedItems } from 'utils';
 
 export const ReservationCreate = () => {
   const dispatch = useAppDispatch();
@@ -40,7 +41,7 @@ export const ReservationCreate = () => {
   } = useAppSelector((state) => state.reservation) as {
     isReserving: boolean | 'confirming';
     reservedItems: ReservationRecord[];
-    editingReservation: Tables<'reservations'> | null;
+    editingReservation: { client_id: string; paid_amount: number; reservation_id: string } | null;
     formData: { client_id: string; paid_amount: number } | null;
   };
 
@@ -144,7 +145,7 @@ export const ReservationCreate = () => {
     // If editing an existing reservation, return update data
     if (editingReservation) {
       const updateData: TablesUpdate<'reservations'> = {
-        reserved_items,
+        reserved_items: sanitizeReservedItems(reserved_items),
         paid_amount,
         client_id,
         dead_line: formatDateOnly(deadLine || dayjs(dead_line)),
@@ -158,7 +159,7 @@ export const ReservationCreate = () => {
     // Otherwise, create new reservation
     const data: TablesInsert<'reservations'> = {
       created_by: session.session.user.id,
-      reserved_items,
+      reserved_items: sanitizeReservedItems(reserved_items),
       paid_amount,
       client_id,
       dead_line: formatDateOnly(deadLine || dayjs(dead_line)),
@@ -185,7 +186,7 @@ export const ReservationCreate = () => {
       setReceiptData({
         clientName: client?.full_name || 'العميل',
         clientPhone: client?.phone_number || undefined,
-        reservationCode: data.reservation_code || editingReservation?.reservation_code || '',
+        reservationCode: data.reservation_code || '',
         paidAmount: data.paid_amount,
       });
 
@@ -221,7 +222,7 @@ export const ReservationCreate = () => {
           {editingReservation ? (
             <Edit
               resource="reservations"
-              id={editingReservation.reservation_code}
+              id={editingReservation.reservation_id}
               transform={confirmReserve}
               mutationOptions={{
                 onSuccess: handleCreateSuccess,

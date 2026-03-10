@@ -1,69 +1,8 @@
-import { Edit, DoneAll, Visibility, Delete } from '@mui/icons-material';
-import { Box, ButtonGroup, styled, Typography } from '@mui/material';
-import { Button, useDelete, useRedirect, useRefresh, useTranslate } from 'react-admin';
-import { useState } from 'react';
+import { Delete } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import { useDelete, useRefresh, useTranslate } from 'react-admin';
 
 import { NestedModal } from 'components/UI';
-import { myProvider, supabase } from 'lib';
-import { formatDateOnly } from 'utils/helpers';
-import { TablesUpdate } from 'types';
-import { calculateReservationTotal } from 'utils';
-
-import { Reservation } from '..';
-import { ReservationEditModal } from './ReservationEditModal';
-
-export const ReservationItemCta = ({ reservation }: ReservationItemCtaProps) => {
-  const { id, reserved_items } = reservation;
-  const total_price = calculateReservationTotal(reserved_items);
-  const redirect = useRedirect();
-  const translate = useTranslate();
-  const refresh = useRefresh();
-  const [editModalOpen, setEditModalOpen] = useState(false);
-
-  const handleEdit = () => setEditModalOpen(true);
-
-  const handleDeliver = async () => {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session.session) return;
-
-    const payload: TablesUpdate<'reservations'> = {
-      reservation_status: 'delivered',
-      delivered_at: new Date().toISOString(),
-      dead_line: formatDateOnly(new Date()),
-      delivered_by: session.session.user.id,
-      paid_amount: total_price,
-      reserved_items: markItemsAsDelivered(reserved_items),
-    };
-
-    await myProvider.update('reservations', { id, data: payload, previousData: reservation });
-    refresh();
-  };
-  if (reservation.reservation_status === 'delivered') return;
-  return (
-    <>
-      <ButtonGroup variant="outlined" size="medium" sx={{ mt: 2 }}>
-        <DeletelModal id={id} />
-        <StyledButton color="warning" onClick={handleEdit}>
-          <Edit />
-          <Typography>{translate('resources.reservations.actions.update')}</Typography>
-        </StyledButton>
-        <StyledButton color="info" onClick={() => redirect(`/reservations/${id}/show`)}>
-          <Visibility />
-          <Typography>{translate('resources.reservations.actions.show')}</Typography>
-        </StyledButton>
-        <StyledButton color="success" onClick={handleDeliver}>
-          <DoneAll />
-          <Typography>{translate('resources.reservations.actions.deliver')}</Typography>
-        </StyledButton>
-      </ButtonGroup>
-      <ReservationEditModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        reservation={reservation}
-      />
-    </>
-  );
-};
 
 export const DeletelModal = ({ id }: { id: string }) => {
   const translate = useTranslate();
@@ -85,20 +24,3 @@ export const DeletelModal = ({ id }: { id: string }) => {
     />
   );
 };
-
-interface ReservationItemCtaProps {
-  reservation: Reservation;
-}
-
-const markItemsAsDelivered = (items: ReservationRecord[]): ReservationRecord[] =>
-  items.map((item) => ({ ...item, status: 'delivered' }));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  '& > *': {
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    paddingBlock: theme.spacing(0.5),
-    paddingInline: theme.spacing(1),
-  },
-}));
