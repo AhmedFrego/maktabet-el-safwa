@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Box, Button, Card, CardContent } from '@mui/material';
 import { FilterListOff } from '@mui/icons-material';
-import { useListContext, useTranslate } from 'react-admin';
+import { useListContext, useTranslate, useStore } from 'react-admin';
 
 import {
   YearFilterSelect,
@@ -14,14 +14,20 @@ import {
 } from '.';
 import { usePublicationFilterOptions } from '../../hooks';
 
+const GROUPED_OR = 'is_collection_master.is.true,related_publications.is.null';
+
 export const CustomFilterSidebar = () => {
   const { data: publications, isLoading, filterValues, setFilters } = useListContext();
   const translate = useTranslate();
+  const [showGrouped] = useStore<boolean>('publications.showGrouped', true);
 
-  const hasActiveFilters = Object.keys(filterValues || {}).length > 0;
+  // Exclude the 'or' key (managed by the group toggle) from active filter count
+  const { or: _or, ...userFilters } = filterValues || {};
+  const hasActiveFilters = Object.keys(userFilters).length > 0;
 
   const handleClearFilters = () => {
-    setFilters({}, []);
+    // Preserve the group toggle's OR filter
+    setFilters(showGrouped ? { or: GROUPED_OR } : {}, []);
   };
 
   const { availableAcademicYears, availableSubjects, availablePublishers, availableYears } =
