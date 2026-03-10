@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Button, List, useListContext, useTranslate, useGetMany, useStore } from 'react-admin';
 import { Box, Typography } from '@mui/material';
 
@@ -53,9 +53,13 @@ const PublicationsContainer = ({ rows }: { rows: number }) => {
   const translate = useTranslate();
   const [showGrouped] = useStore<boolean>('publications.showGrouped', true);
   const { containerRef, perPage } = useGridPageSize(rows);
+  const prevPerPage = useRef(perPage);
 
   useEffect(() => {
-    setPerPage(perPage);
+    if (perPage !== prevPerPage.current) {
+      prevPerPage.current = perPage;
+      setPerPage(perPage);
+    }
   }, [perPage, setPerPage]);
 
   // Collect all related publication IDs that need to be fetched for stacked display

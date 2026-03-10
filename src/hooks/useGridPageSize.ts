@@ -12,7 +12,8 @@ export const useGridPageSize = (rows: number) => {
     const el = containerRef.current;
     if (!el) return;
     const width = el.clientWidth;
-    setCols(Math.max(1, Math.floor((width + GAP) / (CARD_WIDTH + GAP))));
+    const newCols = Math.max(1, Math.floor((width + GAP) / (CARD_WIDTH + GAP)));
+    setCols((prev) => (prev !== newCols ? newCols : prev));
   }, []);
 
   // Callback ref to handle late-mounting (e.g. after loading state)
