@@ -8,7 +8,7 @@ import {
   useRedirect,
 } from 'react-admin';
 import { styled } from '@mui/material/styles';
-import { EditNote, Settings, PointOfSale } from '@mui/icons-material';
+import { EditNote, Settings, PointOfSale, Fullscreen, FullscreenExit } from '@mui/icons-material';
 import { clearItems, useAppDispatch, useAppSelector, setIsReserving } from 'store';
 
 import { Box, Badge, Button, IconButton } from '@mui/material';
@@ -20,6 +20,21 @@ import { toArabicNumerals } from 'utils';
 export const Header = () => {
   const reDirect = useRedirect();
   const { isReserving } = useAppSelector((state) => state.reservation);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  };
 
   return (
     <StyledAppBar
@@ -28,6 +43,9 @@ export const Header = () => {
           {!isReserving && <DirectReservationButton />}
           <ReservationButton />
           {!isReserving && <ToggleThemeButton />}
+          <IconButton onClick={toggleFullscreen}>
+            {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
+          </IconButton>
           <LoadingIndicator />
           {!isReserving && (
             <IconButton onClick={() => reDirect(`/settings`)}>
