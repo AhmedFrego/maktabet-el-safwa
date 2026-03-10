@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { Box, Modal } from '@mui/material';
 import { Create, Edit, SimpleForm, useStore, useNotify } from 'react-admin';
 import dayjs from 'dayjs';
@@ -85,10 +85,20 @@ export const ReservationCreate = () => {
   const dead_line = new Date(new Date().getTime() + (setting?.deliver_after || 2) * 60 * 60 * 1000);
   const [deadLine, setDeadLine] = useState(dayjs(dead_line));
   const [instantDelivery, setInstantDelivery] = useState(false);
+  const deadLineManuallySet = useRef(false);
   const notify = useNotify();
+
+  // Update deadLine when setting?.deliver_after loads/changes (unless user manually changed it)
+  useEffect(() => {
+    if (setting?.deliver_after && !deadLineManuallySet.current) {
+      const newDeadLine = new Date(new Date().getTime() + setting.deliver_after * 60 * 60 * 1000);
+      setDeadLine(dayjs(newDeadLine));
+    }
+  }, [setting?.deliver_after]);
 
   const handleSetDeadLine = (value: PickerValue) => {
     if (value) {
+      deadLineManuallySet.current = true;
       setDeadLine(value);
     }
   };
@@ -175,7 +185,7 @@ export const ReservationCreate = () => {
       setReceiptData({
         clientName: client?.full_name || 'العميل',
         clientPhone: client?.phone_number || undefined,
-        reservationCode: data.reservation_code,
+        reservationCode: data.reservation_code || editingReservation?.reservation_code || '',
         paidAmount: data.paid_amount,
       });
 
@@ -214,12 +224,7 @@ export const ReservationCreate = () => {
               id={editingReservation.reservation_code}
               transform={confirmReserve}
               mutationOptions={{
-                onSuccess: () => {
-                  setInstantDelivery(false);
-                  dispatch(clearItems());
-                  dispatch(setEditingReservation(null));
-                  dispatch(setFormData(null));
-                },
+                onSuccess: handleCreateSuccess,
               }}
               mutationMode="pessimistic"
             >

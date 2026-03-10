@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import { Modal } from '@mui/material';
-import { Edit, SimpleForm, useRedirect } from 'react-admin';
+import { Box, Modal } from '@mui/material';
+import { Edit, SimpleForm, useRedirect, useNotify, useStore } from 'react-admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
@@ -16,11 +16,13 @@ import {
   setIsReserving,
   setEditingReservation,
 } from 'store';
-import { TablesUpdate } from 'types';
+import { Tables, TablesUpdate } from 'types';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { useCalcGroupPrice } from 'hooks';
+import { formatDateOnly } from 'utils/helpers';
 
 import { ReservationFormContent } from './ReservationFormContent';
+import { ReceiptPreview } from './ReceiptPreview';
 import { Reservation } from '../types';
 
 interface ReservationEditModalProps {
@@ -32,13 +34,26 @@ interface ReservationEditModalProps {
 export const ReservationEditModal = ({ open, onClose, reservation }: ReservationEditModalProps) => {
   const dispatch = useAppDispatch();
   const redirect = useRedirect();
+  const notify = useNotify();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const { groupRelatedItems } = useCalcGroupPrice();
+
+  // Receipt settings from Redux (persisted to localStorage)
+  const receiptFormat = useAppSelector((state) => state.ui.reservationReceiptFormat);
+  const autoPrint = useAppSelector((state) => state.ui.reservationAutoPrint);
 
   const { reservedItems: reserved_items } = useAppSelector((state) => state.reservation);
 
   const [deadLine, setDeadLine] = useState<PickerValue>(dayjs(reservation.dead_line || undefined));
   const [instantDelivery, setInstantDelivery] = useState(false);
+
+  // State for receipt generation after successful edit
+  const [receiptData, setReceiptData] = useState<{
+    clientName: string;
+    clientPhone?: string;
+    reservationCode: string;
+    paidAmount: number;
+  } | null>(null);
 
   // Initialize form with reservation data when modal opens
   useEffect(() => {
@@ -128,7 +143,7 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
       reserved_items,
       paid_amount,
       client_id,
-      dead_line: `${deadLine?.toISOString()}`,
+      dead_line: formatDateOnly(deadLine || dayjs()),
       reservation_status: calculatedStatus,
       delivered_by: allDelivered ? session.session.user.id : reservation.delivered_by,
       delivered_at: allDelivered ? new Date().toISOString() : reservation.delivered_at,
@@ -141,7 +156,37 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
     dispatch(clearItems());
     dispatch(setEditingReservation(null));
     setInstantDelivery(false);
+    setReceiptData(null);
     onClose();
+  };
+
+  // Handle success - show receipt for auto-download
+  const handleEditSuccess = async (data: Tables<'reservations'>) => {
+    try {
+      const { data: client } = await supabase
+        .from('users')
+        .select('full_name, phone_number')
+        .eq('id', data.client_id)
+        .single();
+
+      setReceiptData({
+        clientName: client?.full_name || 'العميل',
+        clientPhone: client?.phone_number || undefined,
+        reservationCode: data.reservation_code || reservation.reservation_code,
+        paidAmount: data.paid_amount,
+      });
+
+      notify('تم تعديل الحجز بنجاح', { type: 'success' });
+    } catch (error) {
+      console.error('Error fetching client:', error);
+      notify('تم تعديل الحجز بنجاح', { type: 'success' });
+      handleClose();
+    }
+  };
+
+  // Called after receipt is auto-downloaded
+  const handleReceiptClose = () => {
+    handleClose();
   };
 
   const handleEdit = () => {
@@ -153,55 +198,83 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={(_, reason) => {
-        // Only close on escape key or explicit close button, not on backdrop click
-        if (reason === 'escapeKeyDown') {
-          handleClose();
-        }
-      }}
-    >
-      <ModalWrapper>
-        <Edit
-          resource="reservations"
-          id={reservation.id}
-          transform={confirmUpdate}
-          mutationOptions={{
-            onSuccess: () => {
-              handleClose();
-            },
-          }}
-          mutationMode="pessimistic"
-        >
-          <SimpleForm
-            toolbar={false}
-            key={reservation.id} // Force re-render when reservation changes
-            defaultValues={{
-              client_id: reservation.client_id,
-              paid_amount: reservation.paid_amount,
+    <>
+      <Modal
+        open={open}
+        onClose={(_, reason) => {
+          // Only close on escape key or explicit close button, not on backdrop click
+          if (reason === 'escapeKeyDown') {
+            handleClose();
+          }
+        }}
+      >
+        <ModalWrapper>
+          <Edit
+            resource="reservations"
+            id={reservation.id}
+            transform={confirmUpdate}
+            mutationOptions={{
+              onSuccess: handleEditSuccess,
             }}
-            sx={(theme) => ({
-              backgroundColor: theme.palette.grey[50],
-              border: `2px solid ${theme.palette.warning.main}`,
-              borderRadius: 1,
-              width: '100%',
-            })}
+            mutationMode="pessimistic"
           >
-            <ReservationFormContent
-              reserved_items={reserved_items}
-              groupedItems={groupedItems}
-              total_price={total_price}
-              deadLine={deadLine}
-              setDeadLine={setDeadLine}
-              onInstantDelivery={handleInstantDelivery}
-              submitButtonRef={submitButtonRef}
-              onCancel={handleClose}
-              onEdit={handleEdit}
-            />
-          </SimpleForm>
-        </Edit>
-      </ModalWrapper>
-    </Modal>
+            <SimpleForm
+              toolbar={false}
+              key={reservation.id} // Force re-render when reservation changes
+              defaultValues={{
+                client_id: reservation.client_id,
+                paid_amount: reservation.paid_amount,
+              }}
+              sx={(theme) => ({
+                backgroundColor: theme.palette.grey[50],
+                border: `2px solid ${theme.palette.warning.main}`,
+                borderRadius: 1,
+                width: '100%',
+              })}
+            >
+              <ReservationFormContent
+                reserved_items={reserved_items}
+                groupedItems={groupedItems}
+                total_price={total_price}
+                deadLine={deadLine}
+                setDeadLine={setDeadLine}
+                onInstantDelivery={handleInstantDelivery}
+                submitButtonRef={submitButtonRef}
+                onCancel={handleClose}
+                onEdit={handleEdit}
+              />
+            </SimpleForm>
+          </Edit>
+        </ModalWrapper>
+      </Modal>
+
+      {/* Hidden receipt for auto-download after edit */}
+      {receiptData && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            width: '400px',
+            zIndex: -1,
+          }}
+        >
+          <ReceiptPreview
+            clientName={receiptData.clientName}
+            clientPhone={receiptData.clientPhone}
+            groupedItems={groupedItems}
+            totalPrice={total_price}
+            paidAmount={receiptData.paidAmount}
+            deadLine={deadLine}
+            reservationCode={receiptData.reservationCode}
+            onBack={() => {}}
+            autoDownloadPdf={receiptFormat === 'pdf'}
+            autoDownloadImage={receiptFormat === 'jpg'}
+            autoPrint={autoPrint}
+            onClose={handleReceiptClose}
+          />
+        </Box>
+      )}
+    </>
   );
 };

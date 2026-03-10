@@ -7,14 +7,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import {
-  FormDataConsumer,
-  NumberInput,
-  maxValue,
-  required,
-  useTranslate,
-  useGetOne,
-} from 'react-admin';
+import { FormDataConsumer, maxValue, required, useTranslate, useGetOne } from 'react-admin';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -22,10 +15,10 @@ import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import { RefObject, useEffect, useState } from 'react';
-import { Star, Receipt, ExpandMore } from '@mui/icons-material';
+import { Star, Receipt, ExpandMore, PictureAsPdf, Print } from '@mui/icons-material';
 
 import { ModalContent } from 'components/UI';
-import { ClientInput } from 'components/form';
+import { ClientInput, NumericRaInput } from 'components/form';
 import { toArabicNumerals } from 'utils';
 import { PickerValue } from '@mui/x-date-pickers/internals';
 import { ReservationRecord } from 'store/slices/reserviationSlice';
@@ -69,6 +62,7 @@ export const ReservationFormContent = ({
   const dispatch = useAppDispatch();
   const { setValue } = useFormContext();
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+  const [receiptAction, setReceiptAction] = useState<'pdf' | 'print' | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   // Watch form values for receipt preview
@@ -77,11 +71,11 @@ export const ReservationFormContent = ({
 
   // Save form data to Redux when client_id or paid_amount changes
   useEffect(() => {
-    if (clientId || paidAmount) {
+    if (clientId || paidAmount !== undefined) {
       dispatch(
         setFormData({
           client_id: clientId || '',
-          paid_amount: paidAmount || 0,
+          paid_amount: paidAmount != null ? paidAmount : 0,
         })
       );
     }
@@ -249,10 +243,10 @@ export const ReservationFormContent = ({
           );
         }}
       </FormDataConsumer>
-      <NumberInput
+      <NumericRaInput
         source="paid_amount"
         label={translate('custom.labels.paid_amount')}
-        validate={[required(), maxValue(total_price)]}
+        validate={[maxValue(total_price)]}
         helperText={false}
       />
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
@@ -265,16 +259,61 @@ export const ReservationFormContent = ({
           disablePast
         />
       </LocalizationProvider>
-      {/* Receipt Preview Button */}
-      <Button
-        variant="outlined"
-        startIcon={<Receipt />}
-        onClick={() => setShowReceiptPreview(true)}
-        disabled={reserved_items.length === 0 || !clientId}
-        sx={{ fontFamily: 'inherit' }}
-      >
-        معاينة الإيصال
-      </Button>
+      {/* Receipt Action Buttons */}
+      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Button
+          variant="outlined"
+          startIcon={<PictureAsPdf />}
+          onClick={() => setReceiptAction('pdf')}
+          disabled={reserved_items.length === 0 || !clientId}
+          sx={{ fontFamily: 'inherit', flex: 1 }}
+        >
+          {translate('custom.messages.download_pdf')}
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<Receipt />}
+          onClick={() => setShowReceiptPreview(true)}
+          disabled={reserved_items.length === 0 || !clientId}
+          sx={{ fontFamily: 'inherit', flex: 1 }}
+        >
+          {translate('custom.messages.receipt_preview')}
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<Print />}
+          onClick={() => setReceiptAction('print')}
+          disabled={reserved_items.length === 0 || !clientId}
+          sx={{ fontFamily: 'inherit', flex: 1 }}
+        >
+          {translate('ra.action.print')}
+        </Button>
+      </Box>
+      {/* Hidden receipt for PDF download / print actions */}
+      {receiptAction && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            width: '400px',
+            zIndex: -1,
+          }}
+        >
+          <ReceiptPreview
+            clientName={clientData?.full_name || translate('custom.labels.client')}
+            clientPhone={clientData?.phone_number}
+            groupedItems={groupedItems}
+            totalPrice={total_price}
+            paidAmount={Number(paidAmount) || 0}
+            deadLine={deadLine}
+            onBack={() => {}}
+            autoDownloadPdf={receiptAction === 'pdf'}
+            autoPrint={receiptAction === 'print'}
+            onClose={() => setReceiptAction(null)}
+          />
+        </Box>
+      )}
       <FormDataConsumer>
         {({ formData }) => (
           <ReservationCTA

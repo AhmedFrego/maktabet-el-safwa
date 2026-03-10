@@ -1,1 +1,1 @@
-export * from './generateReceiptPdf';
+// Receipt generation is handled by ReceiptPreview component

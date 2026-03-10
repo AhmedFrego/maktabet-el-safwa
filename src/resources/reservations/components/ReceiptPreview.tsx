@@ -86,14 +86,14 @@ export const ReceiptPreview = ({
 
       // Create download link
       const link = document.createElement('a');
-      const phoneForFilename = clientPhone ? `-${clientPhone.replace(/\s/g, '')}` : '';
-      link.download = `receipt-${clientName}${phoneForFilename}-${new Date().toISOString().split('T')[0]}.png`;
+      const deadlineStr = deadLine ? dayjs(deadLine).format('YYYY-MM-DD') : '';
+      link.download = `${reservationCode || 'receipt'}-${deadlineStr}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (error) {
       console.error('Error generating image:', error);
     }
-  }, [clientName, clientPhone]);
+  }, [reservationCode, deadLine]);
 
   // Download receipt as PDF
   const handleDownloadPdf = useCallback(async (): Promise<boolean> => {
@@ -153,17 +153,15 @@ export const ReceiptPreview = ({
         pdf.addImage(secondImgData, 'PNG', 0, 0, imgWidth, imgHeight);
       }
 
-      // Save PDF with phone in filename
-      const phoneForFilename = clientPhone ? `-${clientPhone.replace(/\s/g, '')}` : '';
-      pdf.save(
-        `receipt-${clientName}${phoneForFilename}-${new Date().toISOString().split('T')[0]}.pdf`
-      );
+      // Save PDF with reservation code and deadline in filename
+      const deadlineStr = deadLine ? dayjs(deadLine).format('YYYY-MM-DD') : '';
+      pdf.save(`${reservationCode || 'receipt'}-${deadlineStr}.pdf`);
       return true; // Indicate success
     } catch (error) {
       console.error('Error generating PDF:', error);
       return false;
     }
-  }, [clientName, clientPhone]);
+  }, [reservationCode, deadLine]);
 
   // Auto-download and/or auto-print when respective props are true
   useEffect(() => {
@@ -235,10 +233,8 @@ export const ReceiptPreview = ({
     const d = date.toDate();
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
     const dayName = dayjs(d).locale('ar').format('dddd');
-    return `${dayName} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(hours)}:${toArabicNumerals(minutes)}`;
+    return `${dayName} - ${toArabicNumerals(month)}/${toArabicNumerals(day)}`;
   };
 
   // Get collection title from master item
