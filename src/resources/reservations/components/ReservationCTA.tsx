@@ -1,6 +1,7 @@
 import { useState, RefObject } from 'react';
 import { Box, Modal, Typography, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { Button, useTranslate, useGetOne } from 'react-admin';
+import { useFormState } from 'react-hook-form';
 import { NestedModal, ModalContent, ModalWrapper } from 'components/UI';
 import { clearItems, setIsReserving, useAppDispatch } from 'store';
 import { ReservationRecord } from 'store/slices/reserviationSlice';
@@ -29,6 +30,7 @@ export const ReservationCTA = ({
 }: ReservationCTAProps) => {
   const dispatch = useAppDispatch();
   const translate = useTranslate();
+  const { isDirty } = useFormState();
   const [openInstantDeliveryModal, setOpenInstantDeliveryModal] = useState(false);
 
   const { data: clientData } = useGetOne('users', { id: client_id }, { enabled: !!client_id });
@@ -53,7 +55,7 @@ export const ReservationCTA = ({
   return (
     <>
       <Box sx={{ display: 'flex', gap: '1rem' }}>
-        {hasItems ? (
+        {hasItems && isDirty ? (
           <NestedModal
             confirmFn={onCancel || (() => dispatch(clearItems()))}
             title={translate('resources.reservations.actions.cancel')}
@@ -63,7 +65,7 @@ export const ReservationCTA = ({
           <Button
             variant="outlined"
             sx={{ fontFamily: 'inherit' }}
-            onClick={handleCancel}
+            onClick={onCancel || (() => dispatch(clearItems()))}
             color="error"
           >
             {translate('resources.reservations.actions.cancel')}
