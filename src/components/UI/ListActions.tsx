@@ -1,10 +1,5 @@
 import { styled, ButtonGroup, Button, Checkbox, Box } from '@mui/material';
-import {
-  CreateButton,
-  useListContext,
-  useDataProvider,
-  useTranslate,
-} from 'react-admin';
+import { CreateButton, useListContext, useDataProvider, useTranslate } from 'react-admin';
 import { DeleteForever, Close } from '@mui/icons-material';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector, toggleDeletingMode, toggleAllItems } from 'store';
