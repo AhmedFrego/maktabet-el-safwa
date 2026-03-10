@@ -12,10 +12,12 @@ import {
 } from '@mui/material';
 import { useTranslate, useDeleteMany, useNotify, useRefresh, useListContext } from 'react-admin';
 import { useAppDispatch, useAppSelector, resetDeletion } from 'store';
-import { removeFromAllRelated, toArabicNumerals } from 'utils';
+import { removeFromAllRelated, extractFileName, toArabicNumerals } from 'utils';
+import { supabase } from 'lib';
 
 interface Publication {
   id: string;
+  cover_url?: string | null;
   subject?: { name: string };
   additional_data?: string;
   publisher?: { name: string };
@@ -48,6 +50,19 @@ export const DeleteConfirmationModal = ({ open, onClose }: DeleteConfirmationMod
     } catch (error) {
       console.error('Error removing related publications:', error);
       // Continue with deletion even if cascade fails
+    }
+
+    // Delete cover images from storage
+    const coverPaths = (selectedPublications || [])
+      .map((pub: Publication) => {
+        console.log('[Delete] Publication cover_url:', pub.id, pub.cover_url);
+        return extractFileName(pub.cover_url || null);
+      })
+      .filter((path): path is string => !!path);
+
+    if (coverPaths.length > 0) {
+      const { error: storageError } = await supabase.storage.from('covers').remove(coverPaths);
+      if (storageError) console.error('Error deleting covers:', storageError);
     }
 
     deleteMany(

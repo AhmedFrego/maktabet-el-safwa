@@ -31,18 +31,27 @@ export const PublicationEdit = () => {
         throw resizeError;
       }
 
-      const path = extractFileName(record?.cover_url || '');
-      const { data: cover, error } = path
-        ? await supabase.storage.from('covers').update(path, uploadBlob, { upsert: true })
-        : await supabase.storage
-            .from('covers')
-            .upload(`/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`, uploadBlob);
+      const oldPath = extractFileName(record?.cover_url || '');
+      console.log('[Edit] Old cover_url:', record?.cover_url, '| path:', oldPath);
+
+      // Upload new cover with a fresh name
+      const newName = `/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`;
+      const { data: cover, error } = await supabase.storage
+        .from('covers')
+        .upload(newName, uploadBlob);
 
       if (error) {
         throw error;
       } else {
         const fullPath = `${STOREGE_URL}${cover?.fullPath}`;
+        console.log('[Edit] New cover_url:', fullPath);
         data.cover_url = fullPath;
+      }
+
+      // Remove old cover from storage
+      if (oldPath) {
+        const { error: removeError } = await supabase.storage.from('covers').remove([oldPath]);
+        if (removeError) console.error('Error removing old cover:', removeError);
       }
     } else data.cover_url = data.cover_url || null;
 

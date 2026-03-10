@@ -74,7 +74,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
   const fullyPaid = isFullyPaid(normalizedItems, paid_amount);
 
   const displayTime = isDelivered && delivered_at ? delivered_at : dead_line;
-  const { day, dayOfWeek, month, time } = formatDateTime(displayTime);
+  const { day, dayOfWeek, month } = formatDateTime(displayTime);
   const timeLabel = isDelivered
     ? translate('resources.reservations.fields.delivered_at')
     : translate('resources.reservations.fields.dead_line');
