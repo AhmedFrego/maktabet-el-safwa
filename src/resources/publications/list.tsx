@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button, List, useListContext, useTranslate, useGetMany, useStore } from 'react-admin';
 import { Box, Typography } from '@mui/material';
 
-import { StyledContainer, ListActions, Loading } from 'components/UI';
+import { StyledContainer, ListActions, Loading, GridPagination } from 'components/UI';
+import { useGridPageSize } from 'hooks';
 import { useAppSelector, useAppDispatch, setPendingSuggestion } from 'store';
 
 import { CustomFilterSidebar, PublicationCard } from './components';
@@ -13,6 +14,7 @@ export const PublicationsList = () => {
   const isReserving = useAppSelector((state) => state.reservation.isReserving);
   const pendingSuggestion = useAppSelector((state) => state.reservation.pendingSuggestion);
   const dispatch = useAppDispatch();
+  const [rows, setRows] = useStore('publications.gridRows', 3);
 
   const handleCloseSuggestionModal = () => {
     dispatch(setPendingSuggestion(null));
@@ -25,9 +27,10 @@ export const PublicationsList = () => {
         aside={<CustomFilterSidebar />}
         queryOptions={{ meta: { columns: publicationsColumns } }}
         sort={{ field: 'subject_id', order: 'ASC' }}
+        pagination={<GridPagination rows={rows} onRowsChange={setRows} />}
         sx={{ '& .RaList-content': { maxWidth: 'none', width: '100%' } }}
       >
-        <PublicationsContainer />
+        <PublicationsContainer rows={rows} />
       </List>
 
       {/* Related Publications Suggestion Modal */}
@@ -43,10 +46,15 @@ export const PublicationsList = () => {
   );
 };
 
-const PublicationsContainer = () => {
-  const { data: publications, isLoading, setFilters } = useListContext<Publication>();
+const PublicationsContainer = ({ rows }: { rows: number }) => {
+  const { data: publications, isLoading, setFilters, setPerPage } = useListContext<Publication>();
   const translate = useTranslate();
   const [showGrouped] = useStore<boolean>('publications.showGrouped', true);
+  const { containerRef, perPage } = useGridPageSize(rows);
+
+  useEffect(() => {
+    setPerPage(perPage);
+  }, [perPage, setPerPage]);
 
   // Collect all related publication IDs that need to be fetched for stacked display
   const relatedIdsToFetch = useMemo(() => {
@@ -97,7 +105,7 @@ const PublicationsContainer = () => {
   if (isLoading) return <Loading />;
 
   return (
-    <StyledContainer>
+    <StyledContainer ref={containerRef}>
       {publications && !publications.length ? (
         <Box
           sx={(theme) => ({

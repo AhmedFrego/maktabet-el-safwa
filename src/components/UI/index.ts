@@ -2,6 +2,7 @@ export * from './ColoredSummaryCard';
 export * from './DateRangeFilter';
 export * from './DeleteConfirmationModal';
 export * from './DividedContainer';
+export * from './GridPagination';
 export * from './ListActions';
 export * from './Loading';
 export * from './Modal';

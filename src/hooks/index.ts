@@ -5,3 +5,4 @@ export * from './useFinancialStats';
 export * from './useAnalytics';
 export * from './useDirectReservationPricing';
 export * from './useListPageSize';
+export * from './useGridPageSize';
