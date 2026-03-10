@@ -230,7 +230,7 @@ export const ReservationRecordCard = ({ reservation }: ReservationItemProps) => 
                 color="text.secondary"
                 sx={{ fontSize: 14, whiteSpace: 'nowrap' }}
               >
-                {`${timeLabel}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`}
+                {`${timeLabel}: ${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)}`}
               </Typography>
             </Box>
           </CardWrapper>
