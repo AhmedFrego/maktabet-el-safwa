@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { Box, Button, Card, CardContent } from '@mui/material';
 import { FilterListOff } from '@mui/icons-material';
-import { Identifier, useGetList, useListContext, useTranslate } from 'react-admin';
+import { useListContext, useTranslate } from 'react-admin';
 
 import {
   YearFilterSelect,
@@ -11,15 +12,7 @@ import {
   PublisherFilterSelect,
   ShowSeparatelyToggle,
 } from '.';
-import { Enums, idName } from 'types';
-
-interface FilterColumns {
-  id: Identifier;
-  academic_year: Enums<'academic_years'>;
-  subjects: idName;
-  publishers: idName;
-  year: string;
-}
+import { usePublicationFilterOptions } from '../../hooks';
 
 export const CustomFilterSidebar = () => {
   const { data: publications, isLoading, filterValues, setFilters } = useListContext();
@@ -31,29 +24,46 @@ export const CustomFilterSidebar = () => {
     setFilters({}, []);
   };
 
-  const { data } = useGetList<FilterColumns>('publications', {
-    meta: {
-      columns: [
-        'id,year,academic_year',
-        'subjects:subjects(id,name)',
-        'publishers:publishers(id,name)',
-      ],
-    },
-  });
+  const { availableAcademicYears, availableSubjects, availablePublishers, availableYears } =
+    usePublicationFilterOptions(filterValues);
 
-  let uniqueAcademicYears: Enums<'academic_years'>[] = [];
-  let uniqueSubjects: idName[] = [];
-  let uniquePublishers: idName[] = [];
-  let uniqueYears: string[] = [];
+  // ── Auto-clear stale cascading selections ─────────────────────────
+  // When cascading narrows the options and the currently selected value
+  // is no longer available, remove it so the user doesn't see empty results.
+  const prevFilterValues = useRef(filterValues);
+  useEffect(() => {
+    const staleKeys: Record<string, unknown> = {};
 
-  if (data) {
-    uniqueAcademicYears = [
-      ...new Map(data.map((x) => [x.academic_year, x.academic_year])).values(),
-    ];
-    uniqueSubjects = [...new Map(data.map((x) => [x.subjects.id, x.subjects])).values()];
-    uniquePublishers = [...new Map(data.map((x) => [x.publishers.id, x.publishers])).values()];
-    uniqueYears = [...new Map(data.map((x) => [x.year, x.year])).values()];
-  }
+    if (
+      filterValues.academic_year &&
+      availableAcademicYears.length > 0 &&
+      !availableAcademicYears.includes(filterValues.academic_year)
+    ) {
+      staleKeys.academic_year = undefined;
+    }
+    if (
+      filterValues.subject_id &&
+      availableSubjects.length > 0 &&
+      !availableSubjects.some((s) => s.id === filterValues.subject_id)
+    ) {
+      staleKeys.subject_id = undefined;
+    }
+    if (
+      filterValues.publisher_id &&
+      availablePublishers.length > 0 &&
+      !availablePublishers.some((p) => p.id === filterValues.publisher_id)
+    ) {
+      staleKeys.publisher_id = undefined;
+    }
+
+    if (Object.keys(staleKeys).length > 0) {
+      const cleaned = { ...filterValues };
+      Object.keys(staleKeys).forEach((k) => delete cleaned[k]);
+      setFilters(cleaned, []);
+    }
+
+    prevFilterValues.current = filterValues;
+  }, [availableAcademicYears, availableSubjects, availablePublishers, filterValues, setFilters]);
 
   if (isLoading || !publications) return null;
 
@@ -77,11 +87,11 @@ export const CustomFilterSidebar = () => {
         )}
         <Box sx={{ p: 1.5 }}>
           <PublicationsTypeFilterSelect />
-          <AcademicYearFilterSelect uniqueAcademicYears={uniqueAcademicYears} />
-          <SubjectFilterSelect uniqueSubjects={uniqueSubjects} />
-          <PublisherFilterSelect uniquePublishers={uniquePublishers} />
+          <AcademicYearFilterSelect uniqueAcademicYears={availableAcademicYears} />
+          <SubjectFilterSelect uniqueSubjects={availableSubjects} />
+          <PublisherFilterSelect uniquePublishers={availablePublishers} />
           <TermFilterSelect />
-          <YearFilterSelect uniqueYears={uniqueYears} />
+          <YearFilterSelect uniqueYears={availableYears} />
           <ShowSeparatelyToggle />
         </Box>
       </CardContent>

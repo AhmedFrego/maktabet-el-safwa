@@ -99,8 +99,20 @@ const applySorting = (query: ReturnType<typeof supabase.from>, sort?: GetListPar
 const resolveRelations = (selectStr: string, filter: Record<string, unknown>): string => {
   if (typeof filter.or !== 'string') return selectStr;
 
-  const re = /([a-zA-Z0-9_]+)\./g;
-  const relationNames = Array.from(filter.or.matchAll(re)).map((m) => m[1]);
+  // Split the OR clause into individual conditions and identify relation-based ones.
+  // Relation filters have 4+ dot-segments: relation.column.operator.value
+  // Column filters have 3 segments: column.operator.value (e.g. is_collection_master.is.true)
+  const parts = filter.or.split(',');
+  const relationNames = new Set<string>();
+
+  parts.forEach((part) => {
+    const segments = part.trim().split('.');
+    if (segments.length >= 4) {
+      relationNames.add(segments[0]);
+    }
+  });
+
+  if (relationNames.size === 0) return selectStr;
 
   relationNames.forEach((rel) => {
     const regex = new RegExp(`${rel}:([^\\(]+)\\(`, 'g');

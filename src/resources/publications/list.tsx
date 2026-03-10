@@ -54,7 +54,6 @@ const PublicationsContainer = () => {
     const ids = new Set<string>();
 
     publications.forEach((pub) => {
-      // Only fetch related items for masters or standalone publications
       const hasRelated =
         pub.related_publications && (pub.related_publications as string[]).length > 0;
       const isMaster = pub.is_collection_master === true;
@@ -81,41 +80,6 @@ const PublicationsContainer = () => {
     return map;
   }, [relatedPublications]);
 
-  // Filter publications to show only:
-  // 1. Masters (is_collection_master = true)
-  // 2. Standalone publications (no related_publications or empty array)
-  // Hide non-master items that belong to a group (they'll be shown as stacked cards under their master)
-  // UNLESS showGrouped is disabled, then show all items without grouping
-  const filteredPublications = useMemo(() => {
-    if (!publications) return [];
-
-    // If "show grouped" is disabled, show all publications without grouping
-    if (!showGrouped) return publications;
-
-    return publications.filter((pub) => {
-      const hasRelated =
-        pub.related_publications && (pub.related_publications as string[]).length > 0;
-
-      // If no related publications, always show
-      if (!hasRelated) return true;
-
-      // If has related publications, only show if it's the master
-      // OR if no master exists in this group (show all until master is set)
-      const isMaster = pub.is_collection_master === true;
-
-      if (isMaster) return true;
-
-      // Check if any publication in this group is a master
-      const relatedIds = pub.related_publications as string[];
-      const groupHasMaster = publications.some(
-        (p) => p.is_collection_master === true && (relatedIds.includes(p.id) || p.id === pub.id)
-      );
-
-      // If no master in group, show all items individually
-      return !groupHasMaster;
-    });
-  }, [publications, showGrouped]);
-
   // Get related items for a master publication
   // Don't stack items if "show grouped" is disabled
   const getRelatedItems = (publication: Publication): Publication[] => {
@@ -134,7 +98,7 @@ const PublicationsContainer = () => {
 
   return (
     <StyledContainer>
-      {filteredPublications && !filteredPublications?.length ? (
+      {publications && !publications.length ? (
         <Box
           sx={(theme) => ({
             backgroundColor: theme.palette.background.default,
@@ -152,8 +116,8 @@ const PublicationsContainer = () => {
           </Button>
         </Box>
       ) : (
-        filteredPublications &&
-        filteredPublications.map((record) => (
+        publications &&
+        publications.map((record) => (
           <PublicationCard key={record.id} record={record} relatedItems={getRelatedItems(record)} />
         ))
       )}
