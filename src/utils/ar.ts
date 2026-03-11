@@ -606,7 +606,7 @@ export const arabicMessages: TranslationMessages = {
     // ─── App-wide messages & notifications ───
     messages: {
       instant_delivery_warning: 'تأكد من تسليم جميع العناصر المحجوزة وتحصيل المبلغ الكامل',
-      receipt_preview: 'معاينة الإيصال',
+      receipt_preview: 'معاينة',
       receipt_header: 'إيصال استلام',
       delivery_date: 'موعد التسليم',
       thank_you: 'شكراً لتعاملكم معنا',
@@ -617,7 +617,7 @@ export const arabicMessages: TranslationMessages = {
       total: 'الإجمالي',
       note: 'ملاحظة',
       download_image: 'تحميل صورة',
-      download_pdf: 'تحميل PDF',
+      download_pdf: 'تحميل',
       receipt_copy_customer: 'نسخة العميل',
       receipt_copy_store: 'نسخة المحل',
       reservation_no_items: 'لا توجد منشورات محجوزة',
