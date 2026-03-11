@@ -248,7 +248,7 @@ export const ProductionSummary = () => {
 
       if (fetchError) throw fetchError;
       if (!reservations || reservations.length === 0) {
-        notify('لا توجد حجوزات للتحديث', { type: 'info' });
+        notify(translate('custom.messages.no_reservations_to_update'), { type: 'info' });
         return;
       }
 
@@ -270,7 +270,7 @@ export const ProductionSummary = () => {
       });
 
       if (reservationsToUpdate.length === 0) {
-        notify('لا توجد عناصر مطابقة للتحديث', { type: 'info' });
+        notify(translate('custom.messages.no_matching_items'), { type: 'info' });
         return;
       }
 
@@ -331,18 +331,23 @@ export const ProductionSummary = () => {
       const failed = results.filter((r) => r.error);
       if (failed.length > 0) {
         console.error('Some updates failed:', failed);
-        notify('حدث خطأ أثناء التحديث', { type: 'error' });
+        notify(translate('custom.messages.update_error'), { type: 'error' });
       } else {
-        notify(`تم تحديث ${toArabicNumerals(reservationsToUpdate.length)} حجز بنجاح`, {
-          type: 'success',
-        });
+        notify(
+          translate('custom.messages.update_success', {
+            count: toArabicNumerals(reservationsToUpdate.length),
+          }),
+          {
+            type: 'success',
+          }
+        );
       }
 
       // Refresh production data
       await fetchProductionData();
     } catch (err) {
       console.error('Error updating reservations:', err);
-      notify('حدث خطأ أثناء التحديث', { type: 'error' });
+      notify(translate('custom.messages.update_error'), { type: 'error' });
     } finally {
       setUpdating(null);
     }
@@ -571,7 +576,7 @@ export const ProductionSummary = () => {
                                   },
                                 },
                               }}
-                              title="انقر لتعيين هذا المنشور كجاهز في جميع الحجوزات"
+                              title={translate('custom.messages.click_to_set_ready')}
                             >
                               <Typography
                                 sx={{
@@ -723,17 +728,20 @@ export const ProductionSummary = () => {
         aria-describedby="confirm-dialog-description"
       >
         <DialogTitle id="confirm-dialog-title" sx={{ fontFamily: 'inherit' }}>
-          تأكيد تعيين المنشور كجاهز
+          {translate('custom.messages.confirm_ready_title')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-dialog-description" sx={{ fontFamily: 'inherit' }}>
-            هل أنت متأكد من تعيين المنشور <strong>&quot;{pendingAction?.title}&quot;</strong> كجاهز{' '}
-            <strong>{toArabicNumerals(pendingAction?.reservationIds.length || 0)}</strong> في حجز؟
+            {translate('custom.messages.confirm_ready_start')}{' '}
+            <strong>&quot;{pendingAction?.title}&quot;</strong>{' '}
+            {translate('custom.messages.confirm_ready_end')}{' '}
+            <strong>{toArabicNumerals(pendingAction?.reservationIds.length || 0)}</strong>{' '}
+            {translate('custom.messages.confirm_ready_in_reservation')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel} sx={{ fontFamily: 'inherit' }}>
-            إلغاء
+            {translate('ra.action.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -741,7 +749,7 @@ export const ProductionSummary = () => {
             autoFocus
             sx={{ fontFamily: 'inherit' }}
           >
-            تأكيد
+            {translate('ra.action.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

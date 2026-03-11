@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslate } from 'react-admin';
 import {
   BarChart,
   Bar,
@@ -43,8 +44,10 @@ export const DistributionBarChart = <T extends Record<string, unknown>>({
   xAxisHeight = 100,
   height = 400,
   barColor = '#2196f3',
-  barName = 'الكمية',
+  barName,
 }: DistributionBarChartProps<T>) => {
+  const translate = useTranslate();
+  const displayBarName = barName ?? translate('custom.labels.quantity');
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
@@ -58,7 +61,7 @@ export const DistributionBarChart = <T extends Record<string, unknown>>({
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey={dataKey} fill={barColor} name={barName} />
+            <Bar dataKey={dataKey} fill={barColor} name={displayBarName} />
           </BarChart>
         </ResponsiveContainer>
       </Box>

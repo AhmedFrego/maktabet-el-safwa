@@ -58,7 +58,8 @@ export const CreateRelatedPublication = () => {
   const transform = async (
     data: PublicationWithFileCover | TablesInsert<'publications'>
   ): Promise<TablesInsert<'publications'>> => {
-    if (!publicationData) return Promise.reject('Parent publication not found');
+    if (!publicationData)
+      return Promise.reject(translate('resources.publications.messages.parent_not_found'));
 
     const { data: session } = await supabase.auth.getSession();
     if (!session.session) return Promise.reject('no logged in user');

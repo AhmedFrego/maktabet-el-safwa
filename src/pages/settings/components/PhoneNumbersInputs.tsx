@@ -40,7 +40,10 @@ export const PhoneNumbersInputs = () => {
             source="phone_number"
             label={translate('custom.labels.phone_number')}
             helperText={false}
-            validate={[required(), regex(/^01[0125]\d{8}$/, 'لا يبدو كرقم هاتف صحيح')]}
+            validate={[
+              required(),
+              regex(/^01[0125]\d{8}$/, translate('custom.messages.invalid_phone')),
+            ]}
             size="small"
           />
           <CustomCheckBox

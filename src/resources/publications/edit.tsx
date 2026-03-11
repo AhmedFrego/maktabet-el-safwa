@@ -32,7 +32,6 @@ export const PublicationEdit = () => {
       }
 
       const oldPath = extractFileName(record?.cover_url || '');
-      console.log('[Edit] Old cover_url:', record?.cover_url, '| path:', oldPath);
 
       // Upload new cover with a fresh name
       const newName = `/${new Date().getTime()}${file.name.replace(/\s+/g, '-')}`;
@@ -44,7 +43,6 @@ export const PublicationEdit = () => {
         throw error;
       } else {
         const fullPath = `${STOREGE_URL}${cover?.fullPath}`;
-        console.log('[Edit] New cover_url:', fullPath);
         data.cover_url = fullPath;
       }
 

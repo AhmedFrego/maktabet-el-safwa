@@ -19,6 +19,7 @@ import { ModalContent, ModalWrapper, NestedModal, PaperBox } from 'components/UI
 import { Tables, TablesInsert, TablesUpdate } from 'types';
 
 export const PrintingPrices = () => {
+  const translate = useTranslate();
   const [setting] = useStore<Tables<'settings'>>('settings');
   const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
   const [deleteOne] = useDelete<Tables<'paper_types'>>();
@@ -44,7 +45,7 @@ export const PrintingPrices = () => {
           p: 1,
         })}
       >
-        أسعار الطباعة
+        {translate('custom.settings.printing_prices')}
       </Typography>
       <CreateModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -56,7 +57,7 @@ export const PrintingPrices = () => {
                 <Typography>{size.name}</Typography>
                 <TextInput
                   source={`paper_prices.${size.id}.oneFacePrice`}
-                  label="سعر الوجه الواحد بالقروش"
+                  label={translate('custom.labels.one_face_price_piasters')}
                   helperText={false}
                   validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.oneFacePrice}
@@ -64,15 +65,15 @@ export const PrintingPrices = () => {
                 />
                 <TextInput
                   source={`paper_prices.${size.id}.twoFacesPrice`}
-                  label="سعر الوجهين بالقروش"
+                  label={translate('custom.labels.two_faces_price_piasters')}
                   helperText={false}
                   validate={[required(), number()]}
                   size="small"
                   defaultValue={oldPaperPrices?.twoFacesPrice}
                 />
                 <NestedModal
-                  title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
-                  buttonText="حذف"
+                  title={translate('custom.settings.cannot_delete_used')}
+                  buttonText={translate('ra.action.delete')}
                   confirmFn={() => {
                     deleteOne('paper_types', { id: size.id });
                   }}
@@ -83,7 +84,7 @@ export const PrintingPrices = () => {
                     sx={{ fontFamily: 'inherit' }}
                     onClick={() => updateDefaultPaper(size.id)}
                   >
-                    تعيين كإفتراضي
+                    {translate('custom.labels.set_as_default')}
                   </Button>
                 )}
               </Box>
@@ -117,7 +118,7 @@ const CreateModal = () => {
   return (
     <Box>
       <Button variant="text" sx={{ fontFamily: 'inherit' }} onClick={handleOpen}>
-        إضافة مقاس جديد
+        {translate('custom.settings.add_new_size')}
       </Button>
       <Modal
         open={open}
@@ -132,10 +133,10 @@ const CreateModal = () => {
               backgroundColor: theme.palette.grey[100],
             })}
           >
-            <Typography>إضافة مقاس جديد</Typography>
+            <Typography>{translate('custom.settings.add_new_size')}</Typography>
             <Form onSubmit={addPaperType}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <TextInput source="name" label="مقاس الورق" />
+                <TextInput source="name" label={translate('custom.labels.paper_size')} />
                 <ButtonGroup>
                   <Button
                     variant="contained"

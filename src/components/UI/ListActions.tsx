@@ -44,7 +44,7 @@ export const ListActions = () => {
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <ButtonGroup variant="contained" aria-label="Basic button group">
+      <ButtonGroup variant="contained" aria-label={translate('ra.action.bulk_actions')}>
         {!isDeletingMode && <StyledCreateButton />}
         <StyledDeleteButton
           onClick={handleDeleteClick}

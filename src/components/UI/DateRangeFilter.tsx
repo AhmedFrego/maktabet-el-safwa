@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslate } from 'react-admin';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -33,14 +34,16 @@ export const DateRangeFilter = ({
   onChange,
   extraInfo,
   totalCount,
-  countLabel = 'طلب إجمالي',
+  countLabel,
 }: DateRangeFilterProps) => {
+  const translate = useTranslate();
+  const displayCountLabel = countLabel ?? translate('custom.labels.order_total');
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ar">
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <DatePicker
-            label="من تاريخ"
+            label={translate('custom.labels.date_from')}
             value={dateRange.from}
             onChange={(newValue) => onChange({ ...dateRange, from: newValue })}
             slotProps={{
@@ -48,7 +51,7 @@ export const DateRangeFilter = ({
             }}
           />
           <DatePicker
-            label="إلى تاريخ"
+            label={translate('custom.labels.date_to')}
             value={dateRange.to}
             onChange={(newValue) => onChange({ ...dateRange, to: newValue })}
             slotProps={{
@@ -57,7 +60,7 @@ export const DateRangeFilter = ({
           />
           {totalCount !== undefined && (
             <Typography variant="body2" color="text.secondary">
-              {toArabicNumerals(totalCount)} {countLabel}
+              {toArabicNumerals(totalCount)} {displayCountLabel}
             </Typography>
           )}
           {extraInfo && (

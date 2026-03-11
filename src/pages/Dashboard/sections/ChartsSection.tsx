@@ -4,6 +4,7 @@ import {
   PaymentStatusPie,
   CHART_COLORS,
 } from 'components/charts';
+import { useTranslate } from 'react-admin';
 
 interface ChartsSectionProps {
   financialStats: {
@@ -20,14 +21,23 @@ interface ChartsSectionProps {
  * Dashboard section displaying revenue and order charts.
  */
 export const ChartsSection = ({ financialStats }: ChartsSectionProps) => {
+  const translate = useTranslate();
   const paymentStatusData = [
-    { name: 'مدفوع بالكامل', value: financialStats.paymentStatus.paid, color: CHART_COLORS[0] },
     {
-      name: 'مدفوع جزئياً',
+      name: translate('custom.charts.paid_full'),
+      value: financialStats.paymentStatus.paid,
+      color: CHART_COLORS[0],
+    },
+    {
+      name: translate('custom.charts.paid_partial'),
       value: financialStats.paymentStatus.partiallyPaid,
       color: CHART_COLORS[1],
     },
-    { name: 'غير مدفوع', value: financialStats.paymentStatus.unpaid, color: CHART_COLORS[2] },
+    {
+      name: translate('custom.charts.unpaid'),
+      value: financialStats.paymentStatus.unpaid,
+      color: CHART_COLORS[2],
+    },
   ];
 
   return (

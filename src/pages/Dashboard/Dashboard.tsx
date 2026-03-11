@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Alert, Paper, Tabs, Tab } from '@mui/material';
-import { Title } from 'react-admin';
+import { Title, useTranslate } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ar';
 import { supabase } from 'lib/supabase';
@@ -17,6 +17,7 @@ import {
 import type { DashboardStats } from './types';
 
 export const Dashboard = () => {
+  const translate = useTranslate();
   const dispatch = useAppDispatch();
   const currentTab = useAppSelector((state) => state.ui.dashboardActiveTab);
 
@@ -127,10 +128,10 @@ export const Dashboard = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Title title="مرحباً بالصفوة" />
+      <Title title={translate('custom.dashboard.title')} />
 
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        لوحة التحكم
+        {translate('custom.dashboard.heading')}
       </Typography>
 
       {/* Date Range Filter */}
@@ -152,10 +153,10 @@ export const Dashboard = () => {
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab label="الإحصائيات السريعة" />
-          <Tab label="الرسوم البيانية" />
-          <Tab label="مؤشرات التسليم" />
-          <Tab label="تحليلات البيانات" />
+          <Tab label={translate('custom.dashboard.tabs.quick_stats')} />
+          <Tab label={translate('custom.dashboard.tabs.charts')} />
+          <Tab label={translate('custom.dashboard.tabs.delivery_indicators')} />
+          <Tab label={translate('custom.dashboard.tabs.data_analytics')} />
         </Tabs>
 
         {/* Tab 0: Quick Stats */}

@@ -7,6 +7,7 @@ import {
   useDelete,
   useGetList,
   useStore,
+  useTranslate,
   useUpdate,
 } from 'react-admin';
 
@@ -16,6 +17,7 @@ import { Tables, TablesUpdate } from 'types';
 import { CoverModalForm } from '.';
 
 export const CoversPrices = () => {
+  const translate = useTranslate();
   const [setting] = useStore<Tables<'settings'>>('settings');
   const { data: cover_types } = useGetList<Tables<'cover_types'>>('cover_types');
   const { data: paper_types } = useGetList<Tables<'paper_types'>>('paper_types');
@@ -52,7 +54,7 @@ export const CoversPrices = () => {
           mt: 2,
         })}
       >
-        أسعار التغليف
+        {translate('custom.settings.covers_prices')}
       </Typography>
       <CoverModalForm />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -67,7 +69,7 @@ export const CoversPrices = () => {
                 <Typography>{cover_type.name}</Typography>
                 <TextInput
                   source={`covers_prices.${cover_type.id}.oneFacePrice`}
-                  label="سعر الوجه الواحد بالجنيه"
+                  label={translate('custom.labels.one_face_price_pounds')}
                   helperText={false}
                   validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.oneFacePrice}
@@ -75,15 +77,15 @@ export const CoversPrices = () => {
                 />
                 <TextInput
                   source={`covers_prices.${cover_type.id}.twoFacesPrice`}
-                  label="سعر الوجهين بالجنيه"
+                  label={translate('custom.labels.two_faces_price_pounds')}
                   helperText={false}
                   validate={[required(), number()]}
                   defaultValue={oldPaperPrices?.twoFacesPrice}
                   size="small"
                 />
                 <NestedModal
-                  title="لا يمكن حذف المقاس إذا كان يستخدم في أي من الموارد"
-                  buttonText="حذف"
+                  title={translate('custom.settings.cannot_delete_used')}
+                  buttonText={translate('ra.action.delete')}
                   confirmFn={() => {
                     deleteOne('cover_types', { id: cover_type.id });
                   }}
@@ -95,12 +97,12 @@ export const CoversPrices = () => {
                   loading={isLoading}
                 >
                   {setting?.available_covers?.includes(cover_type.id)
-                    ? 'تعيين ك غير متاح'
-                    : 'تعيين ك متاح'}
+                    ? translate('custom.labels.set_as_unavailable')
+                    : translate('custom.labels.set_as_available')}
                 </Button>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                مناسب لمقاسات :
+                {translate('custom.labels.suitable_for')} :
                 {cover_type?.to_paper_size?.map((x) => {
                   const paper_type = paper_types?.find((p) => p.id === x);
                   return <Chip key={x} label={paper_type?.name} />;

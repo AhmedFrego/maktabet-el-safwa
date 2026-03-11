@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { Box, Modal } from '@mui/material';
-import { Create, Edit, SimpleForm, useStore, useNotify } from 'react-admin';
+import { Create, Edit, SimpleForm, useStore, useNotify, useTranslate } from 'react-admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
@@ -88,6 +88,7 @@ export const ReservationCreate = () => {
   const [instantDelivery, setInstantDelivery] = useState(false);
   const deadLineManuallySet = useRef(false);
   const notify = useNotify();
+  const translate = useTranslate();
 
   // Update deadLine when setting?.deliver_after loads/changes (unless user manually changed it)
   useEffect(() => {
@@ -205,16 +206,16 @@ export const ReservationCreate = () => {
 
       // Set receipt data to trigger hidden receipt render + auto-download
       setReceiptData({
-        clientName: client?.full_name || 'العميل',
+        clientName: client?.full_name || translate('custom.labels.client'),
         clientPhone: client?.phone_number || undefined,
         reservationCode: data.reservation_code || '',
         paidAmount: data.paid_amount,
       });
 
-      notify('تم إنشاء الحجز بنجاح', { type: 'success' });
+      notify(translate('resources.reservations.messages.reservation_created'), { type: 'success' });
     } catch (error) {
       console.error('Error fetching client:', error);
-      notify('تم إنشاء الحجز بنجاح', { type: 'success' });
+      notify(translate('resources.reservations.messages.reservation_created'), { type: 'success' });
       // Close even if client fetch failed
       setInstantDelivery(false);
       dispatch(clearItems());

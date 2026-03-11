@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslate } from 'react-admin';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { toArabicNumerals } from 'utils';
 
@@ -22,15 +23,13 @@ export interface PaymentStatusPieProps {
  * A pie chart component for displaying payment status distribution.
  * Includes a legend below the chart.
  */
-export const PaymentStatusPie = ({
-  data,
-  title = 'توزيع حالات الدفع',
-  height = 300,
-}: PaymentStatusPieProps) => {
+export const PaymentStatusPie = ({ data, title, height = 300 }: PaymentStatusPieProps) => {
+  const translate = useTranslate();
+  const displayTitle = title ?? translate('custom.charts.payment_status_dist');
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
-        {title}
+        {displayTitle}
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <ResponsiveContainer width="100%" height={height}>

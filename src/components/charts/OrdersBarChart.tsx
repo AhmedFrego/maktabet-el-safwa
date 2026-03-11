@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslate } from 'react-admin';
 import {
   BarChart,
   Bar,
@@ -32,14 +33,16 @@ export interface OrdersBarChartProps {
  */
 export const OrdersBarChart = ({
   data,
-  title = 'عدد الطلبات اليومية',
+  title,
   height = 300,
   barColor = '#2196f3',
 }: OrdersBarChartProps) => {
+  const translate = useTranslate();
+  const displayTitle = title ?? translate('custom.charts.daily_orders');
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
-        {title}
+        {displayTitle}
       </Typography>
       <Box sx={{ width: '100%', height }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -49,7 +52,7 @@ export const OrdersBarChart = ({
             <YAxis />
             <Tooltip labelFormatter={formatDate} />
             <Legend />
-            <Bar dataKey="orders" fill={barColor} name="الطلبات" />
+            <Bar dataKey="orders" fill={barColor} name={translate('custom.charts.orders')} />
           </BarChart>
         </ResponsiveContainer>
       </Box>

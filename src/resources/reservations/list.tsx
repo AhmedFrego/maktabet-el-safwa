@@ -81,8 +81,14 @@ export const ReservationList = () => {
         data: reservations,
       }: ListControllerResult<Reservation, Error>) => {
         if (isPending) return <Loading />;
-        if (error) return <Box>Error: {error.message}</Box>;
-        if (!reservations.length) return <div>No Items ...</div>;
+        if (error)
+          return (
+            <Box>
+              {translate('custom.messages.error_prefix')}: {error.message}
+            </Box>
+          );
+        if (!reservations.length)
+          return <div>{translate('resources.reservations.messages.no_items')}</div>;
 
         return (
           <StyledContainer sx={{ flexDirection: 'column' }}>

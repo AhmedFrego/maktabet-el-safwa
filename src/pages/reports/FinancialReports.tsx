@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Typography, CircularProgress, Alert, Paper, Grid } from '@mui/material';
-import { Title } from 'react-admin';
+import { Title, useTranslate } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ar';
 import { useFinancialStats } from 'hooks';
@@ -9,6 +9,7 @@ import { DateRangeFilter, ColoredSummaryCard } from 'components/UI';
 import { DailyRevenueChart, OrdersBarChart, PaymentStatusPie } from 'components/charts';
 
 export const FinancialReports = () => {
+  const translate = useTranslate();
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
 
@@ -17,7 +18,7 @@ export const FinancialReports = () => {
   if (stats.error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Title title="التقارير المالية" />
+        <Title title={translate('custom.financial.title')} />
         <Alert severity="error">{stats.error}</Alert>
       </Box>
     );
@@ -25,10 +26,10 @@ export const FinancialReports = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Title title="التقارير المالية" />
+      <Title title={translate('custom.financial.title')} />
 
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        التقارير المالية
+        {translate('custom.financial.title')}
       </Typography>
 
       {/* Date Range Filter */}
@@ -40,7 +41,7 @@ export const FinancialReports = () => {
         }}
       />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, mt: -2 }}>
-        {toArabicNumerals(stats.totalOrders)} طلب إجمالي
+        {toArabicNumerals(stats.totalOrders)} {translate('custom.labels.order_total')}
       </Typography>
 
       {stats.loading ? (
@@ -53,9 +54,11 @@ export const FinancialReports = () => {
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="إجمالي الإيرادات"
+                title={translate('custom.stats.total_revenue')}
                 value={formatCurrency(stats.totalRevenue)}
-                subtitle={`من ${toArabicNumerals(stats.totalOrders)} طلب`}
+                subtitle={translate('custom.stats.from_orders', {
+                  count: toArabicNumerals(stats.totalOrders),
+                })}
                 bgcolor="success.light"
                 textColor="success.contrastText"
               />
@@ -63,9 +66,9 @@ export const FinancialReports = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="المبالغ المتبقية"
+                title={translate('custom.stats.remaining_amounts')}
                 value={formatCurrency(stats.totalPending)}
-                subtitle="مستحقات غير مدفوعة"
+                subtitle={translate('custom.stats.unpaid_dues')}
                 bgcolor="warning.light"
                 textColor="warning.contrastText"
               />
@@ -73,9 +76,9 @@ export const FinancialReports = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="متوسط قيمة الطلب"
+                title={translate('custom.stats.avg_order_value')}
                 value={formatCurrency(stats.averageOrderValue)}
-                subtitle="القيمة المتوسطة"
+                subtitle={translate('custom.stats.avg_value')}
                 bgcolor="info.light"
                 textColor="info.contrastText"
               />
@@ -83,9 +86,11 @@ export const FinancialReports = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="الطلبات المكتملة"
+                title={translate('custom.stats.completed_orders')}
                 value={toArabicNumerals(stats.completedOrders)}
-                subtitle={`من ${toArabicNumerals(stats.totalOrders)} طلب`}
+                subtitle={translate('custom.stats.from_orders', {
+                  count: toArabicNumerals(stats.totalOrders),
+                })}
                 bgcolor="primary.light"
                 textColor="primary.contrastText"
               />
@@ -95,7 +100,7 @@ export const FinancialReports = () => {
           {/* Daily Revenue Chart */}
           <Paper sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
-              الإيرادات اليومية
+              {translate('custom.charts.daily_revenue')}
             </Typography>
             <DailyRevenueChart data={stats.dailyRevenue} />
           </Paper>
@@ -103,7 +108,7 @@ export const FinancialReports = () => {
           {/* Orders per Day Chart */}
           <Paper sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
-              عدد الطلبات اليومية
+              {translate('custom.charts.daily_orders')}
             </Typography>
             <OrdersBarChart data={stats.dailyRevenue} />
           </Paper>
@@ -111,7 +116,7 @@ export const FinancialReports = () => {
           {/* Payment Status Distribution */}
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              توزيع حالات الدفع
+              {translate('custom.charts.payment_status_dist')}
             </Typography>
             <PaymentStatusPie paymentStatus={stats.paymentStatus} />
           </Paper>

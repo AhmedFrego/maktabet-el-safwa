@@ -140,7 +140,9 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
     // Validation
     const invalidItems = items.filter((item) => item.pages <= 0);
     if (invalidItems.length > 0) {
-      notify('يجب أن يكون عدد الصفحات أكبر من صفر', { type: 'error' });
+      notify(translate('resources.reservations.messages.pages_must_be_positive'), {
+        type: 'error',
+      });
       return;
     }
 
@@ -149,7 +151,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session) {
-        notify('يجب تسجيل الدخول', { type: 'error' });
+        notify(translate('resources.reservations.messages.must_login'), { type: 'error' });
         return;
       }
 
@@ -162,7 +164,9 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
 
         return {
           id: item.id,
-          title: `طباعة مباشرة #${index + 1}`,
+          title: translate('resources.reservations.messages.direct_print_title', {
+            index: toArabicNumerals(index + 1),
+          }),
           pages: item.pages,
           paper_type_id: item.paperTypeId,
           paper_type: { name: paperType?.name || '' },
@@ -199,7 +203,9 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
 
       await dataProvider.create('reservations', { data: reservationData });
 
-      notify('تم إنشاء الطباعة المباشرة بنجاح', { type: 'success' });
+      notify(translate('resources.reservations.messages.direct_print_created'), {
+        type: 'success',
+      });
 
       // Reset and close
       setItems([createDefaultItem()]);
@@ -207,7 +213,7 @@ export const DirectReservationModal = ({ open, onClose }: DirectReservationModal
       onClose();
     } catch (error) {
       console.error('Error creating direct reservation:', error);
-      notify('حدث خطأ أثناء إنشاء الطباعة المباشرة', { type: 'error' });
+      notify(translate('resources.reservations.messages.direct_print_error'), { type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -411,7 +417,7 @@ const DirectReservationItemRow = ({
         <TextField
           type="text"
           size="small"
-          label="سعر الورق/١٠٠"
+          label={translate('custom.labels.paper_price_per_100')}
           value={(() => {
             if (item.paperPriceOverride !== null) {
               return item.paperPriceOverride;

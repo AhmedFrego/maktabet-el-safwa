@@ -224,7 +224,7 @@ export const AddCustomPublicationButton = () => {
                   <TextField
                     type="text"
                     size="small"
-                    label="سعر الورق/١٠٠"
+                    label={translate('custom.labels.paper_price_per_100')}
                     value={paperPrice || ''}
                     onChange={(e) => {
                       const input = e.target.value;

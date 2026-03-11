@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslate } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import { supabase } from 'lib/supabase';
 import { calculateReservationTotal } from 'utils';
@@ -51,6 +52,7 @@ interface UseAnalyticsProps {
 }
 
 export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): AnalyticsData => {
+  const translate = useTranslate();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     bestsellers: [],
     academicYearDistribution: [],
@@ -133,7 +135,7 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
           items.forEach((item: any) => {
             const pubId = item.id || '';
             const existing = publicationStats.get(pubId) || {
-              title: item.title || 'غير معروف',
+              title: item.title || translate('custom.labels.unknown'),
               quantity: 0,
               revenue: 0,
               orders: 0,
@@ -193,7 +195,7 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
         // Academic year distribution
         const academicYearDistribution = Array.from(academicYearMap.entries())
           .map(([year, data]) => ({
-            year: translateAcademicYear(year),
+            year: translate(`custom.labels.academic_years.${year}.name`, { _: year }),
             count: data.count,
             revenue: data.revenue,
           }))
@@ -201,14 +203,14 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
 
         // Term distribution
         const termDistribution = Array.from(termMap.entries()).map(([term, data]) => ({
-          term: translateTerm(term),
+          term: translate(`custom.labels.terms.${term}.name`, { _: term }),
           count: data.count,
           revenue: data.revenue,
         }));
 
         // Publication type distribution
         const publicationTypeDistribution = Array.from(typeMap.entries()).map(([type, data]) => ({
-          type: translatePublicationType(type),
+          type: translate(`custom.labels.publication_types.${type}`, { _: type }),
           count: data.count,
           revenue: data.revenue,
         }));
@@ -221,7 +223,8 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
 
         reservations.forEach((reservation) => {
           const clientId = reservation.client_id;
-          const clientName = (reservation.client as any)?.full_name || 'غير معروف';
+          const clientName =
+            (reservation.client as any)?.full_name || translate('custom.labels.unknown');
           const clientRole = (reservation.client as any)?.role || 'client';
           const reservationTotal = calculateReservationTotal(reservation.reserved_items);
           const existing = clientMap.get(clientId) || {
@@ -303,53 +306,13 @@ export const useAnalytics = ({ startDate, endDate }: UseAnalyticsProps): Analyti
         setAnalytics((prev) => ({
           ...prev,
           loading: false,
-          error: err instanceof Error ? err.message : 'فشل تحميل بيانات التحليلات',
+          error: err instanceof Error ? err.message : translate('custom.analytics.load_error'),
         }));
       }
     };
 
     fetchAnalytics();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, translate]);
 
   return analytics;
-};
-
-// Helper functions for translation
-const translateAcademicYear = (year: string): string => {
-  const translations: Record<string, string> = {
-    KG0: 'KG صفر',
-    KG1: 'KG أولى',
-    KG2: 'KG ثانية',
-    '1st_primary': 'الأول الابتدائي',
-    '2nd_primary': 'الثاني الابتدائي',
-    '3rd_primary': 'الثالث الابتدائي',
-    '4th_primary': 'الرابع الابتدائي',
-    '5th_primary': 'الخامس الابتدائي',
-    '6th_primary': 'السادس الابتدائي',
-    '1st_preparatory': 'الأول الإعدادي',
-    '2nd_preparatory': 'الثاني الإعدادي',
-    '3rd_preparatory': 'الثالث الإعدادي',
-    '1st_secondary': 'الأول الثانوي',
-    '2nd_secondary': 'الثاني الثانوي',
-    '3rd_secondary': 'الثالث الثانوي',
-  };
-  return translations[year] || year;
-};
-
-const translateTerm = (term: string): string => {
-  const translations: Record<string, string> = {
-    '1st': 'الفصل الأول',
-    '2nd': 'الفصل الثاني',
-    full_year: 'السنة الكاملة',
-  };
-  return translations[term] || term;
-};
-
-const translatePublicationType = (type: string): string => {
-  const translations: Record<string, string> = {
-    note: 'مذكرة',
-    book: 'كتاب',
-    other: 'أخرى',
-  };
-  return translations[type] || type;
 };

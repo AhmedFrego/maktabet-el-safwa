@@ -16,7 +16,7 @@ import {
   Chip,
   Typography,
 } from '@mui/material';
-import { Title } from 'react-admin';
+import { Title, useTranslate } from 'react-admin';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ar';
 import { useAnalytics } from 'hooks';
@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from 'store';
 import { setAnalyticsTab } from 'store/slices';
 
 export const Analytics = () => {
+  const translate = useTranslate();
   const dispatch = useAppDispatch();
   const currentTab = useAppSelector((state) => state.ui.analyticsActiveTab);
 
@@ -42,7 +43,7 @@ export const Analytics = () => {
   if (analytics.error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Title title="التحليلات والإحصائيات" />
+        <Title title={translate('custom.analytics.title')} />
         <Alert severity="error">{analytics.error}</Alert>
       </Box>
     );
@@ -52,10 +53,10 @@ export const Analytics = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Title title="التحليلات والإحصائيات" />
+      <Title title={translate('custom.analytics.title')} />
 
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        التحليلات والإحصائيات
+        {translate('custom.analytics.title')}
       </Typography>
 
       {/* Date Range Filter */}
@@ -77,9 +78,9 @@ export const Analytics = () => {
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="إجمالي العملاء"
+                title={translate('custom.stats.total_clients')}
                 value={toArabicNumerals(analytics.clientAnalytics.totalClients)}
-                subtitle={`VIP: ${toArabicNumerals(analytics.clientAnalytics.vipClients)}`}
+                subtitle={`${translate('custom.stats.vip')}: ${toArabicNumerals(analytics.clientAnalytics.vipClients)}`}
                 bgcolor="primary.light"
                 textColor="primary.contrastText"
               />
@@ -87,9 +88,9 @@ export const Analytics = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="التسليم في الموعد"
+                title={translate('custom.stats.on_time_delivery')}
                 value={toArabicNumerals(analytics.deliveryMetrics.onTime)}
-                subtitle={`من إجمالي ${toArabicNumerals(totalDeliveries)}`}
+                subtitle={`${translate('custom.stats.from_total')} ${toArabicNumerals(totalDeliveries)}`}
                 bgcolor="success.light"
                 textColor="success.contrastText"
               />
@@ -97,9 +98,9 @@ export const Analytics = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="التسليم المتأخر"
+                title={translate('custom.stats.late_delivery')}
                 value={toArabicNumerals(analytics.deliveryMetrics.late)}
-                subtitle="طلبات متأخرة"
+                subtitle={translate('custom.stats.late_orders')}
                 bgcolor="error.light"
                 textColor="error.contrastText"
               />
@@ -107,9 +108,9 @@ export const Analytics = () => {
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ColoredSummaryCard
-                title="متوسط وقت التسليم"
+                title={translate('custom.stats.avg_delivery_time')}
                 value={toArabicNumerals(Math.round(analytics.deliveryMetrics.averageDeliveryTime))}
-                subtitle="ساعة"
+                subtitle={translate('custom.stats.hour')}
                 bgcolor="info.light"
                 textColor="info.contrastText"
               />
@@ -125,30 +126,32 @@ export const Analytics = () => {
               scrollButtons="auto"
               sx={{ borderBottom: 1, borderColor: 'divider' }}
             >
-              <Tab label="الأكثر مبيعاً" />
-              <Tab label="توزيع السنوات الدراسية" />
-              <Tab label="توزيع الفصول الدراسية" />
-              <Tab label="أنواع المطبوعات" />
-              <Tab label="أفضل العملاء" />
+              <Tab label={translate('custom.tabs.best_selling')} />
+              <Tab label={translate('custom.tabs.academic_year_dist')} />
+              <Tab label={translate('custom.tabs.term_dist')} />
+              <Tab label={translate('custom.tabs.publication_types')} />
+              <Tab label={translate('custom.tabs.top_clients')} />
             </Tabs>
 
             {/* Tab 0: Bestsellers */}
             <TabPanel value={currentTab} index={0} idPrefix="analytics">
               <Typography variant="h6" gutterBottom>
-                أفضل {toArabicNumerals(10)} مطبوعات مبيعاً
+                {translate('custom.tabs.top_publications', { count: toArabicNumerals(10) })}
               </Typography>
               {analytics.bestsellers.length === 0 ? (
-                <Alert severity="info">لا توجد بيانات لعرضها</Alert>
+                <Alert severity="info">{translate('custom.labels.no_data')}</Alert>
               ) : (
                 <TableContainer>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell>#</TableCell>
-                        <TableCell>العنوان</TableCell>
-                        <TableCell align="center">الكمية</TableCell>
-                        <TableCell align="center">عدد الطلبات</TableCell>
-                        <TableCell align="center">الإيرادات</TableCell>
+                        <TableCell>{translate('custom.labels.title')}</TableCell>
+                        <TableCell align="center">{translate('custom.labels.quantity')}</TableCell>
+                        <TableCell align="center">
+                          {translate('custom.labels.num_orders')}
+                        </TableCell>
+                        <TableCell align="center">{translate('custom.labels.revenue')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -176,10 +179,10 @@ export const Analytics = () => {
             {/* Tab 1: Academic Year Distribution */}
             <TabPanel value={currentTab} index={1} idPrefix="analytics">
               <Typography variant="h6" gutterBottom>
-                توزيع المبيعات حسب السنة الدراسية
+                {translate('custom.tabs.sales_by_year')}
               </Typography>
               {analytics.academicYearDistribution.length === 0 ? (
-                <Alert severity="info">لا توجد بيانات لعرضها</Alert>
+                <Alert severity="info">{translate('custom.labels.no_data')}</Alert>
               ) : (
                 <>
                   <DistributionBarChart
@@ -187,15 +190,17 @@ export const Analytics = () => {
                     xAxisKey="year"
                     dataKey="count"
                     title=""
-                    barName="الكمية"
+                    barName={translate('custom.labels.quantity')}
                   />
                   <TableContainer sx={{ mt: 3 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell>السنة الدراسية</TableCell>
-                          <TableCell align="center">الكمية</TableCell>
-                          <TableCell align="center">الإيرادات</TableCell>
+                          <TableCell>{translate('custom.labels.academic_year')}</TableCell>
+                          <TableCell align="center">
+                            {translate('custom.labels.quantity')}
+                          </TableCell>
+                          <TableCell align="center">{translate('custom.labels.revenue')}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -216,10 +221,10 @@ export const Analytics = () => {
             {/* Tab 2: Term Distribution */}
             <TabPanel value={currentTab} index={2} idPrefix="analytics">
               <Typography variant="h6" gutterBottom>
-                توزيع المبيعات حسب الفصل الدراسي
+                {translate('custom.tabs.sales_by_term')}
               </Typography>
               {analytics.termDistribution.length === 0 ? (
-                <Alert severity="info">لا توجد بيانات لعرضها</Alert>
+                <Alert severity="info">{translate('custom.labels.no_data')}</Alert>
               ) : (
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12, md: 6 }}>
@@ -235,9 +240,13 @@ export const Analytics = () => {
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell>الفصل الدراسي</TableCell>
-                            <TableCell align="center">الكمية</TableCell>
-                            <TableCell align="center">الإيرادات</TableCell>
+                            <TableCell>{translate('custom.labels.term')}</TableCell>
+                            <TableCell align="center">
+                              {translate('custom.labels.quantity')}
+                            </TableCell>
+                            <TableCell align="center">
+                              {translate('custom.labels.revenue')}
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -259,10 +268,10 @@ export const Analytics = () => {
             {/* Tab 3: Publication Type Distribution */}
             <TabPanel value={currentTab} index={3} idPrefix="analytics">
               <Typography variant="h6" gutterBottom>
-                توزيع المبيعات حسب نوع المطبوعة
+                {translate('custom.tabs.sales_by_type')}
               </Typography>
               {analytics.publicationTypeDistribution.length === 0 ? (
-                <Alert severity="info">لا توجد بيانات لعرضها</Alert>
+                <Alert severity="info">{translate('custom.labels.no_data')}</Alert>
               ) : (
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12, md: 6 }}>
@@ -278,9 +287,13 @@ export const Analytics = () => {
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell>نوع المطبوعة</TableCell>
-                            <TableCell align="center">الكمية</TableCell>
-                            <TableCell align="center">الإيرادات</TableCell>
+                            <TableCell>{translate('custom.labels.publication_type')}</TableCell>
+                            <TableCell align="center">
+                              {translate('custom.labels.quantity')}
+                            </TableCell>
+                            <TableCell align="center">
+                              {translate('custom.labels.revenue')}
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -302,19 +315,23 @@ export const Analytics = () => {
             {/* Tab 4: Top Clients */}
             <TabPanel value={currentTab} index={4} idPrefix="analytics">
               <Typography variant="h6" gutterBottom>
-                أفضل {toArabicNumerals(10)} عملاء
+                {translate('custom.tabs.top_clients_title', { count: toArabicNumerals(10) })}
               </Typography>
               {analytics.clientAnalytics.topClients.length === 0 ? (
-                <Alert severity="info">لا توجد بيانات لعرضها</Alert>
+                <Alert severity="info">{translate('custom.labels.no_data')}</Alert>
               ) : (
                 <TableContainer>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell>#</TableCell>
-                        <TableCell>اسم العميل</TableCell>
-                        <TableCell align="center">عدد الطلبات</TableCell>
-                        <TableCell align="center">إجمالي المشتريات</TableCell>
+                        <TableCell>{translate('custom.labels.client_name')}</TableCell>
+                        <TableCell align="center">
+                          {translate('custom.labels.num_orders')}
+                        </TableCell>
+                        <TableCell align="center">
+                          {translate('custom.labels.total_purchases')}
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>

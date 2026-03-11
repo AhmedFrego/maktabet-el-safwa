@@ -3,6 +3,7 @@ import { TrendingUp, Assignment, People, Payments } from '@mui/icons-material';
 import { StatCard, ColoredSummaryCard } from 'components/UI';
 import { formatCurrency } from 'utils/helpers/formatCurrency';
 import { toArabicNumerals } from 'utils';
+import { useTranslate } from 'react-admin';
 import type { DashboardStats } from '../types';
 
 interface QuickStatsSectionProps {
@@ -20,22 +21,23 @@ interface QuickStatsSectionProps {
  * Dashboard section displaying quick stats cards and financial summary cards.
  */
 export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionProps) => {
+  const translate = useTranslate();
   return (
     <>
       {/* Quick Stats */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="إيرادات اليوم"
+            title={translate('custom.stats.today_revenue')}
             value={stats.todayRevenue.toFixed(2)}
             icon={<TrendingUp />}
             color="success"
-            suffix="ج.م"
+            suffix={translate('custom.currency.short')}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="طلبات قيد التنفيذ"
+            title={translate('custom.stats.in_progress_orders')}
             value={stats.pendingOrders}
             icon={<Assignment />}
             color="warning"
@@ -43,7 +45,7 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="إجمالي الطلبات (٣٠ يوم)"
+            title={translate('custom.stats.total_orders_30d')}
             value={stats.totalReservations}
             icon={<Payments />}
             color="info"
@@ -51,7 +53,7 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="العملاء النشطين"
+            title={translate('custom.stats.active_clients')}
             value={stats.activeClients}
             icon={<People />}
             color="primary"
@@ -63,11 +65,11 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <ColoredSummaryCard
-            title="إجمالي الإيرادات"
+            title={translate('custom.stats.total_revenue')}
             value={formatCurrency(financialStats.totalRevenue)}
-            subtitle="من"
+            subtitle={translate('custom.stats.from')}
             count={financialStats.totalOrders}
-            countLabel="طلب"
+            countLabel={translate('custom.stats.order')}
             bgcolor="success.light"
             textColor="success.contrastText"
           />
@@ -75,9 +77,9 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <ColoredSummaryCard
-            title="المبالغ المتبقية"
+            title={translate('custom.stats.remaining_amounts')}
             value={formatCurrency(financialStats.totalPending)}
-            subtitle="مستحقات غير مدفوعة"
+            subtitle={translate('custom.stats.unpaid_dues')}
             bgcolor="warning.light"
             textColor="warning.contrastText"
           />
@@ -85,9 +87,9 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <ColoredSummaryCard
-            title="متوسط قيمة الطلب"
+            title={translate('custom.stats.avg_order_value')}
             value={formatCurrency(financialStats.averageOrderValue)}
-            subtitle="القيمة المتوسطة"
+            subtitle={translate('custom.stats.avg_value')}
             bgcolor="info.light"
             textColor="info.contrastText"
           />
@@ -95,11 +97,11 @@ export const QuickStatsSection = ({ stats, financialStats }: QuickStatsSectionPr
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <ColoredSummaryCard
-            title="الطلبات المكتملة"
+            title={translate('custom.stats.completed_orders')}
             value={toArabicNumerals(financialStats.completedOrders)}
-            subtitle="من"
+            subtitle={translate('custom.stats.from')}
             count={financialStats.totalOrders}
-            countLabel="طلب"
+            countLabel={translate('custom.stats.order')}
             bgcolor="primary.light"
             textColor="primary.contrastText"
           />

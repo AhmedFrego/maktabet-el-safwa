@@ -16,7 +16,7 @@ import { ReservationRecord } from 'store';
 export const ReservationShow = () => {
   const translate = useTranslate();
   return (
-    <Show<Reservation> title="تفاصيل الحجز">
+    <Show<Reservation> title={translate('resources.reservations.labels.details')}>
       <SimpleShowLayout>
         <FunctionField
           source="reservation_status"
@@ -51,7 +51,7 @@ export const ReservationShow = () => {
                       source="delivered_at"
                       render={(record) => {
                         const { day, dayOfWeek, month, time } = formatDateTime(record.delivered_at);
-                        return `${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`;
+                        return `${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? translate('custom.labels.am') : translate('custom.labels.pm')}`;
                       }}
                     />
                   </DividedContainer>
@@ -88,7 +88,7 @@ export const ReservationShow = () => {
             source="created_at"
             render={(record) => {
               const { day, dayOfWeek, month, time } = formatDateTime(record.created_at);
-              return `${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? 'ص' : 'م'}`;
+              return `${translateDayToArabic(dayOfWeek.day)} - ${toArabicNumerals(month)}/${toArabicNumerals(day)} - ${toArabicNumerals(time.hourMinute)} ${time.meridiem === 'AM' ? translate('custom.labels.am') : translate('custom.labels.pm')}`;
             }}
           />
         </DividedContainer>

@@ -124,7 +124,7 @@ export const PublicationShow = () => {
             </DividedContainer>
 
             <FunctionField
-              label="Name"
+              label={false}
               render={(record) => {
                 if (record.updated_at && record.updated_by)
                   return (
@@ -223,7 +223,7 @@ const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
         />
       </Box>
       <Typography>
-        طباعة على الوجهين :
+        {translate('custom.labels.duplex_print')} :
         <Switch
           value={dublix}
           defaultChecked={dublix}
@@ -237,11 +237,12 @@ const CustomPriceField = ({ record }: { record: Tables<'publications'> }) => {
 
 const CoverImageField = ({ source, defaultSrc }: { source: string; defaultSrc: string }) => {
   const record = useRecordContext();
+  const translate = useTranslate();
   const value = record?.[source] || defaultSrc;
   return value ? (
     <img
       src={value}
-      alt="cover"
+      alt={translate('resources.publications.messages.cover_alt')}
       style={{ width: '100%', height: 'auto', maxHeight: '35em', objectFit: 'contain' }}
     />
   ) : null;
@@ -266,7 +267,7 @@ const RelatedPublicationsField = ({ record }: { record: Tables<'publications'> }
         const results = await Promise.all(promises);
         const additionalDataList = results.map((result) => ({
           id: result.data?.id || '',
-          name: result.data?.additional_data || 'لا يوجد اسم',
+          name: result.data?.additional_data || translate('custom.labels.no_name'),
         }));
         setRelatedData(additionalDataList);
       } catch (error) {

@@ -178,7 +178,7 @@ export const ExtrasAccordion = ({
 
         <Box sx={{ width: '100%', gap: 1, display: 'flex', flexDirection: 'column' }}>
           <Typography>
-            {toArabicNumerals('تعديل السعر بقيمة (5, - 10 , إلخ ...) بالجنيه')}
+            {toArabicNumerals(translate('resources.publications.messages.change_price_help'))}
           </Typography>
 
           <Box sx={{ width: '100%', gap: 1, display: 'flex' }}>

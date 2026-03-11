@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslate } from 'react-admin';
 import {
   LineChart,
   Line,
@@ -29,15 +30,13 @@ export interface DailyRevenueChartProps {
 /**
  * A line chart component for displaying daily revenue trends.
  */
-export const DailyRevenueChart = ({
-  data,
-  title = 'الإيرادات اليومية',
-  height = 300,
-}: DailyRevenueChartProps) => {
+export const DailyRevenueChart = ({ data, title, height = 300 }: DailyRevenueChartProps) => {
+  const translate = useTranslate();
+  const displayTitle = title ?? translate('custom.charts.daily_revenue');
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
-        {title}
+        {displayTitle}
       </Typography>
       <Box sx={{ width: '100%', height }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -55,7 +54,7 @@ export const DailyRevenueChart = ({
               dataKey="revenue"
               stroke="#4caf50"
               strokeWidth={2}
-              name="الإيرادات"
+              name={translate('custom.charts.revenue')}
             />
           </LineChart>
         </ResponsiveContainer>

@@ -65,7 +65,8 @@ export const Settings = () => {
     deliver_after: string;
     branch_phone_numbers: PhoneNumberPrimitiveShape[];
   }> = (params) => {
-    if (!setting?.id) return Promise.reject(new Error('missing setting id'));
+    if (!setting?.id)
+      return Promise.reject(new Error(translate('custom.settings.missing_setting_id')));
     const transformedPapersPrices = toPaperType(
       params.paper_prices ?? {}
     ) as unknown as PaperPricesType[];
@@ -101,7 +102,7 @@ export const Settings = () => {
   return (
     <ResourceContextProvider value="settings">
       <Form onSubmit={submitHandler}>
-        <Title title={`إعدادات ${setting?.branch_name}`} />
+        <Title title={translate('custom.settings.title', { branch: setting?.branch_name })} />
         <PrintingPrices />
         <CoversPrices />
 
@@ -116,7 +117,7 @@ export const Settings = () => {
             mt: 2,
           })}
         >
-          إعدادات عامة
+          {translate('custom.settings.general')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
           <YearInput
@@ -156,23 +157,33 @@ export const Settings = () => {
             mt: 2,
           })}
         >
-          إعدادات الحجز (محلية)
+          {translate('custom.settings.reservation_local')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 4, mt: 3, flexWrap: 'wrap' }}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">تحميل الإيصال عند الحجز</FormLabel>
+            <FormLabel component="legend">
+              {translate('custom.settings.download_receipt')}
+            </FormLabel>
             <RadioGroup row value={receiptFormat} onChange={handleReceiptFormatChange}>
               <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
-              <FormControlLabel value="jpg" control={<Radio />} label="صورة JPG" />
-              <FormControlLabel value="none" control={<Radio />} label="بدون تحميل" />
+              <FormControlLabel
+                value="jpg"
+                control={<Radio />}
+                label={translate('custom.settings.jpg_image')}
+              />
+              <FormControlLabel
+                value="none"
+                control={<Radio />}
+                label={translate('custom.settings.no_download')}
+              />
             </RadioGroup>
           </FormControl>
 
           <FormControl component="fieldset">
-            <FormLabel component="legend">طباعة تلقائية</FormLabel>
+            <FormLabel component="legend">{translate('custom.settings.auto_print')}</FormLabel>
             <FormControlLabel
               control={<Checkbox checked={autoPrint} onChange={handleAutoPrintChange} />}
-              label="طباعة الإيصال تلقائياً عند الحجز"
+              label={translate('custom.settings.auto_print_desc')}
             />
           </FormControl>
         </Box>

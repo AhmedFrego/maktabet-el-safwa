@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { Box, Modal } from '@mui/material';
-import { Edit, SimpleForm, useRedirect, useNotify, useStore } from 'react-admin';
+import { Edit, SimpleForm, useRedirect, useNotify, useStore, useTranslate } from 'react-admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 
@@ -36,6 +36,7 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
   const dispatch = useAppDispatch();
   const redirect = useRedirect();
   const notify = useNotify();
+  const translate = useTranslate();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const { groupRelatedItems } = useCalcGroupPrice();
 
@@ -171,16 +172,16 @@ export const ReservationEditModal = ({ open, onClose, reservation }: Reservation
         .single();
 
       setReceiptData({
-        clientName: client?.full_name || 'العميل',
+        clientName: client?.full_name || translate('custom.labels.client'),
         clientPhone: client?.phone_number || undefined,
         reservationCode: data.reservation_code || reservation.reservation_code,
         paidAmount: data.paid_amount,
       });
 
-      notify('تم تعديل الحجز بنجاح', { type: 'success' });
+      notify(translate('resources.reservations.messages.reservation_updated'), { type: 'success' });
     } catch (error) {
       console.error('Error fetching client:', error);
-      notify('تم تعديل الحجز بنجاح', { type: 'success' });
+      notify(translate('resources.reservations.messages.reservation_updated'), { type: 'success' });
       handleClose();
     }
   };

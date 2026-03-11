@@ -191,7 +191,10 @@ export const PublicationDataModal = ({
         try {
           coverUrl = await uploadCover(coverFile);
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'خطأ في تحميل الصورة';
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : translate('resources.publications.messages.image_load_error');
           notify(errorMessage, { type: 'error' });
           setIsUploading(false);
           return;
@@ -268,7 +271,10 @@ export const PublicationDataModal = ({
         }
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : translate('resources.publications.messages.unexpected_error');
       notify(errorMessage, { type: 'error' });
       setIsUploading(false);
     }

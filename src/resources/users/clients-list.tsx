@@ -25,24 +25,6 @@ import { Loading } from 'components/UI';
 import { Tables, Enums } from 'types';
 import { toArabicNumerals } from 'utils';
 
-const ACADEMIC_YEAR_LABELS: Record<Enums<'academic_years'>, string> = {
-  KG0: 'تمهيدي',
-  KG1: 'KG1',
-  KG2: 'KG2',
-  '1st_primary': 'أولى ابتدائي',
-  '2nd_primary': 'ثانية ابتدائي',
-  '3rd_primary': 'ثالثة ابتدائي',
-  '4th_primary': 'رابعة ابتدائي',
-  '5th_primary': 'خامسة ابتدائي',
-  '6th_primary': 'سادسة ابتدائي',
-  '1st_preparatory': 'أولى إعدادي',
-  '2nd_preparatory': 'ثانية إعدادي',
-  '3rd_preparatory': 'ثالثة إعدادي',
-  '1st_secondary': 'أولى ثانوي',
-  '2nd_secondary': 'ثانية ثانوي',
-  '3rd_secondary': 'ثالثة ثانوي',
-};
-
 export const ClientsList = () => {
   const translate = useTranslate();
 
@@ -75,11 +57,16 @@ export const ClientsList = () => {
       storeKey={false}
       render={({ isPending, error, data: clients }: ListControllerResult<Tables<'users'>>) => {
         if (isPending) return <Loading />;
-        if (error) return <Box>Error: {error.message}</Box>;
+        if (error)
+          return (
+            <Box>
+              {translate('custom.messages.error_prefix')}: {error.message}
+            </Box>
+          );
         if (!clients?.length)
           return (
             <Typography sx={{ p: 2 }} color="text.secondary">
-              لا يوجد عملاء
+              {translate('resources.users.empty')}
             </Typography>
           );
 
@@ -111,6 +98,7 @@ export const ClientsList = () => {
 };
 
 const ClientRow = ({ client }: { client: Tables<'users'> }) => {
+  const translate = useTranslate();
   const [update] = useUpdate<Tables<'users'>>();
   const [editingField, setEditingField] = useState<'full_name' | 'phone_number' | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -128,7 +116,7 @@ const ClientRow = ({ client }: { client: Tables<'users'> }) => {
     if (!editingField) return;
     const trimmed = editValue.trim();
     if (editingField === 'phone_number' && trimmed && !PHONE_REGEX.test(trimmed)) {
-      setError('لا يبدو كرقم هاتف صحيح');
+      setError(translate('custom.messages.invalid_phone'));
       return;
     }
     if (trimmed && trimmed !== (client[editingField] || '')) {
@@ -202,7 +190,13 @@ const ClientRow = ({ client }: { client: Tables<'users'> }) => {
       <TableCell>
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           {years?.length
-            ? years.map((y) => <Chip key={y} label={ACADEMIC_YEAR_LABELS[y] || y} size="small" />)
+            ? years.map((y) => (
+                <Chip
+                  key={y}
+                  label={translate(`custom.labels.academic_years.${y}.name`, { _: y })}
+                  size="small"
+                />
+              ))
             : '—'}
         </Box>
       </TableCell>

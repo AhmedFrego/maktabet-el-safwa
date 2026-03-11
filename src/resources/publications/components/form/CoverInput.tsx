@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { ImageField, ImageInput, useInput } from 'react-admin';
+import { ImageField, ImageInput, useInput, useTranslate } from 'react-admin';
 import { Box, IconButton } from '@mui/material';
 import { RemoveCircle } from '@mui/icons-material';
 
 export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
   const { field } = useInput({ source });
+  const translate = useTranslate();
   const currentValue = field.value;
 
   // Check if we have an image - either a file object or a URL string
@@ -103,7 +104,7 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
           <Box
             component="img"
             src={currentValue}
-            alt="Current cover"
+            alt={translate('resources.publications.messages.cover_alt')}
             sx={{
               width: '210px !important',
               height: '297px !important',
@@ -124,7 +125,7 @@ export const CoverInput = ({ source = 'cover_url' }: CoverInputProps) => {
               backgroundColor: 'background.paper',
               '&:hover': { backgroundColor: 'action.hover' },
             }}
-            aria-label="Remove image"
+            aria-label={translate('resources.publications.messages.remove_image')}
           >
             <RemoveCircle color="error" />
           </IconButton>
